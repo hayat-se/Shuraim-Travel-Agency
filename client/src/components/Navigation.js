@@ -41,8 +41,8 @@ const Navigation = ({ user, setUser, navbarOpen, toggleNavbar }) => {
       <nav className={`navbar ${navbarOpen ? 'navbar-open' : 'navbar-closed'}`}>
         <div className="navbar-container">
           <div className="navbar-header">
-            <h1 className="navbar-title">IBN-E-ADAM</h1>
-            <p className="navbar-subtitle">Shuraim Group of Travel</p>
+            <h1 className="navbar-title">Shuraim Air Travels & Tours</h1>
+            <p className="navbar-subtitle">Your Travel Partner</p>
           </div>
 
           <div className="nav-menu">
