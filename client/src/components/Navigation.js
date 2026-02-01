@@ -24,6 +24,7 @@ const Navigation = ({ user, setUser, navbarOpen, toggleNavbar }) => {
     ]
     : [
       { label: 'Dashboard', icon: '📊', path: '/agency/dashboard' },
+      { label: 'Search Flights', icon: '🔍', path: '/agency/search-flights' },
       { label: 'My Bookings', icon: '📋', path: '/agency/my-bookings' },
       { label: 'My Ledger', icon: '📑', path: '/agency/ledger' },
       { label: 'Payments', icon: '💳', path: '/agency/payments' },
