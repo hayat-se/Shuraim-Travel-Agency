@@ -14,7 +14,6 @@ const BookingForm = () => {
 
   useEffect(() => {
     fetchFlight();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [flightId]);
 
   const fetchFlight = async () => {
@@ -77,7 +76,7 @@ const BookingForm = () => {
 
       if (isAgency) {
         // Agency booking with authentication
-        await apiClient.post('/api/bookings', {
+        const response = await apiClient.post('/api/bookings', {
           flightId,
           seatsBooked: seatsToBook,
           passengers
@@ -85,7 +84,7 @@ const BookingForm = () => {
         alert('Booking confirmed! Check your email for the e-ticket.');
       } else {
         // Guest booking without authentication
-        await apiClient.post('/api/bookings/guest', {
+        const response = await apiClient.post('/api/bookings/guest', {
           flightId,
           seatsBooked: seatsToBook,
           passengers

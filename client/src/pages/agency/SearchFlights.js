@@ -7,6 +7,7 @@ const SearchFlights = () => {
   const [searchParams] = useSearchParams();
   const initialGroup = searchParams.get('group') || 'ALL';
   const [selectedGroup, setSelectedGroup] = useState(initialGroup);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [filters, setFilters] = useState({
     departureCity: '',
     destinationCity: '',
@@ -19,6 +20,11 @@ const SearchFlights = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsLoggedIn(!!token);
+  }, []);
 
   useEffect(() => {
     const groupFromUrl = searchParams.get('group') || 'ALL';
