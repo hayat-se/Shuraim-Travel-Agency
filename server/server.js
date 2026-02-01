@@ -23,6 +23,14 @@ const allowedOrigins = (process.env.CORS_ORIGIN || '')
   .map((origin) => origin.trim())
   .filter(Boolean);
 
+// Add Vercel-provided URL if present (VERCEL_URL is without protocol)
+if (process.env.VERCEL_URL) {
+  const vercelOrigin = `https://${process.env.VERCEL_URL}`;
+  if (!allowedOrigins.includes(vercelOrigin)) {
+    allowedOrigins.push(vercelOrigin);
+  }
+}
+
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
