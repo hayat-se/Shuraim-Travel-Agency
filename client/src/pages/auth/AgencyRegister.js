@@ -44,7 +44,7 @@ const AgencyRegister = () => {
 
     try {
       const { confirmPassword, ...submitData } = formData;
-      const response = await apiClient.post('/api/auth/agency/register', submitData);
+      await apiClient.post('/api/auth/agency/register', submitData);
 
       setSuccess('Registration successful! Your request is pending admin approval. You will be notified via email.');
       setTimeout(() => navigate('/agency/login'), 2000);
