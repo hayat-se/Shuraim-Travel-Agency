@@ -1,0 +1,172 @@
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import './App.css';
+
+// Common Components
+import ErrorBoundary from './components/ErrorBoundary';
+
+// Landing Page
+import LandingPage from './pages/LandingPage';
+
+// Auth Pages
+import AdminLogin from './pages/auth/AdminLogin';
+import AgencyRegister from './pages/auth/AgencyRegister';
+import AgencyLogin from './pages/auth/AgencyLogin';
+
+// Admin Pages
+import AdminDashboard from './pages/admin/AdminDashboard';
+import FlightManagement from './pages/admin/FlightManagement';
+import AgencyManagement from './pages/admin/AgencyManagement';
+import AllBookings from './pages/admin/AllBookings';
+import BankManagement from './pages/admin/BankManagement';
+import PaymentManagement from './pages/admin/PaymentManagement';
+import FeedbackManagement from './pages/admin/FeedbackManagement';
+
+// Agency Pages
+import AgencyDashboard from './pages/agency/AgencyDashboard';
+import SearchFlights from './pages/agency/SearchFlights';
+import BookingForm from './pages/agency/BookingForm';
+import MyBookings from './pages/agency/MyBookings';
+import MyLedger from './pages/agency/MyLedger';
+import Payments from './pages/agency/Payments';
+import Banks from './pages/agency/Banks';
+import GiveFeedback from './pages/agency/GiveFeedback';
+
+// Common Components
+import PrivateRoute from './components/PrivateRoute';
+import Navigation from './components/Navigation';
+
+function AppContent({ user, setUser, navbarOpen, toggleNavbar }) {
+  const location = useLocation();
+  const showNavigation = user || location.pathname === '/agency/search-flights' || location.pathname.startsWith('/agency/book/');
+
+  return (
+    <>
+      {showNavigation && <Navigation user={user} setUser={setUser} navbarOpen={navbarOpen} toggleNavbar={toggleNavbar} />}
+      <div className={`main-content ${navbarOpen ? 'navbar-open' : 'navbar-closed'}`}>
+        <Routes>
+          {/* Auth Routes */}
+          <Route path="/admin/login" element={<AdminLogin setUser={setUser} />} />
+          <Route path="/agency/register" element={<AgencyRegister />} />
+          <Route path="/agency/login" element={<AgencyLogin setUser={setUser} />} />
+
+            {/* Admin Routes */}
+            <Route path="/admin/dashboard" element={
+              <PrivateRoute user={user} role="admin">
+                <AdminDashboard />
+              </PrivateRoute>
+            } />
+            <Route path="/admin/flights" element={
+              <PrivateRoute user={user} role="admin">
+                <FlightManagement />
+              </PrivateRoute>
+            } />
+            <Route path="/admin/agencies" element={
+              <PrivateRoute user={user} role="admin">
+                <AgencyManagement />
+              </PrivateRoute>
+            } />
+            <Route path="/admin/bookings" element={
+              <PrivateRoute user={user} role="admin">
+                <AllBookings />
+              </PrivateRoute>
+            } />
+            <Route path="/admin/banks" element={
+              <PrivateRoute user={user} role="admin">
+                <BankManagement />
+              </PrivateRoute>
+            } />
+            <Route path="/admin/payments" element={
+              <PrivateRoute user={user} role="admin">
+                <PaymentManagement />
+              </PrivateRoute>
+            } />
+            <Route path="/admin/feedback" element={
+              <PrivateRoute user={user} role="admin">
+                <FeedbackManagement />
+              </PrivateRoute>
+            } />
+
+            {/* Agency Routes */}
+            <Route path="/agency/dashboard" element={
+              <PrivateRoute user={user} role="agency">
+                <AgencyDashboard />
+              </PrivateRoute>
+            } />
+            <Route path="/agency/search-flights" element={
+              <SearchFlights />
+            } />
+            <Route path="/agency/book/:flightId" element={
+              <BookingForm />
+            } />
+            <Route path="/agency/my-bookings" element={
+              <PrivateRoute user={user} role="agency">
+                <MyBookings />
+              </PrivateRoute>
+            } />
+            <Route path="/agency/ledger" element={
+              <PrivateRoute user={user} role="agency">
+                <MyLedger />
+              </PrivateRoute>
+            } />
+            <Route path="/agency/payments" element={
+              <PrivateRoute user={user} role="agency">
+                <Payments />
+              </PrivateRoute>
+            } />
+            <Route path="/agency/banks" element={
+              <PrivateRoute user={user} role="agency">
+                <Banks />
+              </PrivateRoute>
+            } />
+            <Route path="/agency/feedback" element={
+              <PrivateRoute user={user} role="agency">
+                <GiveFeedback />
+              </PrivateRoute>
+            } />
+
+            {/* Redirect */}
+            <Route path="/" element={user ? (user.role === 'admin' ? <Navigate to="/admin/dashboard" /> : <Navigate to="/agency/dashboard" />) : <LandingPage setUser={setUser} />} />
+          </Routes>
+        </div>
+      </>
+  );
+}
+
+function App() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [navbarOpen, setNavbarOpen] = useState(window.innerWidth > 768);
+
+  useEffect(() => {
+    // Comment this out to show landing page by default
+    // Uncomment to auto-login if token exists
+    /*
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
+    
+    if (token && userData) {
+      setUser(JSON.parse(userData));
+    }
+    */
+    setLoading(false);
+  }, []);
+
+  const toggleNavbar = () => {
+    setNavbarOpen(!navbarOpen);
+  };
+
+  if (loading) {
+    return <div className="loading">Loading...</div>;
+  }
+
+  return (
+    <ErrorBoundary>
+      <Router>
+        <AppContent user={user} setUser={setUser} navbarOpen={navbarOpen} toggleNavbar={toggleNavbar} />
+      </Router>
+    </ErrorBoundary>
+  );
+}
+
+export default App;
