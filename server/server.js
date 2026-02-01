@@ -156,7 +156,8 @@ db.sequelize.sync(isSqlite ? undefined : undefined)
     }
     
     // Start booking scheduler to auto-convert 'hold' to 'sold' when flight departs
-    startBookingScheduler();
+    // Temporarily disabled for debugging - uncomment when stable
+    // startBookingScheduler();
   })
   .catch(err => console.log('Database sync error:', err.message));
 
