@@ -28,144 +28,198 @@
 }
 
 .navbar {
-  background: linear-gradient(180deg, #0052a3 0%, #003d7a 100%);
-  color: white;
+  background: linear-gradient(180deg, #111827 0%, #0f172a 45%, #111827 100%);
+  color: #ffffff;
   padding: 0;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 8px 0 24px rgba(15, 23, 42, 0.35);
   position: fixed;
   left: 0;
   top: 0;
-  width: 220px;
+  width: 260px;
   height: 100vh;
   overflow-y: auto;
   z-index: 1000;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-.navbar-container {
-  padding: 20px 0;
+.navbar .navbar-container {
+  padding: 18px 16px;
   display: flex;
   flex-direction: column;
   height: 100%;
   width: 100%;
+  box-sizing: border-box;
+  align-items: stretch;
+  gap: 16px;
 }
 
-.navbar-header {
-  padding: 25px 20px;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-  margin-bottom: 25px;
-  text-align: center;
+.navbar .navbar-header {
+  padding: 6px 4px 14px 4px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  text-align: left;
 }
 
-.navbar-title {
-  font-size: 18px;
-  font-weight: 800;
-  color: white;
-  margin: 0 0 8px 0;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-}
-
-.navbar-subtitle {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.7);
-  margin: 0;
-  font-style: italic;
-  letter-spacing: 0.5px;
-}
-
-.nav-menu {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  flex: 1;
-  padding: 0 10px;
-}
-
-.menu-section {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.menu-title {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin: 15px 15px 5px 15px;
-  font-weight: 600;
-}
-
-.menu-items {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.nav-link {
-  color: white;
-  text-decoration: none;
-  padding: 14px 15px;
-  border-radius: 6px;
-  transition: all 0.3s ease;
+.navbar .portal-brand {
   display: flex;
   align-items: center;
-  font-size: 14px;
-  font-weight: 500;
-  border-left: 3px solid transparent;
   gap: 12px;
 }
 
-.menu-icon {
-  font-size: 16px;
+.navbar .portal-logo {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   display: flex;
   align-items: center;
-  min-width: 20px;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  color: white;
+  box-shadow: 0 10px 18px rgba(99, 102, 241, 0.35);
 }
 
-.menu-label {
+.navbar .portal-brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.navbar .navbar-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #f9fafb;
+  margin: 0;
+  letter-spacing: 0.4px;
+  text-transform: none;
+  line-height: 1.2;
+}
+
+.navbar .navbar-subtitle {
+  font-size: 12px;
+  color: rgba(226, 232, 240, 0.75);
+  margin: 0;
+  font-style: normal;
+  letter-spacing: 0.2px;
+  white-space: normal;
+}
+
+.navbar .nav-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   flex: 1;
+  padding: 0 2px;
+  box-sizing: border-box;
+  width: 100%;
+  align-items: stretch;
 }
 
-.nav-link:hover {
-  background-color: rgba(255, 255, 255, 0.15);
-  border-left-color: #ffeb3b;
-  padding-left: 18px;
-}
-
-.nav-user {
+.navbar .menu-section {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 20px 10px;
-  border-top: 2px solid rgba(255, 255, 255, 0.2);
-  margin-top: auto;
-}
-
-.user-info {
-  font-size: 11px;
-  word-break: break-all;
-  text-align: center;
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.logout-btn {
-  background-color: #d32f2f;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
-  transition: all 0.3s ease;
+  align-items: stretch;
   width: 100%;
 }
 
-.logout-btn:hover {
-  background-color: #b71c1c;
-  transform: scale(1.02);
+
+.navbar .menu-items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  align-items: stretch;
+}
+
+.navbar .portal-nav-link {
+  color: #e2e8f0;
+  text-decoration: none;
+  padding: 12px 14px;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  gap: 12px;
+  line-height: 1.2;
+  width: 100%;
+  box-sizing: border-box;
+  justify-content: flex-start;
+  text-align: left;
+  background: rgba(148, 163, 184, 0.08);
+}
+
+.navbar .portal-menu-icon {
+  font-size: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(99, 102, 241, 0.18);
+  box-shadow: inset 0 0 0 1px rgba(99, 102, 241, 0.25);
+}
+
+.navbar .portal-menu-label {
+  flex: 1;
+  min-width: 0;
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.navbar .portal-nav-link:hover {
+  background: rgba(99, 102, 241, 0.18);
+  border-color: rgba(99, 102, 241, 0.4);
+  transform: translateX(2px);
+  color: #ffffff;
+}
+
+.navbar .nav-user {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 12px;
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+  margin-top: auto;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.navbar .user-info {
+  font-size: 11px;
+  word-break: break-word;
+  text-align: left;
+  color: rgba(226, 232, 240, 0.75);
+  line-height: 1.3;
+}
+
+.navbar .logout-btn {
+  background: linear-gradient(135deg, #f43f5e 0%, #fb7185 100%);
+  color: white;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+  box-shadow: 0 10px 18px rgba(244, 63, 94, 0.3);
+}
+
+.navbar .logout-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 22px rgba(255, 61, 113, 0.32);
 }
 
 /* Responsive Navbar States */
@@ -184,7 +238,8 @@
   }
 
   .navbar {
-    width: 250px;
+    width: 86vw;
+    max-width: 320px;
   }
 
   .navbar.navbar-closed {
@@ -203,6 +258,6 @@
 
   .navbar {
     transform: translateX(0) !important;
-    width: 220px;
+    width: 260px;
   }
 }

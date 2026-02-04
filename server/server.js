@@ -31,6 +31,11 @@ if (process.env.VERCEL_URL) {
   }
 }
 
+// Allow localhost in development
+if (process.env.NODE_ENV !== 'production') {
+  allowedOrigins.push('http://localhost:3000', 'http://localhost:3001');
+}
+
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {

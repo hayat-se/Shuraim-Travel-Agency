@@ -1,10 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/LandingPage.css';
 
 const LandingPage = () => {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+
+  // Setup Intersection Observer for scroll animations
+  useEffect(() => {
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -100px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.animationPlayState = 'running';
+          observer.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+
+    // Observe all animated elements
+    const animatedElements = document.querySelectorAll(
+      '.service-card, .destination-card, .feature-item, .leadership-card, .contact-card, .section-header'
+    );
+
+    animatedElements.forEach(el => {
+      el.style.opacity = '0';
+      el.style.animationPlayState = 'paused';
+      observer.observe(el);
+    });
+
+    return () => {
+      animatedElements.forEach(el => observer.unobserve(el));
+    };
+  }, []);
 
   const scrollToSection = (sectionId) => {
     const section = document.getElementById(sectionId);
@@ -57,11 +90,15 @@ const LandingPage = () => {
             <li><a href="#services" className="nav-link" onClick={(e) => { e.preventDefault(); closeMenu(); setTimeout(() => scrollToSection('services'), 0); }}>Services</a></li>
             <li><a href="#about" className="nav-link" onClick={(e) => { e.preventDefault(); closeMenu(); setTimeout(() => scrollToSection('about'), 0); }}>About</a></li>
             <li><a href="#contact" className="nav-link" onClick={(e) => { e.preventDefault(); closeMenu(); setTimeout(() => scrollToSection('contact'), 0); }}>Contact</a></li>
+            <li className="drawer-actions">
+              <button className="nav-login" onClick={() => { navigate('/agency/login'); closeMenu(); }}>Agency Login</button>
+              <button className="nav-cta" onClick={() => { navigate('/agency/register'); closeMenu(); }}>Register Agency</button>
+            </li>
           </ul>
 
           {/* Right: Actions */}
           <div className="navbar-actions">
-            <button className="nav-login" onClick={() => { navigate('/agency/login'); closeMenu(); }}>Partner Login</button>
+            <button className="nav-login" onClick={() => { navigate('/agency/login'); closeMenu(); }}>Agency Login</button>
             <button className="nav-cta" onClick={() => { navigate('/agency/register'); closeMenu(); }}>Register Agency</button>
           </div>
 
@@ -88,11 +125,8 @@ const LandingPage = () => {
           <h2 className="hero-title">Welcome to Shuraim Air Travel & Tours</h2>
           <p className="hero-subtitle">Professional B2B Flight Booking Solutions for Travel Agencies</p>
           <div className="hero-buttons">
-            <button className="cta-btn primary" onClick={() => navigate('/agency/login')}>
-              Partner Portal
-            </button>
-            <button className="cta-btn secondary" onClick={() => scrollToSection('contact')}>
-              Get Started
+            <button className="cta-btn secondary" onClick={() => navigate('/admin/login')}>
+              Admin Login
             </button>
           </div>
         </div>
@@ -454,13 +488,7 @@ const LandingPage = () => {
                 <p>Our support team is available during business hours to help you</p>
               </div>
               <div className="quick-contact-actions">
-                <a href="tel:03469317338" className="quick-btn primary">
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                  </svg>
-                  Call Now
-                </a>
-                <a href="mailto:shuraimintl@gmail.com" className="quick-btn secondary">
+                <a href="mailto:shuraimintl@gmail.com" className="quick-btn primary">
                   <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
@@ -553,25 +581,13 @@ const LandingPage = () => {
                   <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
-                  Partner Registration
+                  Agency Registration
                 </a></li>
                 <li><a href="/agency/login">
                   <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                   Agency Login
-                </a></li>
-                <li><a href="/agency/search-flights">
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                  Search Flights
-                </a></li>
-                <li><a href="/admin/login">
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                  Admin Portal
                 </a></li>
               </ul>
             </div>
