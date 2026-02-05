@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import apiClient from '../../config/axiosConfig';
 import '../../styles/Management.css';
 
 const BankManagement = () => {
@@ -24,10 +24,7 @@ const BankManagement = () => {
 
   const loadBanks = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('/api/banks/admin', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await apiClient.get('/api/banks/admin');
       setBanks(response.data);
       setError('');
     } catch (err) {
@@ -49,10 +46,7 @@ const BankManagement = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token');
-      await axios.post('/api/banks/admin', form, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await apiClient.post('/api/banks/admin', form);
       setForm({
         bankName: '',
         accountTitle: '',
@@ -73,10 +67,7 @@ const BankManagement = () => {
 
   const toggleBankStatus = async (bank) => {
     try {
-      const token = localStorage.getItem('token');
-      await axios.put(`/api/banks/admin/${bank.id}`, { isActive: !bank.isActive }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await apiClient.put(`/api/banks/admin/${bank.id}`, { isActive: !bank.isActive });
       await loadBanks();
     } catch (err) {
       const message = err.response?.data?.error || err.message || 'Error updating bank';
