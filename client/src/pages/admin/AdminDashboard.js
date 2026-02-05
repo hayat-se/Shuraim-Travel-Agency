@@ -18,13 +18,13 @@ const AdminDashboard = () => {
   const groups = ['ALL', 'KSA', 'UAE', 'QATAR', 'BAHRAIN', 'OMAN', 'KUWAIT'];
 
   const groupIcons = {
-    'ALL': '🌍',
-    'KSA': '🕌',
-    'UAE': '🏙️',
-    'QATAR': '⛪',
-    'BAHRAIN': '🏖️',
-    'OMAN': '⛰️',
-    'KUWAIT': '🏛️'
+    'ALL': 'fa-globe',
+    'KSA': 'fa-mosque',
+    'UAE': 'fa-city',
+    'QATAR': 'fa-gopuram',
+    'BAHRAIN': 'fa-umbrella-beach',
+    'OMAN': 'fa-mountain',
+    'KUWAIT': 'fa-landmark'
   };
 
   useEffect(() => {
@@ -70,32 +70,32 @@ const AdminDashboard = () => {
         </div>
 
         <div className="stat-card warning">
-          <h3>⚠️ Pending Approvals</h3>
+          <h3><i className="fa-solid fa-exclamation-triangle"></i> Pending Approvals</h3>
           <p className="stat-number">{stats.pendingAgencies}</p>
         </div>
 
         <div className="stat-card sold">
-          <h3>✅ Sold Tickets</h3>
+          <h3><i className="fa-solid fa-check-circle"></i> Sold Tickets</h3>
           <p className="stat-number">{stats.soldTickets}</p>
         </div>
 
         <div className="stat-card hold">
-          <h3>⏸️ Hold Tickets</h3>
+          <h3><i className="fa-solid fa-pause-circle"></i> Hold Tickets</h3>
           <p className="stat-number">{stats.holdTickets}</p>
         </div>
 
         <div className="stat-card canceled">
-          <h3>❌ Cancelled Tickets</h3>
+          <h3><i className="fa-solid fa-times-circle"></i> Cancelled Tickets</h3>
           <p className="stat-number">{stats.canceledTickets}</p>
         </div>
       </div>
 
       <div className="flight-groups-section">
-        <h2>✈ Flight Groups</h2>
+        <h2><i className="fa-solid fa-plane"></i> Flight Groups</h2>
         <div className="group-filter-dashboard">
           {groups.map((group) => (
-            <a key={group} href={`/admin/flights?group=${group}`} className="group-btn-dashboard" style={{ '--group-icon': `'${groupIcons[group]}'` }}>
-              <span className="group-icon">{groupIcons[group]}</span>
+            <a key={group} href={`/admin/flights?group=${group}`} className="group-btn-dashboard">
+              <i className={`fa-solid ${groupIcons[group]}`}></i>
               <span className="group-name">{group}</span>
             </a>
           ))}

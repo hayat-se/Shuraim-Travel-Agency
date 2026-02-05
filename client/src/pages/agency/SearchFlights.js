@@ -99,7 +99,7 @@ const SearchFlights = () => {
       </div>
 
       <details className="search-filters">
-        <summary>🔍 Advanced Search Filters</summary>
+        <summary><i className="fa-solid fa-filter"></i> Advanced Search Filters</summary>
         <form onSubmit={handleSearch} className="search-form">
           <div className="form-row">
             <input
@@ -153,7 +153,7 @@ const SearchFlights = () => {
             />
           </div>
 
-          <button type="submit" className="search-btn">🔍 Apply Filters</button>
+          <button type="submit" className="search-btn"><i className="fa-solid fa-search"></i> Apply Filters</button>
         </form>
       </details>
 

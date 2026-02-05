@@ -109,7 +109,7 @@ const MyBookings = () => {
       {bookings.length === 0 ? (
         <div className="empty-state">
           <p>You haven't made any bookings yet.</p>
-          <a href="/agency/search-flights" className="btn">🔍 Search Flights</a>
+          <a href="/agency/search-flights" className="btn"><i className="fa-solid fa-search"></i> Search Flights</a>
         </div>
       ) : (
         <div className="bookings-list">
@@ -181,7 +181,7 @@ const MyBookings = () => {
                     className="btn-cancel"
                     onClick={() => handleCancelClick(booking)}
                   >
-                    ❌ Cancel Booking
+                    <i className="fa-solid fa-trash-alt"></i> Cancel Booking
                   </button>
                 )}
               </div>

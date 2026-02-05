@@ -309,7 +309,8 @@ const FlightManagement = () => {
           </div>
 
           <button type="submit" className="submit-btn">
-            {isEditing ? '💾 Update Flight' : '✈ Add Flight'}
+            <i className={`fa-solid ${isEditing ? 'fa-save' : 'fa-plane'}`}></i>
+            {isEditing ? ' Update Flight' : ' Add Flight'}
           </button>
         </form>
       )}

@@ -58,7 +58,7 @@ const Banks = () => {
 
       {banks.length === 0 ? (
         <div className="empty-state">
-          <div className="empty-icon">🏦</div>
+          <div className="empty-icon"><i className="fa-solid fa-university"></i></div>
           <h2>No Banks Available</h2>
           <p>The admin has not added any bank accounts yet. Please check back later.</p>
         </div>
@@ -81,7 +81,8 @@ const Banks = () => {
                       onClick={() => copyToClipboard(bank.accountTitle, bank.id)}
                       title="Copy to clipboard"
                     >
-                      {copiedBank === bank.id ? '✓ Copied' : 'Copy'}
+                      <i className={`fa-solid ${copiedBank === bank.id ? 'fa-check' : 'fa-copy'}`}></i>
+                      {copiedBank === bank.id ? ' Copied' : ' Copy'}
                     </button>
                   </div>
                 </div>
@@ -95,7 +96,8 @@ const Banks = () => {
                       onClick={() => copyToClipboard(bank.accountNumber, `acc-${bank.id}`)}
                       title="Copy to clipboard"
                     >
-                      {copiedBank === `acc-${bank.id}` ? '✓ Copied' : 'Copy'}
+                      <i className={`fa-solid ${copiedBank === `acc-${bank.id}` ? 'fa-check' : 'fa-copy'}`}></i>
+                      {copiedBank === `acc-${bank.id}` ? ' Copied' : ' Copy'}
                     </button>
                   </div>
                 </div>
@@ -110,7 +112,8 @@ const Banks = () => {
                         onClick={() => copyToClipboard(bank.iban, `iban-${bank.id}`)}
                         title="Copy to clipboard"
                       >
-                        {copiedBank === `iban-${bank.id}` ? '✓ Copied' : 'Copy'}
+                        <i className={`fa-solid ${copiedBank === `iban-${bank.id}` ? 'fa-check' : 'fa-copy'}`}></i>
+                        {copiedBank === `iban-${bank.id}` ? ' Copied' : ' Copy'}
                       </button>
                     </div>
                   </div>

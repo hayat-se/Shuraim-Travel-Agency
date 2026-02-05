@@ -217,7 +217,8 @@ const BookingForm = () => {
         </div>
 
         <button type="submit" className="submit-btn" disabled={submitting}>
-          {submitting ? 'Processing...' : '✓ Confirm Booking'}
+          <i className="fa-solid fa-check"></i>
+          {submitting ? 'Processing...' : ' Confirm Booking'}
         </button>
       </form>
     </div>

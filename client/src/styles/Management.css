@@ -137,11 +137,19 @@
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.3s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .submit-btn:hover {
   background-color: #004399;
 }
+
+.submit-btn i {
+  font-size: 16px;
+}
+
 
 .table-container {
   background: white;
@@ -268,7 +276,15 @@
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.3s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
+
+.btn-approve i, .btn-reject i, .btn-block i, .btn-cancel i, .btn-edit i {
+  font-size: 14px;
+}
+
 
 .btn-approve {
   background-color: #4caf50;
@@ -301,4 +317,14 @@
   padding: 20px;
   text-align: center;
   color: #666;
+}
+/* Rating Stars */
+.rating-stars {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.rating-stars i {
+  color: #ffc107;
+  font-size: 14px;
 }

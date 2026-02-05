@@ -77,11 +77,21 @@ const GiveFeedback = () => {
         <form onSubmit={handleSubmit}>
           <div className="form-grid">
             <select name="rating" value={form.rating} onChange={handleChange} required>
-              <option value="5">★★★★★ (5)</option>
-              <option value="4">★★★★ (4)</option>
-              <option value="3">★★★ (3)</option>
-              <option value="2">★★ (2)</option>
-              <option value="1">★ (1)</option>
+              <option value="5">
+                <i className="fa-solid fa-star"></i> 5 Stars
+              </option>
+              <option value="4">
+                <i className="fa-solid fa-star"></i> 4 Stars
+              </option>
+              <option value="3">
+                <i className="fa-solid fa-star"></i> 3 Stars
+              </option>
+              <option value="2">
+                <i className="fa-solid fa-star"></i> 2 Stars
+              </option>
+              <option value="1">
+                <i className="fa-solid fa-star"></i> 1 Star
+              </option>
             </select>
             <select name="category" value={form.category} onChange={handleChange}>
               <option value="general">General</option>
@@ -136,7 +146,13 @@ const GiveFeedback = () => {
                 <tr key={item.id}>
                   <td>{new Date(item.createdAt).toLocaleDateString()}</td>
                   <td>{item.category}</td>
-                  <td>{'★'.repeat(item.rating)}</td>
+                  <td>
+                    <span className="rating-stars">
+                      {Array.from({ length: item.rating }).map((_, i) => (
+                        <i key={i} className="fa-solid fa-star"></i>
+                      ))}
+                    </span>
+                  </td>
                   <td>{item.subject || '-'}</td>
                   <td><span className={`badge ${item.status}`}>{item.status}</span></td>
                 </tr>

@@ -78,7 +78,13 @@ const FeedbackManagement = () => {
                   <td>{new Date(item.createdAt).toLocaleDateString()}</td>
                   <td>{item.agency?.agencyName || 'Agency'}</td>
                   <td>{item.category}</td>
-                  <td>{'★'.repeat(item.rating)}</td>
+                  <td>
+                    <span className="rating-stars">
+                      {Array.from({ length: item.rating }).map((_, i) => (
+                        <i key={i} className="fa-solid fa-star"></i>
+                      ))}
+                    </span>
+                  </td>
                   <td>{item.message}</td>
                   <td><span className={`status ${item.status}`}>{item.status}</span></td>
                   <td>

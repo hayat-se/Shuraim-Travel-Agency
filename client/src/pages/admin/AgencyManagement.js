@@ -180,14 +180,16 @@ const AgencyManagement = () => {
                         onClick={() => handleApprove(agency.id)}
                         disabled={actionId === agency.id}
                       >
-                        {actionId === agency.id ? 'Approving...' : '✓ Approve'}
+                        <i className="fa-solid fa-check"></i>
+                        {actionId === agency.id ? ' Approving...' : ' Approve'}
                       </button>
                       <button 
                         className="btn-reject"
                         onClick={() => handleReject(agency.id)}
                         disabled={actionId === agency.id}
                       >
-                        {actionId === agency.id ? 'Rejecting...' : '✕ Reject'}
+                        <i className="fa-solid fa-times"></i>
+                        {actionId === agency.id ? ' Rejecting...' : ' Reject'}
                       </button>
                     </td>
                   </tr>
@@ -231,7 +233,8 @@ const AgencyManagement = () => {
                         onClick={() => handleBlock(agency.id)}
                         disabled={actionId === agency.id}
                       >
-                        {actionId === agency.id ? 'Blocking...' : '🚫 Block'}
+                        <i className="fa-solid fa-ban"></i>
+                        {actionId === agency.id ? ' Blocking...' : ' Block'}
                       </button>
                     )}
                   </td>

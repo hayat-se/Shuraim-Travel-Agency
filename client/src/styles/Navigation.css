@@ -1,253 +1,376 @@
+/* ========================================
+   SIDEBAR TOGGLE BUTTON (Mobile)
+   ======================================== */
 .dashboard-navbar-toggle {
   display: none;
   position: fixed;
-  top: 15px;
-  left: 15px;
+  top: 18px;
+  left: 18px;
   background: #0066cc;
   border: none;
   cursor: pointer;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
   z-index: 1001;
   padding: 8px;
-  border-radius: 4px;
+  border-radius: 8px;
   transition: all 0.3s ease;
 }
 
 .dashboard-navbar-toggle span {
-  width: 25px;
-  height: 3px;
+  width: 24px;
+  height: 2px;
   background: white;
-  border-radius: 2px;
+  border-radius: 1px;
   transition: all 0.3s ease;
   display: block;
 }
 
 .dashboard-navbar-toggle:hover {
   background: #004399;
+  transform: scale(1.08);
 }
 
+/* ========================================
+   MAIN SIDEBAR
+   ======================================== */
 .navbar {
-  background: linear-gradient(180deg, #111827 0%, #0f172a 45%, #111827 100%);
-  color: #ffffff;
+  background: #ffffff;
+  color: #1a1f36;
   padding: 0;
-  box-shadow: 8px 0 24px rgba(15, 23, 42, 0.35);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   position: fixed;
   left: 0;
   top: 0;
-  width: 260px;
+  width: 270px;
   height: 100vh;
   overflow-y: auto;
   z-index: 1000;
-  transition: transform 0.3s ease;
+  transition: none;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  font-family: 'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  border-right: 1px solid #e5e7eb;
 }
 
+/* Navbar Container */
 .navbar .navbar-container {
-  padding: 18px 16px;
   display: flex;
   flex-direction: column;
   height: 100%;
   width: 100%;
   box-sizing: border-box;
-  align-items: stretch;
-  gap: 16px;
+  padding: 0;
+  gap: 0;
 }
 
+/* ========================================
+   HEADER SECTION (Logo & Brand)
+   ======================================== */
 .navbar .navbar-header {
-  padding: 6px 4px 14px 4px;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-  text-align: left;
+  padding: 24px 20px;
+  border-bottom: 1px solid #e5e7eb;
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+  flex-shrink: 0;
 }
 
 .navbar .portal-brand {
   display: flex;
   align-items: center;
   gap: 12px;
+  text-align: left;
 }
 
 .navbar .portal-logo {
-  width: 42px;
-  height: 42px;
+  width: 48px;
+  height: 48px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 800;
-  font-size: 14px;
+  font-size: 18px;
   letter-spacing: 0.5px;
   color: white;
-  box-shadow: 0 10px 18px rgba(99, 102, 241, 0.35);
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.2);
+  flex-shrink: 0;
 }
 
 .navbar .portal-brand-text {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
+  flex: 1;
 }
 
 .navbar .navbar-title {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
-  color: #f9fafb;
+  color: #0f172a;
   margin: 0;
-  letter-spacing: 0.4px;
-  text-transform: none;
+  letter-spacing: 0.3px;
   line-height: 1.2;
 }
 
 .navbar .navbar-subtitle {
-  font-size: 12px;
-  color: rgba(226, 232, 240, 0.75);
+  font-size: 11px;
+  color: #64748b;
   margin: 0;
-  font-style: normal;
-  letter-spacing: 0.2px;
-  white-space: normal;
+  font-weight: 500;
+  letter-spacing: 0.1px;
 }
 
+/* ========================================
+   NAVIGATION MENU SECTION
+   ======================================== */
 .navbar .nav-menu {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 8px;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  flex: 1;
-  padding: 0 2px;
-  box-sizing: border-box;
-  width: 100%;
-  align-items: stretch;
+  gap: 2px;
 }
 
 .navbar .menu-section {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 2px;
   align-items: stretch;
   width: 100%;
 }
-
 
 .navbar .menu-items {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 2px;
   width: 100%;
   align-items: stretch;
 }
 
+/* ========================================
+   NAVIGATION LINKS
+   ======================================== */
 .navbar .portal-nav-link {
-  color: #e2e8f0;
+  color: #475569;
   text-decoration: none;
-  padding: 12px 14px;
-  border-radius: 10px;
+  padding: 11px 14px;
+  border-radius: 8px;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
-  font-size: 14px;
-  font-weight: 600;
+  gap: 11px;
+  font-size: 13px;
+  font-weight: 500;
   border: 1px solid transparent;
-  gap: 12px;
-  line-height: 1.2;
   width: 100%;
   box-sizing: border-box;
   justify-content: flex-start;
-  text-align: left;
-  background: rgba(148, 163, 184, 0.08);
+  background: transparent;
+  cursor: pointer;
+  line-height: 1.4;
+  position: relative;
+  overflow: hidden;
+}
+
+.navbar .portal-nav-link::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 3px;
+  height: 100%;
+  background: #0066cc;
+  transform: scaleY(0);
+  transition: transform 0.2s ease;
+  border-radius: 0 3px 3px 0;
+}
+
+.navbar .portal-nav-link:hover {
+  background: rgba(0, 102, 204, 0.08);
+  color: #0066cc;
+}
+
+.navbar .portal-nav-link:hover::before {
+  transform: scaleY(1);
+}
+
+.navbar .portal-nav-link:active {
+  background: rgba(0, 102, 204, 0.15);
+  color: #0052a3;
 }
 
 .navbar .portal-menu-icon {
-  font-size: 15px;
-  display: inline-flex;
+  font-size: 16px;
+  display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  background: rgba(99, 102, 241, 0.18);
-  box-shadow: inset 0 0 0 1px rgba(99, 102, 241, 0.25);
+  min-width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  color: #0066cc;
+  transition: color 0.2s ease;
+}
+
+.navbar .portal-nav-link:hover .portal-menu-icon {
+  color: #0052a3;
 }
 
 .navbar .portal-menu-label {
   flex: 1;
   min-width: 0;
-  white-space: normal;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.navbar .portal-nav-link:hover {
-  background: rgba(99, 102, 241, 0.18);
-  border-color: rgba(99, 102, 241, 0.4);
-  transform: translateX(2px);
-  color: #ffffff;
-}
-
+/* ========================================
+   USER SECTION (Bottom)
+   ======================================== */
 .navbar .nav-user {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 14px 12px;
-  border-top: 1px solid rgba(148, 163, 184, 0.2);
+  padding: 16px 14px;
+  border-top: 1px solid #e5e7eb;
+  background: #f8fafc;
   margin-top: auto;
   box-sizing: border-box;
   width: 100%;
+  flex-shrink: 0;
 }
 
 .navbar .user-info {
   font-size: 11px;
   word-break: break-word;
   text-align: left;
-  color: rgba(226, 232, 240, 0.75);
-  line-height: 1.3;
+  color: #64748b;
+  line-height: 1.4;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .navbar .logout-btn {
-  background: linear-gradient(135deg, #f43f5e 0%, #fb7185 100%);
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   color: white;
   border: none;
-  padding: 10px 12px;
-  border-radius: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: all 0.2s ease;
   width: 100%;
-  box-shadow: 0 10px 18px rgba(244, 63, 94, 0.3);
+  box-sizing: border-box;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
 }
 
 .navbar .logout-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 12px 22px rgba(255, 61, 113, 0.32);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
-/* Responsive Navbar States */
+.navbar .logout-btn:active {
+  transform: translateY(0);
+}
+
+/* ========================================
+   RESPONSIVE STATES
+   ======================================== */
 .navbar.navbar-closed {
-  transform: translateX(-100%);
+  transform: none;
 }
 
 .navbar.navbar-open {
-  transform: translateX(0);
+  transform: none;
 }
 
-/* Mobile Responsive */
+/* ========================================
+   MEDIA QUERIES - TABLET & MOBILE
+   ======================================== */
 @media (max-width: 768px) {
   .dashboard-navbar-toggle {
     display: flex;
   }
 
   .navbar {
-    width: 86vw;
-    max-width: 320px;
+    width: 260px;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  .navbar-header {
+    padding: 20px 16px;
+  }
+
+  .navbar .portal-logo {
+    width: 44px;
+    height: 44px;
+    font-size: 16px;
+  }
+
+  .navbar .navbar-title {
+    font-size: 13px;
+  }
+
+  .navbar .portal-nav-link {
+    padding: 10px 12px;
+    font-size: 12px;
+    gap: 10px;
+  }
+
+  .navbar .nav-menu {
+    padding: 12px 6px;
+  }
+
+  .navbar .nav-user {
+    padding: 12px 12px;
+    gap: 8px;
   }
 
   .navbar.navbar-closed {
-    transform: translateX(-100%);
+    transform: none;
   }
 
   .navbar.navbar-open {
-    transform: translateX(0);
+    transform: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    width: 240px;
+    max-width: none;
+  }
+
+  .navbar-header {
+    padding: 16px 14px;
+  }
+
+  .navbar .portal-logo {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+  }
+
+  .navbar .navbar-title {
+    font-size: 12px;
+  }
+
+  .navbar .portal-nav-link {
+    padding: 9px 11px;
+    font-size: 11px;
+    gap: 9px;
+  }
+
+  .navbar .portal-menu-icon {
+    min-width: 22px;
+    height: 22px;
+    font-size: 14px;
   }
 }
 
@@ -258,6 +381,26 @@
 
   .navbar {
     transform: translateX(0) !important;
-    width: 260px;
+    width: 270px;
   }
+}
+
+/* ========================================
+   SCROLLBAR STYLING
+   ======================================== */
+.navbar .nav-menu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.navbar .nav-menu::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.navbar .nav-menu::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.navbar .nav-menu::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }

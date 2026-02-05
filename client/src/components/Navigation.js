@@ -14,22 +14,22 @@ const Navigation = ({ user, setUser, navbarOpen, toggleNavbar }) => {
 
   const menuItems = user?.role === 'admin'
     ? [
-      { label: 'Dashboard', icon: '📊', path: '/admin/dashboard' },
-      { label: 'Flights', icon: '✈️', path: '/admin/flights' },
-      { label: 'Agencies', icon: '🏢', path: '/admin/agencies' },
-      { label: 'Bookings', icon: '📋', path: '/admin/bookings' },
-      { label: 'Banks', icon: '🏦', path: '/admin/banks' },
-      { label: 'Payments', icon: '💳', path: '/admin/payments' },
-      { label: 'Feedback', icon: '💬', path: '/admin/feedback' }
+      { label: 'Dashboard', icon: 'fa-chart-line', path: '/admin/dashboard' },
+      { label: 'Flights', icon: 'fa-plane', path: '/admin/flights' },
+      { label: 'Agencies', icon: 'fa-building', path: '/admin/agencies' },
+      { label: 'Bookings', icon: 'fa-list-check', path: '/admin/bookings' },
+      { label: 'Banks', icon: 'fa-university', path: '/admin/banks' },
+      { label: 'Payments', icon: 'fa-credit-card', path: '/admin/payments' },
+      { label: 'Feedback', icon: 'fa-comments', path: '/admin/feedback' }
     ]
     : [
-      { label: 'Dashboard', icon: '📊', path: '/agency/dashboard' },
-      { label: 'Search Flights', icon: '🔍', path: '/agency/search-flights' },
-      { label: 'My Bookings', icon: '📋', path: '/agency/my-bookings' },
-      { label: 'My Ledger', icon: '📑', path: '/agency/ledger' },
-      { label: 'Payments', icon: '💳', path: '/agency/payments' },
-      { label: 'Banks', icon: '🏦', path: '/agency/banks' },
-      { label: 'Give Feedback', icon: '💬', path: '/agency/feedback' }
+      { label: 'Dashboard', icon: 'fa-chart-line', path: '/agency/dashboard' },
+      { label: 'Search Flights', icon: 'fa-magnifying-glass', path: '/agency/search-flights' },
+      { label: 'My Bookings', icon: 'fa-ticket', path: '/agency/my-bookings' },
+      { label: 'My Ledger', icon: 'fa-book', path: '/agency/ledger' },
+      { label: 'Payments', icon: 'fa-credit-card', path: '/agency/payments' },
+      { label: 'Banks', icon: 'fa-university', path: '/agency/banks' },
+      { label: 'Give Feedback', icon: 'fa-comments', path: '/agency/feedback' }
     ];
 
   return (
@@ -66,7 +66,7 @@ const Navigation = ({ user, setUser, navbarOpen, toggleNavbar }) => {
                       }
                     }}
                   >
-                    <span className="portal-menu-icon">{item.icon}</span>
+                    <span className="portal-menu-icon"><i className={`fa-solid ${item.icon}`}></i></span>
                     <span className="portal-menu-label">{item.label}</span>
                   </a>
                 ))}
@@ -76,7 +76,7 @@ const Navigation = ({ user, setUser, navbarOpen, toggleNavbar }) => {
           
           <div className="nav-user">
             <span className="user-info">{user?.email}</span>
-            <button className="logout-btn" onClick={handleLogout}>🚪 Logout</button>
+            <button className="logout-btn" onClick={handleLogout}><i className="fa-solid fa-sign-out-alt"></i> Logout</button>
           </div>
         </div>
       </nav>
