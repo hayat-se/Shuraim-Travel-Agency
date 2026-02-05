@@ -125,8 +125,8 @@ function AppContent({ user, setUser }) {
               </PrivateRoute>
             } />
 
-            {/* Redirect */}
-            <Route path="/" element={user ? (user.role === 'admin' ? <Navigate to="/admin/dashboard" /> : <Navigate to="/agency/dashboard" />) : <LandingPage setUser={setUser} />} />
+            {/* Landing Page - Always show landing page at root */}
+            <Route path="/" element={<LandingPage setUser={setUser} />} />
           </Routes>
         </div>
       </>
