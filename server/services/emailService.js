@@ -1,14 +1,7 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: process.env.SMTP_PORT,
-  secure: false,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASSWORD
-  }
-});
+const resend = new Resend(process.env.RESEND_API_KEY || 're_vyQAuteV_5zuScEZxibam6QFVz9Zd9YYP');
+const FROM_EMAIL = process.env.EMAIL_FROM || 'onboarding@resend.dev';
 
 // Email template for agency approval
 const approvalEmailTemplate = (agencyName, email) => {
@@ -98,16 +91,26 @@ const bookingConfirmationTemplate = (agencyName, bookingId, flightDetails, total
 
 const sendEmail = async (to, subject, htmlContent, attachments = []) => {
   try {
-    const mailOptions = {
-      from: process.env.EMAIL_FROM,
+    const emailData = {
+      from: FROM_EMAIL,
       to: to,
       subject: subject,
       html: htmlContent,
-      attachments: attachments
     };
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent:', info.response);
+    // Add attachments if provided (Resend supports attachments)
+    if (attachments && attachments.length > 0) {
+      emailData.attachments = attachments;
+    }
+
+    const { data, error } = await resend.emails.send(emailData);
+    
+    if (error) {
+      console.error('Error sending email:', error);
+      return false;
+    }
+    
+    console.log('Email sent successfully:', data);
     return true;
   } catch (error) {
     console.error('Error sending email:', error);
