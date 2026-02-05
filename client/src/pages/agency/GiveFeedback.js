@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import apiClient from '../../config/axiosConfig';
 import '../../styles/Finance.css';
 
 const GiveFeedback = () => {
@@ -21,10 +21,7 @@ const GiveFeedback = () => {
 
   const loadFeedback = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('/api/feedback/my', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await apiClient.get('/api/feedback/my');
       setFeedbackList(response.data);
       setError('');
     } catch (err) {
@@ -45,12 +42,9 @@ const GiveFeedback = () => {
     setSubmitting(true);
     setSuccess('');
     try {
-      const token = localStorage.getItem('token');
-      await axios.post('/api/feedback', {
+      await apiClient.post('/api/feedback', {
         ...form,
         rating: Number(form.rating)
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
       });
       setForm({ rating: '5', category: 'general', subject: '', message: '' });
       setSuccess('Thanks for your feedback!');
