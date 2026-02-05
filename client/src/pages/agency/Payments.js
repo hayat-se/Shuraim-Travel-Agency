@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import apiClient from '../../config/axiosConfig';
 import '../../styles/Finance.css';
 
 const Payments = () => {
@@ -25,10 +25,9 @@ const Payments = () => {
   const loadData = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
       const [banksRes, paymentsRes] = await Promise.all([
-        axios.get('/api/banks', { headers: { Authorization: `Bearer ${token}` } }),
-        axios.get('/api/payments/my', { headers: { Authorization: `Bearer ${token}` } })
+        apiClient.get('/api/banks'),
+        apiClient.get('/api/payments/my')
       ]);
       setBanks(banksRes.data);
       setPayments(paymentsRes.data);
@@ -51,12 +50,9 @@ const Payments = () => {
     setSubmitting(true);
     setSuccess('');
     try {
-      const token = localStorage.getItem('token');
-      await axios.post('/api/payments', {
+      await apiClient.post('/api/payments', {
         ...form,
         amount: Number(form.amount)
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
       });
 
       setForm({ bankId: '', amount: '', referenceNumber: '', paymentDate: '', proofUrl: '', notes: '' });
