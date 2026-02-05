@@ -20,8 +20,8 @@ const AgencyManagement = () => {
       const pendingResponse = await apiClient.get('/api/admin/agencies/pending');
       const allResponse = await apiClient.get('/api/admin/agencies');
 
-      setPendingAgencies(pendingResponse.data);
-      setAgencies(allResponse.data);
+      setPendingAgencies(Array.isArray(pendingResponse.data) ? pendingResponse.data : []);
+      setAgencies(Array.isArray(allResponse.data) ? allResponse.data : []);
     } catch (error) {
       console.error('Error fetching agencies:', error);
     } finally {

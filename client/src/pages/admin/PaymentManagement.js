@@ -14,7 +14,7 @@ const PaymentManagement = () => {
   const loadPayments = async () => {
     try {
       const response = await apiClient.get('/api/payments/admin');
-      setPayments(response.data);
+      setPayments(Array.isArray(response.data) ? response.data : []);
       setError('');
     } catch (err) {
       const message = err.response?.data?.error || err.message || 'Error loading payments';

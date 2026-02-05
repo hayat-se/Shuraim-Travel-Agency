@@ -15,8 +15,8 @@ const MyLedger = () => {
   const fetchLedger = async () => {
     try {
       const response = await apiClient.get('/api/ledger/my');
-      setSummary(response.data.summary);
-      setEntries(response.data.entries);
+      setSummary(response.data?.summary || { totalDebit: 0, totalCredit: 0, balance: 0 });
+      setEntries(Array.isArray(response.data?.entries) ? response.data.entries : []);
       setError('');
     } catch (err) {
       const message = err.response?.data?.error || err.message || 'Error loading ledger';

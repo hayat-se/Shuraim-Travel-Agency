@@ -15,7 +15,7 @@ const FeedbackManagement = () => {
   const loadFeedback = async () => {
     try {
       const response = await apiClient.get('/api/feedback/admin');
-      setFeedback(response.data);
+      setFeedback(Array.isArray(response.data) ? response.data : []);
       setError('');
     } catch (err) {
       const message = err.response?.data?.error || err.message || 'Error loading feedback';

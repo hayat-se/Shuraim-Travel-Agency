@@ -17,7 +17,7 @@ const Banks = () => {
       setLoading(true);
       setError(null);
       const response = await apiClient.get('/api/banks');
-      setBanks(response.data);
+      setBanks(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load banks');
       console.error('Error fetching banks:', err);

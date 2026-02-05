@@ -29,8 +29,8 @@ const Payments = () => {
         apiClient.get('/api/banks'),
         apiClient.get('/api/payments/my')
       ]);
-      setBanks(banksRes.data);
-      setPayments(paymentsRes.data);
+      setBanks(Array.isArray(banksRes.data) ? banksRes.data : []);
+      setPayments(Array.isArray(paymentsRes.data) ? paymentsRes.data : []);
       setError('');
     } catch (err) {
       const message = err.response?.data?.error || err.message || 'Error loading payments';

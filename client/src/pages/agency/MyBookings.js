@@ -19,7 +19,7 @@ const MyBookings = () => {
   const fetchBookings = async () => {
     try {
       const response = await apiClient.get('/api/bookings/my-bookings');
-      setBookings(response.data);
+      setBookings(Array.isArray(response.data) ? response.data : []);
       setError('');
     } catch (err) {
       const errorMessage = err.response?.data?.error || err.message || 'Error fetching bookings';

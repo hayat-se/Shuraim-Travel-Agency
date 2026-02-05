@@ -25,7 +25,7 @@ const BankManagement = () => {
   const loadBanks = async () => {
     try {
       const response = await apiClient.get('/api/banks/admin');
-      setBanks(response.data);
+      setBanks(Array.isArray(response.data) ? response.data : []);
       setError('');
     } catch (err) {
       const message = err.response?.data?.error || err.message || 'Error loading banks';

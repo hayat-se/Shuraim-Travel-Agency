@@ -37,7 +37,7 @@ const FlightManagement = () => {
   const fetchFlights = async () => {
     try {
       const response = await apiClient.get('/api/admin/flights');
-      setFlights(response.data);
+      setFlights(Array.isArray(response.data) ? response.data : []);
       setError('');
     } catch (err) {
       const errorMessage = err.response?.data?.error || err.message || 'Error fetching flights';
