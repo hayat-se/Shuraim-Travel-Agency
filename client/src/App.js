@@ -38,7 +38,7 @@ import Navigation from './components/Navigation';
 
 function AppContent({ user, setUser }) {
   const location = useLocation();
-  const showNavigation = (user && user.role === 'agency' && location.pathname !== '/') || location.pathname === '/agency/search-flights' || location.pathname.startsWith('/agency/book/');
+  const showNavigation = user && user.role === 'agency' && location.pathname !== '/';
 
   return (
     <>
