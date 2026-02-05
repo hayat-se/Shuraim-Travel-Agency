@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../../config/axiosConfig';
 import '../../styles/Management.css';
 
 const FlightManagement = () => {
@@ -36,7 +36,7 @@ const FlightManagement = () => {
 
   const fetchFlights = async () => {
     try {
-      const response = await axios.get('/api/admin/flights');
+      const response = await apiClient.get('/api/admin/flights');
       setFlights(response.data);
       setError('');
     } catch (err) {
@@ -68,14 +68,10 @@ const FlightManagement = () => {
 
       if (isEditing && editFlightId) {
         payload.seatsRemaining = Math.max(0, payload.totalSeatsAvailable - editSeatsBooked);
-        await axios.put(`/api/admin/flights/${editFlightId}`, payload, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await apiClient.put(`/api/admin/flights/${editFlightId}`, payload);
         setSuccess('Flight updated successfully!');
       } else {
-        await axios.post('/api/admin/flights', payload, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await apiClient.post('/api/admin/flights', payload);
         setSuccess('Flight created successfully!');
       }
 
