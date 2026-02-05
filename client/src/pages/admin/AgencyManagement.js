@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../../config/axiosConfig';
 import '../../styles/Management.css';
 
 const AgencyManagement = () => {
@@ -17,13 +17,8 @@ const AgencyManagement = () => {
 
   const fetchAgencies = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const pendingResponse = await axios.get('/api/admin/agencies/pending', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const allResponse = await axios.get('/api/admin/agencies', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const pendingResponse = await apiClient.get('/api/admin/agencies/pending');
+      const allResponse = await apiClient.get('/api/admin/agencies');
 
       setPendingAgencies(pendingResponse.data);
       setAgencies(allResponse.data);
@@ -37,10 +32,7 @@ const AgencyManagement = () => {
   const handleApprove = async (agencyId) => {
     try {
       setActionId(agencyId);
-      const token = localStorage.getItem('token');
-      await axios.put(`/api/admin/agencies/${agencyId}/approve`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await apiClient.put(`/api/admin/agencies/${agencyId}/approve`, {});
       alert('Agency approved successfully!');
       fetchAgencies();
     } catch (error) {
@@ -55,10 +47,7 @@ const AgencyManagement = () => {
     if (reason) {
       try {
         setActionId(agencyId);
-        const token = localStorage.getItem('token');
-        await axios.put(`/api/admin/agencies/${agencyId}/reject`, { reason }, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await apiClient.put(`/api/admin/agencies/${agencyId}/reject`, { reason });
         alert('Agency rejected!');
         fetchAgencies();
       } catch (error) {
@@ -73,10 +62,7 @@ const AgencyManagement = () => {
     if (window.confirm('Are you sure you want to block this agency?')) {
       try {
         setActionId(agencyId);
-        const token = localStorage.getItem('token');
-        await axios.put(`/api/admin/agencies/${agencyId}/block`, {}, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await apiClient.put(`/api/admin/agencies/${agencyId}/block`, {});
         alert('Agency blocked!');
         fetchAgencies();
       } catch (error) {
