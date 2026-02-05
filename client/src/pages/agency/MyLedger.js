@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import apiClient from '../../config/axiosConfig';
 import '../../styles/Finance.css';
 
 const MyLedger = () => {
@@ -14,10 +14,7 @@ const MyLedger = () => {
 
   const fetchLedger = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('/api/ledger/my', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await apiClient.get('/api/ledger/my');
       setSummary(response.data.summary);
       setEntries(response.data.entries);
       setError('');
