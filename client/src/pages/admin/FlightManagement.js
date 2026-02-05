@@ -59,7 +59,6 @@ const FlightManagement = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token');
       const payload = {
         ...formData,
         totalSeatsAvailable: Number(formData.totalSeatsAvailable),
