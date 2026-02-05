@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import apiClient from '../../config/axiosConfig';
 import '../../styles/Management.css';
 
 const FeedbackManagement = () => {
@@ -14,10 +14,7 @@ const FeedbackManagement = () => {
 
   const loadFeedback = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('/api/feedback/admin', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await apiClient.get('/api/feedback/admin');
       setFeedback(response.data);
       setError('');
     } catch (err) {
@@ -30,12 +27,9 @@ const FeedbackManagement = () => {
 
   const updateFeedback = async (feedbackId, status) => {
     try {
-      const token = localStorage.getItem('token');
-      await axios.put(`/api/feedback/admin/${feedbackId}`, {
+      await apiClient.put(`/api/feedback/admin/${feedbackId}`, {
         status,
         adminReply: replyMap[feedbackId] || null
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
       });
       await loadFeedback();
     } catch (err) {
