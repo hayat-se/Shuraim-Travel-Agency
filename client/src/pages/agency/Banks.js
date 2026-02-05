@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../../config/axiosConfig';
 import '../../styles/Finance.css';
 
 const Banks = () => {
@@ -16,10 +16,7 @@ const Banks = () => {
     try {
       setLoading(true);
       setError(null);
-      const token = localStorage.getItem('token');
-      const response = await axios.get('/api/banks', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await apiClient.get('/api/banks');
       setBanks(response.data);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load banks');
