@@ -2,7 +2,7 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 30px 20px;
-  margin-left: 220px;
+  margin-left: 270px;
   transition: margin-left 0.3s ease;
 }
 
@@ -15,7 +15,7 @@
 
 @media (min-width: 769px) {
   .search-container {
-    margin-left: 220px;
+    margin-left: 270px;
   }
 }
 
@@ -467,5 +467,146 @@
   .public-navbar button {
     padding: 6px 12px !important;
     font-size: 14px !important;
+  }
+
+  /* Make table scrollable horizontally */
+  .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .flights-table {
+    font-size: 11px;
+    min-width: 600px;
+  }
+
+  .flights-table th {
+    padding: 10px 6px;
+    font-size: 10px;
+  }
+
+  .flights-table td {
+    padding: 10px 6px;
+  }
+
+  .flight-info strong {
+    font-size: 12px;
+  }
+
+  .flight-number {
+    font-size: 10px;
+  }
+
+  .route {
+    gap: 4px;
+    font-size: 11px;
+  }
+
+  .route .arrow {
+    font-size: 12px;
+  }
+
+  .datetime .time {
+    font-size: 11px;
+  }
+
+  .date-info {
+    font-size: 11px;
+  }
+
+  .time-range {
+    font-size: 11px;
+  }
+
+  .meal-info, .baggage-info {
+    font-size: 11px;
+  }
+
+  .class-badge {
+    padding: 3px 8px;
+    font-size: 9px;
+  }
+
+  .seats {
+    font-size: 13px;
+  }
+
+  .price {
+    font-size: 13px;
+  }
+
+  .book-btn-table {
+    padding: 6px 12px;
+    font-size: 10px;
+  }
+
+  .search-form {
+    padding: 15px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .search-form input,
+  .search-form select {
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .search-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+
+  .group-buttons {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 8px;
+  }
+
+  .group-btn {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  .results-container h2 {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .flights-table {
+    font-size: 10px;
+  }
+
+  .flights-table th {
+    padding: 8px 4px;
+    font-size: 9px;
+  }
+
+  .flights-table td {
+    padding: 8px 4px;
+  }
+
+  .flight-info strong {
+    font-size: 11px;
+  }
+
+  .flight-number {
+    font-size: 9px;
+  }
+
+  .route {
+    font-size: 10px;
+  }
+
+  .route .arrow {
+    font-size: 11px;
+  }
+
+  .book-btn-table {
+    padding: 5px 10px;
+    font-size: 9px;
   }
 }

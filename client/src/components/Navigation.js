@@ -1,15 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Navigation.css';
 
-const Navigation = ({ user, setUser, navbarOpen, toggleNavbar }) => {
+const Navigation = ({ user, setUser }) => {
   const navigate = useNavigate();
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
     navigate('/admin/login');
+  };
+
+  const handleNavigation = (path) => {
+    navigate(path);
+    setMobileDrawerOpen(false);
   };
 
   const menuItems = user?.role === 'admin'
@@ -34,15 +40,57 @@ const Navigation = ({ user, setUser, navbarOpen, toggleNavbar }) => {
 
   return (
     <>
-      <button className="dashboard-navbar-toggle" onClick={toggleNavbar}>
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-      <nav className={`navbar ${navbarOpen ? 'navbar-open' : 'navbar-closed'}`}>
+      {/* Mobile Top Bar */}
+      <div className="mobile-top-bar">
+        <button 
+          className="mobile-menu-toggle" 
+          onClick={() => setMobileDrawerOpen(!mobileDrawerOpen)}
+          aria-label="Toggle navigation menu"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        
+        <div className="mobile-brand">
+          <div className="mobile-logo">SA</div>
+          <div className="mobile-brand-text">
+            <h1 className="mobile-title">Shuraim Air</h1>
+            <p className="mobile-subtitle">{user?.role === 'admin' ? 'Admin Portal' : 'Agency Portal'}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Drawer Overlay */}
+      {mobileDrawerOpen && (
+        <div 
+          className="drawer-overlay active" 
+          onClick={() => setMobileDrawerOpen(false)}
+        ></div>
+      )}
+
+      {/* Navigation Drawer */}
+      <nav className={`navbar ${mobileDrawerOpen ? 'drawer-open' : ''}`}>
         <div className="navbar-container">
           <div className="navbar-header">
             <div className="portal-brand">
+              <div className="portal-logo">SA</div>
+              <div className="portal-brand-text">
+                <h1 className="navbar-title">Shuraim Air Travels & Tours</h1>
+                <p className="navbar-subtitle">Your Travel Partner</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="drawer-header">
+            <button
+              className="drawer-close-btn"
+              onClick={() => setMobileDrawerOpen(false)}
+              aria-label="Close navigation menu"
+            >
+              <i className="fa-solid fa-xmark"></i>
+            </button>
+            <div className="drawer-brand">
               <div className="portal-logo">SA</div>
               <div className="portal-brand-text">
                 <h1 className="navbar-title">Shuraim Air Travels & Tours</h1>
@@ -55,20 +103,14 @@ const Navigation = ({ user, setUser, navbarOpen, toggleNavbar }) => {
             <div className="menu-section">
               <div className="menu-items">
                 {menuItems.map((item) => (
-                  <a 
-                    key={item.label} 
-                    href={item.path} 
+                  <button
+                    key={item.label}
                     className="portal-nav-link"
-                    onClick={(e) => {
-                      if (item.path.startsWith('/')) {
-                        e.preventDefault();
-                        navigate(item.path);
-                      }
-                    }}
+                    onClick={() => handleNavigation(item.path)}
                   >
                     <span className="portal-menu-icon"><i className={`fa-solid ${item.icon}`}></i></span>
                     <span className="portal-menu-label">{item.label}</span>
-                  </a>
+                  </button>
                 ))}
               </div>
             </div>
@@ -76,7 +118,12 @@ const Navigation = ({ user, setUser, navbarOpen, toggleNavbar }) => {
           
           <div className="nav-user">
             <span className="user-info">{user?.email}</span>
-            <button className="logout-btn" onClick={handleLogout}><i className="fa-solid fa-sign-out-alt"></i> Logout</button>
+            <button 
+              className="logout-btn" 
+              onClick={handleLogout}
+            >
+              <i className="fa-solid fa-sign-out-alt"></i> Logout
+            </button>
           </div>
         </div>
       </nav>

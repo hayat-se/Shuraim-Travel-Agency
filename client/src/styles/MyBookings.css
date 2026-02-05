@@ -2,7 +2,7 @@
   max-width: 1000px;
   margin: 0 auto;
   padding: 30px 20px;
-  margin-left: 220px;
+  margin-left: 270px;
   transition: margin-left 0.3s ease;
 }
 
@@ -15,7 +15,7 @@
 
 @media (min-width: 769px) {
   .bookings-container {
-    margin-left: 220px;
+    margin-left: 270px;
   }
 }
 

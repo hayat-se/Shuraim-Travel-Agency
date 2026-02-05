@@ -1,13 +1,18 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 
 const PrivateRoute = ({ user, role, children }) => {
+  const location = useLocation();
+
   if (!user) {
-    return <Navigate to="/admin/login" />;
+    // Redirect to appropriate login based on route
+    const loginPath = location.pathname.startsWith('/admin') ? '/admin/login' : '/agency/login';
+    return <Navigate to={loginPath} state={{ from: location }} replace />;
   }
 
   if (role && user.role !== role) {
-    return <Navigate to="/" />;
+    // User is logged in but doesn't have the right role
+    return <Navigate to="/" replace />;
   }
 
   return children;

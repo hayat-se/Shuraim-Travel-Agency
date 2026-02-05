@@ -2,7 +2,7 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 30px 20px;
-  margin-left: 220px;
+  margin-left: 270px;
   transition: margin-left 0.3s ease;
 }
 
@@ -11,11 +11,117 @@
     margin-left: 0;
     padding: 60px 15px 30px 15px;
   }
+
+  .management-container h1 {
+    font-size: 22px;
+  }
+
+  .filter-bar {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .filter-input {
+    min-width: 100%;
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  .filter-select {
+    min-width: 100%;
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  .add-btn, .search-btn {
+    width: 100%;
+    padding: 10px 18px;
+    font-size: 14px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .form-container {
+    padding: 15px;
+  }
+
+  .form-container input,
+  .form-container select {
+    padding: 8px;
+    font-size: 13px;
+  }
+
+  .tabs {
+    gap: 5px;
+    overflow-x: auto;
+  }
+
+  .tab-btn {
+    padding: 10px 15px;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+
+  /* Table responsive styles */
+  .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .data-table {
+    font-size: 11px;
+    min-width: 600px;
+  }
+
+  .data-table th {
+    padding: 10px 6px;
+    font-size: 10px;
+  }
+
+  .data-table td {
+    padding: 10px 6px;
+  }
+
+  .action-btn {
+    padding: 5px 10px;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .management-container h1 {
+    font-size: 18px;
+  }
+
+  .data-table {
+    font-size: 10px;
+  }
+
+  .data-table th {
+    padding: 8px 4px;
+    font-size: 9px;
+  }
+
+  .data-table td {
+    padding: 8px 4px;
+  }
+
+  .action-btn {
+    padding: 4px 8px;
+    font-size: 9px;
+  }
+
+  .form-container {
+    padding: 12px;
+  }
 }
 
 @media (min-width: 769px) {
   .management-container {
-    margin-left: 220px;
+    margin-left: 270px;
   }
 }
 

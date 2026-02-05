@@ -36,14 +36,14 @@ import GiveFeedback from './pages/agency/GiveFeedback';
 import PrivateRoute from './components/PrivateRoute';
 import Navigation from './components/Navigation';
 
-function AppContent({ user, setUser, navbarOpen, toggleNavbar }) {
+function AppContent({ user, setUser }) {
   const location = useLocation();
   const showNavigation = user || location.pathname === '/agency/search-flights' || location.pathname.startsWith('/agency/book/');
 
   return (
     <>
-      {showNavigation && <Navigation user={user} setUser={setUser} navbarOpen={navbarOpen} toggleNavbar={toggleNavbar} />}
-      <div className={`main-content ${navbarOpen ? 'navbar-open' : 'navbar-closed'}`}>
+      {showNavigation && <Navigation user={user} setUser={setUser} />}
+      <div className="main-content">
         <Routes>
           {/* Auth Routes */}
           <Route path="/admin/login" element={<AdminLogin setUser={setUser} />} />
@@ -136,25 +136,23 @@ function AppContent({ user, setUser, navbarOpen, toggleNavbar }) {
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [navbarOpen, setNavbarOpen] = useState(window.innerWidth > 768);
 
   useEffect(() => {
-    // Comment this out to show landing page by default
-    // Uncomment to auto-login if token exists
-    /*
+    // Check if user is already logged in (restore auth state on page reload)
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
     
     if (token && userData) {
-      setUser(JSON.parse(userData));
+      try {
+        setUser(JSON.parse(userData));
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      }
     }
-    */
     setLoading(false);
   }, []);
-
-  const toggleNavbar = () => {
-    setNavbarOpen(!navbarOpen);
-  };
 
   if (loading) {
     return <div className="loading">Loading...</div>;
@@ -163,7 +161,7 @@ function App() {
   return (
     <ErrorBoundary>
       <Router>
-        <AppContent user={user} setUser={setUser} navbarOpen={navbarOpen} toggleNavbar={toggleNavbar} />
+        <AppContent user={user} setUser={setUser} />
       </Router>
     </ErrorBoundary>
   );

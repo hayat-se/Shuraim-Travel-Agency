@@ -95,8 +95,10 @@ const AdminDashboard = () => {
         <div className="group-filter-dashboard">
           {groups.map((group) => (
             <a key={group} href={`/admin/flights?group=${group}`} className="group-btn-dashboard">
-              <i className={`fa-solid ${groupIcons[group]}`}></i>
-              <span className="group-name">{group}</span>
+              <div className="group-card-image">
+                <i className={`fa-solid ${groupIcons[group]}`}></i>
+              </div>
+              <div className="group-card-name">{group}</div>
             </a>
           ))}
         </div>

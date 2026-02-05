@@ -8,6 +8,7 @@
   padding: 32px 28px;
   box-sizing: border-box;
   background: #f8fafc;
+  transition: margin-left 0.3s ease, width 0.3s ease;
 }
 
 /* Desktop - Large screens (≥1024px) */
@@ -31,18 +32,20 @@
 /* Mobile - Small screens (≤768px) */
 @media (max-width: 768px) {
   .dashboard-container {
-    margin-left: 260px;
-    width: calc(100% - 260px);
+    margin-left: 0;
+    width: 100%;
     padding: 24px 16px;
+    padding-top: 85px;
   }
 }
 
 /* Extra Small - Mobile phones (≤480px) */
 @media (max-width: 480px) {
   .dashboard-container {
-    margin-left: 240px;
-    width: calc(100% - 240px);
+    margin-left: 0;
+    width: 100%;
     padding: 16px 12px;
+    padding-top: 80px;
   }
 }
 
@@ -192,24 +195,48 @@
 
 .group-btn-dashboard {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 12px;
-  background: linear-gradient(135deg, #0066cc 0%, #004399 100%);
-  color: white;
+  justify-content: flex-start;
+  background: white;
+  color: #0f172a;
   text-decoration: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-weight: 600;
   font-size: 14px;
   transition: all 0.3s ease;
-  border: 2px solid transparent;
-  box-shadow: 0 2px 4px rgba(0, 102, 204, 0.2);
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  height: 160px;
 }
 
 .group-btn-dashboard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.4);
-  background: linear-gradient(135deg, #004399 0%, #003366 100%);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 102, 204, 0.2);
+  border-color: #0066cc;
+}
+
+.group-card-image {
+  flex: 1;
+  width: 100%;
+  background: linear-gradient(135deg, #0066cc 0%, #004399 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  color: white;
+}
+
+.group-card-name {
+  width: 100%;
+  padding: 12px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+  background: white;
+  border-top: 1px solid #e5e7eb;
 }
 
 .loading {
