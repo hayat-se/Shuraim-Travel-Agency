@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import apiClient from '../../config/axiosConfig';
 import '../../styles/Management.css';
 
 const PaymentManagement = () => {
@@ -13,10 +13,7 @@ const PaymentManagement = () => {
 
   const loadPayments = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('/api/payments/admin', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await apiClient.get('/api/payments/admin');
       setPayments(response.data);
       setError('');
     } catch (err) {
@@ -29,10 +26,7 @@ const PaymentManagement = () => {
 
   const updateStatus = async (paymentId, status) => {
     try {
-      const token = localStorage.getItem('token');
-      await axios.put(`/api/payments/admin/${paymentId}/status`, { status }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await apiClient.put(`/api/payments/admin/${paymentId}/status`, { status });
       await loadPayments();
     } catch (err) {
       const message = err.response?.data?.error || err.message || 'Error updating payment status';
