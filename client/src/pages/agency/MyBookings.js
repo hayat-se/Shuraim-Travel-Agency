@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../../config/axiosConfig';
 import '../../styles/MyBookings.css';
 
 const MyBookings = () => {
@@ -18,10 +18,7 @@ const MyBookings = () => {
 
   const fetchBookings = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('/api/bookings/my-bookings', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await apiClient.get('/api/bookings/my-bookings');
       setBookings(response.data);
       setError('');
     } catch (err) {
@@ -36,10 +33,8 @@ const MyBookings = () => {
   const handleDownloadTicket = async (bookingId) => {
     try {
       setDownloadError('');
-      const token = localStorage.getItem('token');
       
-      const response = await axios.get(`/api/tickets/download/${bookingId}`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await apiClient.get(`/api/tickets/download/${bookingId}`, {
         responseType: 'blob'
       });
 
@@ -70,11 +65,9 @@ const MyBookings = () => {
 
     setCancelling(true);
     try {
-      const token = localStorage.getItem('token');
-      await axios.put(
+      await apiClient.put(
         `/api/bookings/${selectedBooking.bookingId}/cancel`,
-        { reason: cancellationReason },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { reason: cancellationReason }
       );
 
       // Update local state to show requested cancellation
