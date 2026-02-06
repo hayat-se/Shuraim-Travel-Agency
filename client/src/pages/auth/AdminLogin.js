@@ -43,9 +43,10 @@ const AdminLogin = ({ setUser }) => {
 
   return (
     <div className="auth-container">
-      <div className="auth-card">
+      <div className="auth-card admin">
+        <div className="auth-badge admin">Admin Portal</div>
         <h1>Admin Login</h1>
-        <p className="subtitle">Airline Agency Management System</p>
+        <p className="subtitle">Secure access to the management console</p>
 
         {error && <div className="error-message">{error}</div>}
 
