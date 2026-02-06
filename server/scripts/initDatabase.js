@@ -71,6 +71,22 @@ const initializeDatabase = async () => {
         console.log('SQLite migration: added agencies.rejectionReason');
       }
 
+      if (!agencyColumns.resetOtpHash) {
+        await queryInterface.addColumn('agencies', 'resetOtpHash', {
+          type: db.Sequelize.STRING,
+          allowNull: true
+        });
+        console.log('SQLite migration: added agencies.resetOtpHash');
+      }
+
+      if (!agencyColumns.resetOtpExpiresAt) {
+        await queryInterface.addColumn('agencies', 'resetOtpExpiresAt', {
+          type: db.Sequelize.DATE,
+          allowNull: true
+        });
+        console.log('SQLite migration: added agencies.resetOtpExpiresAt');
+      }
+
       const bookingColumns = await queryInterface.describeTable('bookings');
       if (!bookingColumns.cancellationReason) {
         await queryInterface.addColumn('bookings', 'cancellationReason', {
