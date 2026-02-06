@@ -38,7 +38,13 @@ import Navigation from './components/Navigation';
 
 function AppContent({ user, setUser }) {
   const location = useLocation();
-  const showNavigation = user && location.pathname !== '/';
+  const hideNavigationRoutes = new Set([
+    '/',
+    '/admin/login',
+    '/agency/login',
+    '/agency/register'
+  ]);
+  const showNavigation = Boolean(user) && !hideNavigationRoutes.has(location.pathname);
 
   return (
     <>
