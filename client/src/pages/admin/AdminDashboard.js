@@ -15,20 +15,11 @@ const AdminDashboard = () => {
   });
   const [loading, setLoading] = useState(true);
   
-  const groups = ['ALL', 'KSA', 'UAE', 'QATAR', 'BAHRAIN', 'OMAN', 'KUWAIT'];
-
-  const groupIcons = {
-    'ALL': 'fa-globe',
-    'KSA': 'fa-mosque',
-    'UAE': 'fa-city',
-    'QATAR': 'fa-gopuram',
-    'BAHRAIN': 'fa-umbrella-beach',
-    'OMAN': 'fa-mountain',
-    'KUWAIT': 'fa-landmark'
-  };
+  const [groups, setGroups] = useState([]);
 
   useEffect(() => {
     fetchStats();
+    fetchGroups();
   }, []);
 
   const fetchStats = async () => {
@@ -39,6 +30,15 @@ const AdminDashboard = () => {
       console.error('Error fetching stats:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchGroups = async () => {
+    try {
+      const response = await apiClient.get('/api/groups/admin');
+      setGroups(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      console.error('Error fetching groups:', error);
     }
   };
 
@@ -94,11 +94,11 @@ const AdminDashboard = () => {
         <h2><i className="fa-solid fa-plane"></i> Flight Groups</h2>
         <div className="group-filter-dashboard">
           {groups.map((group) => (
-            <a key={group} href={`/admin/flights?group=${group}`} className="group-btn-dashboard">
-              <div className="group-card-image">
-                <i className={`fa-solid ${groupIcons[group]}`}></i>
+            <a key={group.id} href={`/admin/flights?group=${group.name}`} className="group-btn-dashboard">
+              <div className="group-card-image" style={group.imageUrl ? { backgroundImage: `url(${group.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
+                {!group.imageUrl && <i className="fa-solid fa-layer-group"></i>}
               </div>
-              <div className="group-card-name">{group}</div>
+              <div className="group-card-name">{group.name}</div>
             </a>
           ))}
         </div>

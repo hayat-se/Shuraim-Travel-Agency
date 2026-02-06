@@ -5,6 +5,10 @@ import '../styles/Navigation.css';
 const Navigation = ({ user, setUser }) => {
   const navigate = useNavigate();
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const [openGroups, setOpenGroups] = useState({
+    Admin: true,
+    Bookings: true
+  });
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -20,13 +24,31 @@ const Navigation = ({ user, setUser }) => {
 
   const menuItems = user?.role === 'admin'
     ? [
-      { label: 'Dashboard', icon: 'fa-chart-line', path: '/admin/dashboard' },
-      { label: 'Flights', icon: 'fa-plane', path: '/admin/flights' },
-      { label: 'Agencies', icon: 'fa-building', path: '/admin/agencies' },
-      { label: 'Bookings', icon: 'fa-list-check', path: '/admin/bookings' },
-      { label: 'Banks', icon: 'fa-university', path: '/admin/banks' },
-      { label: 'Payments', icon: 'fa-credit-card', path: '/admin/payments' },
-      { label: 'Feedback', icon: 'fa-comments', path: '/admin/feedback' }
+      {
+        type: 'group',
+        label: 'Admin',
+        icon: 'fa-user-shield',
+        items: [
+          { label: 'Review Users', icon: 'fa-user-check', path: '/admin/agencies' },
+          { label: 'Add Bank', icon: 'fa-building-columns', path: '/admin/banks' },
+          { label: 'Add Airline', icon: 'fa-plane', path: '/admin/flights' },
+          { label: 'Add Country', icon: 'fa-flag', path: '/admin/dashboard' },
+          { label: 'Discounts', icon: 'fa-tags', path: '/admin/payments' },
+          { label: 'Portal Settings', icon: 'fa-gear', path: '/admin/feedback' }
+        ]
+      },
+      {
+        type: 'group',
+        label: 'Bookings',
+        icon: 'fa-ticket',
+        items: [
+          { label: 'Book Tickets', icon: 'fa-ticket-simple', path: '/admin/bookings' },
+          { label: 'Add Groups', icon: 'fa-layer-group', path: '/admin/groups' },
+          { label: 'My Bookings', icon: 'fa-list-check', path: '/admin/bookings' },
+          { label: 'Ledger', icon: 'fa-book', path: '/admin/payments' },
+          { label: 'Bank Details', icon: 'fa-university', path: '/admin/banks' }
+        ]
+      }
     ]
     : [
       { label: 'Dashboard', icon: 'fa-chart-line', path: '/agency/dashboard' },
@@ -103,14 +125,44 @@ const Navigation = ({ user, setUser }) => {
             <div className="menu-section">
               <div className="menu-items">
                 {menuItems.map((item) => (
-                  <button
-                    key={item.label}
-                    className="portal-nav-link"
-                    onClick={() => handleNavigation(item.path)}
-                  >
-                    <span className="portal-menu-icon"><i className={`fa-solid ${item.icon}`}></i></span>
-                    <span className="portal-menu-label">{item.label}</span>
-                  </button>
+                  item.type === 'group' ? (
+                    <div className="menu-group" key={item.label}>
+                      <button
+                        className="menu-group-header"
+                        onClick={() => setOpenGroups((prev) => ({
+                          ...prev,
+                          [item.label]: !prev[item.label]
+                        }))}
+                      >
+                        <span className="portal-menu-icon"><i className={`fa-solid ${item.icon}`}></i></span>
+                        <span className="portal-menu-label">{item.label}</span>
+                        <span className="group-caret">
+                          <i className={`fa-solid ${openGroups[item.label] ? 'fa-chevron-up' : 'fa-chevron-down'}`}></i>
+                        </span>
+                      </button>
+                      <div className={`menu-group-items ${openGroups[item.label] ? 'open' : ''}`}>
+                        {item.items.map((subItem) => (
+                          <button
+                            key={subItem.label}
+                            className="portal-nav-link sub"
+                            onClick={() => handleNavigation(subItem.path)}
+                          >
+                            <span className="portal-menu-icon"><i className={`fa-solid ${subItem.icon}`}></i></span>
+                            <span className="portal-menu-label">{subItem.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      key={item.label}
+                      className="portal-nav-link"
+                      onClick={() => handleNavigation(item.path)}
+                    >
+                      <span className="portal-menu-icon"><i className={`fa-solid ${item.icon}`}></i></span>
+                      <span className="portal-menu-label">{item.label}</span>
+                    </button>
+                  )
                 ))}
               </div>
             </div>

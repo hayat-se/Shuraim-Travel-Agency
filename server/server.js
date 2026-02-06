@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
+const path = require('path');
 
 // Import database
 const db = require('./config/database');
@@ -52,6 +53,7 @@ app.use(helmet({
 app.use(compression());
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -193,6 +195,7 @@ app.use('/api/banks', require('./routes/bankRoutes'));
 app.use('/api/payments', require('./routes/paymentRoutes'));
 app.use('/api/ledger', require('./routes/ledgerRoutes'));
 app.use('/api/feedback', require('./routes/feedbackRoutes'));
+app.use('/api/groups', require('./routes/groupRoutes'));
 
 // Health Check
 app.get('/api/health', (req, res) => {

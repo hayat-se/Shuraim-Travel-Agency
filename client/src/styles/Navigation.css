@@ -282,6 +282,75 @@
 }
 
 /* ========================================
+   MENU GROUPS (Admin Submenus)
+   ======================================== */
+.navbar .menu-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  margin-bottom: 6px;
+}
+
+.navbar .menu-group-header {
+  color: #0f172a;
+  text-decoration: none;
+  padding: 12px 14px;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  border: 1px solid #e2e8f0;
+  width: 100%;
+  box-sizing: border-box;
+  justify-content: flex-start;
+  background: #ffffff;
+  cursor: pointer;
+  line-height: 1.5;
+}
+
+.navbar .menu-group-header:hover {
+  background: #f1f5f9;
+  border-color: #cbd5f5;
+}
+
+.navbar .group-caret {
+  margin-left: auto;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.navbar .menu-group-items {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  padding-left: 10px;
+  border-left: 2px solid #e2e8f0;
+  margin-left: 8px;
+}
+
+.navbar .menu-group-items.open {
+  display: flex;
+}
+
+.navbar .portal-nav-link.sub {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.navbar .portal-nav-link.sub .portal-menu-icon {
+  font-size: 15px;
+  min-width: 24px;
+  height: 24px;
+}
+
+/* ========================================
    NAVIGATION LINKS
    ======================================== */
 .navbar .portal-nav-link {

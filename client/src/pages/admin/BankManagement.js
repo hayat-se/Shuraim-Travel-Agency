@@ -15,6 +15,7 @@ const BankManagement = () => {
     city: '',
     isActive: true
   });
+  const [imageFile, setImageFile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -43,10 +44,23 @@ const BankManagement = () => {
     }));
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0] || null;
+    setImageFile(file);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await apiClient.post('/api/banks/admin', form);
+      const payload = new FormData();
+      Object.entries(form).forEach(([key, value]) => payload.append(key, value));
+      if (imageFile) {
+        payload.append('image', imageFile);
+      }
+
+      await apiClient.post('/api/banks/admin', payload, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
       setForm({
         bankName: '',
         accountTitle: '',
@@ -58,6 +72,7 @@ const BankManagement = () => {
         city: '',
         isActive: true
       });
+      setImageFile(null);
       await loadBanks();
     } catch (err) {
       const message = err.response?.data?.error || err.message || 'Error creating bank';
@@ -102,6 +117,9 @@ const BankManagement = () => {
             <input name="city" value={form.city} onChange={handleChange} placeholder="City" />
             <input name="branchAddress" value={form.branchAddress} onChange={handleChange} placeholder="Branch Address" />
           </div>
+          <div className="form-row">
+            <input type="file" accept="image/*" onChange={handleImageChange} />
+          </div>
           <label className="small-note">
             <input type="checkbox" name="isActive" checked={form.isActive} onChange={handleChange} /> Active
           </label>
@@ -117,6 +135,7 @@ const BankManagement = () => {
           <thead>
             <tr>
               <th>Bank</th>
+              <th>Image</th>
               <th>Account Title</th>
               <th>Account No</th>
               <th>Branch</th>
@@ -127,12 +146,23 @@ const BankManagement = () => {
           <tbody>
             {banks.length === 0 ? (
               <tr>
-                <td colSpan="6">No banks added yet.</td>
+                <td colSpan="7">No banks added yet.</td>
               </tr>
             ) : (
               banks.map((bank) => (
                 <tr key={bank.id}>
                   <td>{bank.bankName}</td>
+                  <td>
+                    {bank.imageUrl ? (
+                      <img
+                        src={`${bank.imageUrl}`}
+                        alt={bank.bankName}
+                        style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '6px' }}
+                      />
+                    ) : (
+                      '-'
+                    )}
+                  </td>
                   <td>{bank.accountTitle}</td>
                   <td>{bank.accountNumber}</td>
                   <td>{bank.branchName || '-'} {bank.branchCode ? `(${bank.branchCode})` : ''}</td>

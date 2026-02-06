@@ -111,6 +111,52 @@ const initializeDatabase = async () => {
         });
         console.log('SQLite migration: added bookings.cancelledAt');
       }
+
+      const bankColumns = await queryInterface.describeTable('banks');
+      if (!bankColumns.imageUrl) {
+        await queryInterface.addColumn('banks', 'imageUrl', {
+          type: db.Sequelize.STRING,
+          allowNull: true
+        });
+        console.log('SQLite migration: added banks.imageUrl');
+      }
+
+      const groupTableExists = await queryInterface.showAllTables();
+      if (!groupTableExists.includes('groups')) {
+        await queryInterface.createTable('groups', {
+          id: {
+            type: db.Sequelize.INTEGER,
+            primaryKey: true,
+            autoIncrement: true
+          },
+          name: {
+            type: db.Sequelize.STRING,
+            allowNull: false,
+            unique: true
+          },
+          imageUrl: {
+            type: db.Sequelize.STRING,
+            allowNull: true
+          },
+          isActive: {
+            type: db.Sequelize.BOOLEAN,
+            defaultValue: true
+          },
+          createdBy: {
+            type: db.Sequelize.INTEGER,
+            allowNull: true
+          },
+          createdAt: {
+            type: db.Sequelize.DATE,
+            allowNull: false
+          },
+          updatedAt: {
+            type: db.Sequelize.DATE,
+            allowNull: false
+          }
+        });
+        console.log('SQLite migration: created groups table');
+      }
     }
 
     // Create super admin user

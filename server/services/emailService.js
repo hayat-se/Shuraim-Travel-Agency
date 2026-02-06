@@ -1,6 +1,9 @@
 const { Resend } = require('resend');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let resend = null;
+if (process.env.RESEND_API_KEY) {
+  resend = new Resend(process.env.RESEND_API_KEY);
+}
 const FROM_EMAIL = process.env.EMAIL_FROM || 'onboarding@resend.dev';
 
 // Email template for agency approval
@@ -91,6 +94,11 @@ const bookingConfirmationTemplate = (agencyName, bookingId, flightDetails, total
 
 const sendEmail = async (to, subject, htmlContent, attachments = []) => {
   try {
+    if (!resend) {
+      console.warn('Email not sent: RESEND_API_KEY not configured');
+      return false;
+    }
+
     const emailData = {
       from: FROM_EMAIL,
       to: to,
