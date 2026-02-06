@@ -88,7 +88,12 @@ const AgencyLogin = ({ setUser }) => {
         </form>
 
         <div className="auth-links">
-          <p>Don't have an account? <a href="/agency/register">Register here</a></p>
+          <p>Forgot your password?</p>
+          <div className="auth-link-actions">
+            <a href="/agency/forgot-password">Reset Password</a>
+            <span className="divider">or</span>
+            <a href="/agency/register">Register Agency</a>
+          </div>
         </div>
       </div>
     </div>

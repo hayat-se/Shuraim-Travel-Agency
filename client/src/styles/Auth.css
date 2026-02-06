@@ -111,6 +111,12 @@
   transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
+.form-group input[name="otp"] {
+  letter-spacing: 4px;
+  text-align: center;
+  font-weight: 600;
+}
+
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
@@ -180,8 +186,17 @@
   font-size: 14px;
 }
 
+.auth-link-actions {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .auth-links .divider {
-  margin: 8px 0;
+  margin: 0;
   color: #94a3b8;
   font-size: 12px;
   letter-spacing: 1.2px;

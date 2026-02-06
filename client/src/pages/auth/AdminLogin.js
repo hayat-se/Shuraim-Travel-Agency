@@ -80,17 +80,13 @@ const AdminLogin = ({ setUser }) => {
           </button>
         </form>
 
-        <div className="auth-footer">
-          <p>Demo Credentials (Setup Required):</p>
-          <p>Email: admin@airline.com</p>
-          <p>Password: admin123</p>
-        </div>
-
         <div className="auth-links">
           <p>Are you an agency?</p>
-          <Link to="/agency/login">Agency Login</Link>
-          <p className="divider">or</p>
-          <Link to="/agency/register">Agency Register</Link>
+          <div className="auth-link-actions">
+            <Link to="/agency/login">Agency Login</Link>
+            <span className="divider">or</span>
+            <Link to="/agency/register">Register Agency</Link>
+          </div>
         </div>
       </div>
     </div>

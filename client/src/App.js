@@ -12,6 +12,7 @@ import LandingPage from './pages/LandingPage';
 import AdminLogin from './pages/auth/AdminLogin';
 import AgencyRegister from './pages/auth/AgencyRegister';
 import AgencyLogin from './pages/auth/AgencyLogin';
+import AgencyForgotPassword from './pages/auth/AgencyForgotPassword';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -42,7 +43,8 @@ function AppContent({ user, setUser }) {
     '/',
     '/admin/login',
     '/agency/login',
-    '/agency/register'
+    '/agency/register',
+    '/agency/forgot-password'
   ]);
   const showNavigation = Boolean(user) && !hideNavigationRoutes.has(location.pathname);
 
@@ -55,6 +57,7 @@ function AppContent({ user, setUser }) {
           <Route path="/admin/login" element={<AdminLogin setUser={setUser} />} />
           <Route path="/agency/register" element={<AgencyRegister />} />
           <Route path="/agency/login" element={<AgencyLogin setUser={setUser} />} />
+          <Route path="/agency/forgot-password" element={<AgencyForgotPassword />} />
 
             {/* Admin Routes */}
             <Route path="/admin/dashboard" element={

@@ -129,6 +129,45 @@ const sendBookingConfirmationEmail = async (email, agencyName, bookingId, flight
   return sendEmail(email, `Booking Confirmation - ${bookingId}`, htmlContent, attachments);
 };
 
+const passwordResetOtpTemplate = (agencyName, otp) => {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #0f172a; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #2563eb; color: white; padding: 20px; border-radius: 8px 8px 0 0; }
+        .content { border: 1px solid #e2e8f0; padding: 20px; }
+        .otp { font-size: 28px; font-weight: 700; letter-spacing: 6px; color: #2563eb; margin: 16px 0; }
+        .footer { background-color: #f8fafc; padding: 10px; text-align: center; font-size: 12px; color: #64748b; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h2>Password Reset Request</h2>
+        </div>
+        <div class="content">
+          <p>Dear <strong>${agencyName}</strong>,</p>
+          <p>Use the OTP below to reset your password. This code is valid for 10 minutes.</p>
+          <div class="otp">${otp}</div>
+          <p>If you did not request this, please ignore this email.</p>
+        </div>
+        <div class="footer">
+          <p>&copy; 2024 Airline Agency Management System. All rights reserved.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+};
+
+const sendPasswordResetOtpEmail = async (agencyName, email, otp) => {
+  const htmlContent = passwordResetOtpTemplate(agencyName, otp);
+  return sendEmail(email, 'Password Reset OTP', htmlContent);
+};
+
 const sendRejectionEmail = async (agencyName, email, reason) => {
   const subject = 'Application Decision - Airline Agency Management System';
   const htmlContent = `
@@ -164,5 +203,6 @@ module.exports = {
   sendApprovalEmail,
   sendBookingConfirmationEmail,
   sendRejectionEmail,
+  sendPasswordResetOtpEmail,
   sendEmail
 };

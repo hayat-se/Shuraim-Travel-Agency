@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { Admin, Agency, AuditLog } = require('../config/database');
-const { sendApprovalEmail, sendRejectionEmail } = require('../services/emailService');
+const { sendApprovalEmail, sendRejectionEmail, sendPasswordResetOtpEmail } = require('../services/emailService');
 
 // Admin Login
 const adminLogin = async (req, res) => {
@@ -129,6 +129,79 @@ const agencyLogin = async (req, res) => {
   }
 };
 
+const generateOtp = () => {
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  return otp;
+};
+
+const requestAgencyPasswordReset = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    const agency = await Agency.findOne({ where: { email } });
+
+    // Always respond success to avoid account enumeration
+    if (!agency) {
+      return res.status(200).json({ message: 'If the email exists, an OTP has been sent.' });
+    }
+
+    const otp = generateOtp();
+    const otpHash = await bcrypt.hash(otp, 10);
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+    await agency.update({
+      resetOtpHash: otpHash,
+      resetOtpExpiresAt: expiresAt
+    });
+
+    await sendPasswordResetOtpEmail(agency.agencyName, agency.email, otp);
+
+    return res.status(200).json({ message: 'If the email exists, an OTP has been sent.' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const resetAgencyPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+
+    if (!email || !otp || !newPassword) {
+      return res.status(400).json({ error: 'Email, OTP, and new password are required' });
+    }
+
+    const agency = await Agency.findOne({ where: { email } });
+    if (!agency || !agency.resetOtpHash || !agency.resetOtpExpiresAt) {
+      return res.status(400).json({ error: 'Invalid or expired OTP' });
+    }
+
+    if (new Date() > new Date(agency.resetOtpExpiresAt)) {
+      await agency.update({ resetOtpHash: null, resetOtpExpiresAt: null });
+      return res.status(400).json({ error: 'OTP expired. Please request a new one.' });
+    }
+
+    const isOtpValid = await bcrypt.compare(otp, agency.resetOtpHash);
+    if (!isOtpValid) {
+      return res.status(400).json({ error: 'Invalid OTP' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await agency.update({
+      password: hashedPassword,
+      resetOtpHash: null,
+      resetOtpExpiresAt: null
+    });
+
+    return res.status(200).json({ message: 'Password reset successful' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Get pending agency requests (Admin only)
 const getPendingAgencies = async (req, res) => {
   try {
@@ -230,6 +303,8 @@ module.exports = {
   adminLogin,
   agencyRegister,
   agencyLogin,
+  requestAgencyPasswordReset,
+  resetAgencyPassword,
   getPendingAgencies,
   getAllAgencies,
   approveAgency,

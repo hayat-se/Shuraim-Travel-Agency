@@ -56,7 +56,9 @@ module.exports = (sequelize) => {
     totalRevenue: {
       type: DataTypes.DECIMAL(15, 2),
       defaultValue: 0
-    }
+    },
+    resetOtpHash: DataTypes.STRING,
+    resetOtpExpiresAt: DataTypes.DATE
   }, {
     timestamps: true,
     tableName: 'agencies'
