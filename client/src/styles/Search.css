@@ -586,6 +586,74 @@
   color: #666;
 }
 
+/* ── Airline Section & Route Group ── */
+.airline-section {
+  margin-bottom: 30px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+  background: white;
+}
+
+.route-group {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.route-group:last-child {
+  border-bottom: none;
+}
+
+.route-group-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #f0f6ff 0%, #e8f0fe 100%);
+  border-bottom: 2px solid #0066cc;
+}
+
+.airline-section-logo {
+  width: 52px;
+  height: 36px;
+  object-fit: contain;
+  border-radius: 6px;
+  background: white;
+  padding: 3px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.airline-section-logo-placeholder {
+  width: 52px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: white;
+  color: #0066cc;
+  font-size: 20px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.route-group-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.route-group-route {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0d2137;
+  letter-spacing: 1px;
+}
+
+.route-group-meta {
+  font-size: 12px;
+  color: #5a7394;
+  font-weight: 500;
+}
+
 /* Public Navbar Styles */
 .public-navbar button {
   transition: all 0.3s ease;
@@ -681,34 +749,29 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 14px 16px;
+    padding: 12px 16px;
     background: #f8fafc;
     border-bottom: 1px solid #e2e8f0;
-  }
-
-  .ft-card-route {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 700;
-    font-size: 16px;
-    color: #0f172a;
-  }
-
-  .ft-card-arrow {
-    color: #0066cc;
-    font-size: 12px;
   }
 
   .ft-card-flightno {
     font-family: 'Courier New', monospace;
     font-weight: 700;
-    font-size: 12px;
-    color: #64748b;
+    font-size: 13px;
+    color: #1e293b;
     background: #e2e8f0;
     padding: 4px 10px;
     border-radius: 4px;
     letter-spacing: 0.5px;
+  }
+
+  .ft-card-date-badge {
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+    background: #e2e8f0;
+    padding: 4px 10px;
+    border-radius: 4px;
   }
 
   .ft-card-details {
@@ -779,27 +842,27 @@
     font-size: 13px;
   }
 
-  .airline-section-header {
-    padding: 14px 16px;
-    gap: 12px;
+  .route-group-header {
+    padding: 12px 16px;
+    gap: 10px;
   }
 
-  .airline-section-logo {
-    width: 48px;
-    height: 32px;
-  }
-
-  .airline-section-logo-placeholder {
-    width: 48px;
-    height: 32px;
+  .route-group-route {
     font-size: 18px;
   }
 
-  .airline-section-title h3 {
-    font-size: 16px;
+  .route-group-meta {
+    font-size: 11px;
   }
 
-  .airline-flight-count {
-    font-size: 11px;
+  .airline-section-logo {
+    width: 40px;
+    height: 28px;
+  }
+
+  .airline-section-logo-placeholder {
+    width: 40px;
+    height: 28px;
+    font-size: 16px;
   }
 }
