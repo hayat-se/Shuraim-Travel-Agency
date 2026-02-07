@@ -20,6 +20,7 @@ const SearchFlights = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [airlines, setAirlines] = useState([]);
+  const [groups, setGroups] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,7 +32,16 @@ const SearchFlights = () => {
         console.error('Error fetching airlines:', err);
       }
     };
+    const fetchGroups = async () => {
+      try {
+        const response = await apiClient.get('/api/groups');
+        setGroups(Array.isArray(response.data) ? response.data : []);
+      } catch (err) {
+        console.error('Error fetching groups:', err);
+      }
+    };
     fetchAirlines();
+    fetchGroups();
   }, []);
 
   useEffect(() => {
@@ -100,13 +110,19 @@ const SearchFlights = () => {
       <div className="group-filter">
         <h3>Select Flight Group</h3>
         <div className="group-buttons">
-          {['ALL', 'KSA', 'UAE', 'QATAR', 'BAHRAIN', 'OMAN', 'KUWAIT'].map(group => (
+          <button
+            className={`group-btn ${selectedGroup === 'ALL' ? 'active' : ''}`}
+            onClick={() => setSelectedGroup('ALL')}
+          >
+            All Flights
+          </button>
+          {groups.map(group => (
             <button
-              key={group}
-              className={`group-btn ${selectedGroup === group ? 'active' : ''}`}
-              onClick={() => setSelectedGroup(group)}
+              key={group.id}
+              className={`group-btn ${selectedGroup === group.name ? 'active' : ''}`}
+              onClick={() => setSelectedGroup(group.name)}
             >
-              {group === 'ALL' ? 'All Flights' : `${group} Group`}
+              {group.name} Group
             </button>
           ))}
         </div>

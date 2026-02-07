@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../../config/axiosConfig';
+import { API_BASE_URL } from '../../config/api';
 import '../../styles/Dashboard.css';
 
 const AgencyDashboard = ({ user }) => {
@@ -11,22 +12,11 @@ const AgencyDashboard = ({ user }) => {
     city: ''
   });
   const [loading, setLoading] = useState(true);
-  
-  const groups = ['ALL', 'KSA', 'UAE', 'QATAR', 'BAHRAIN', 'OMAN', 'KUWAIT'];
-
-  const groupIcons = {
-    'ALL': 'fa-globe',
-    'KSA': 'fa-mosque',
-    'UAE': 'fa-city',
-    'QATAR': 'fa-gopuram',
-    'BAHRAIN': 'fa-umbrella-beach',
-    'OMAN': 'fa-mountain',
-    'KUWAIT': 'fa-landmark'
-  };
+  const [groups, setGroups] = useState([]);
 
   useEffect(() => {
     fetchStats();
-    // Refresh stats every 30 seconds to show updated ticket counts
+    fetchGroups();
     const interval = setInterval(fetchStats, 30000);
     return () => clearInterval(interval);
   }, []);
@@ -39,6 +29,15 @@ const AgencyDashboard = ({ user }) => {
       console.error('Error fetching stats:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchGroups = async () => {
+    try {
+      const response = await apiClient.get('/api/groups');
+      setGroups(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      console.error('Error fetching groups:', error);
     }
   };
 
@@ -67,16 +66,26 @@ const AgencyDashboard = ({ user }) => {
 
       <div className="flight-groups-section">
         <h2><i className="fa-solid fa-plane"></i> Flight Groups</h2>
-        <div className="group-filter-dashboard">
-          {groups.map((group) => (
-            <a key={group} href={`/agency/search-flights?group=${group}`} className="group-btn-dashboard">
+        {groups.length === 0 ? (
+          <p style={{ color: '#999', textAlign: 'center', padding: '20px' }}>No flight groups available yet.</p>
+        ) : (
+          <div className="group-filter-dashboard">
+            <a href="/agency/search-flights?group=ALL" className="group-btn-dashboard">
               <div className="group-card-image">
-                <i className={`fa-solid ${groupIcons[group]}`}></i>
+                <i className="fa-solid fa-globe"></i>
               </div>
-              <div className="group-card-name">{group}</div>
+              <div className="group-card-name">All Flights</div>
             </a>
-          ))}
-        </div>
+            {groups.map((group) => (
+              <a key={group.id} href={`/agency/search-flights?group=${group.name}`} className="group-btn-dashboard">
+                <div className="group-card-image" style={group.imageUrl ? { backgroundImage: `url(${API_BASE_URL}${group.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
+                  {!group.imageUrl && <i className="fa-solid fa-layer-group"></i>}
+                </div>
+                <div className="group-card-name">{group.name}</div>
+              </a>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -31,10 +31,12 @@ const FlightManagement = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [airlines, setAirlines] = useState([]);
+  const [groups, setGroups] = useState([]);
 
   useEffect(() => {
     fetchFlights();
     fetchAirlines();
+    fetchGroups();
   }, []);
 
   const fetchAirlines = async () => {
@@ -43,6 +45,15 @@ const FlightManagement = () => {
       setAirlines(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
       console.error('Error fetching airlines:', err);
+    }
+  };
+
+  const fetchGroups = async () => {
+    try {
+      const response = await apiClient.get('/api/groups/admin');
+      setGroups(Array.isArray(response.data) ? response.data : []);
+    } catch (err) {
+      console.error('Error fetching groups:', err);
     }
   };
 
@@ -280,12 +291,9 @@ const FlightManagement = () => {
               onChange={handleChange}
             >
               <option value="ALL">ALL Groups</option>
-              <option value="KSA">KSA Group</option>
-              <option value="UAE">UAE Group</option>
-              <option value="QATAR">QATAR Group</option>
-              <option value="BAHRAIN">BAHRAIN Group</option>
-              <option value="OMAN">OMAN Group</option>
-              <option value="KUWAIT">KUWAIT Group</option>
+              {groups.map(group => (
+                <option key={group.id} value={group.name}>{group.name} Group</option>
+              ))}
             </select>
           </div>
 
