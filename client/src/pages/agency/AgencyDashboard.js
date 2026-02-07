@@ -70,6 +70,13 @@ const AgencyDashboard = ({ user }) => {
           <p style={{ color: '#999', textAlign: 'center', padding: '20px' }}>No flight groups available yet.</p>
         ) : (
           <div className="group-filter-dashboard">
+            <a href="/agency/search-flights" className="group-btn-dashboard">
+              <div className="group-card-image" style={{ background: 'linear-gradient(135deg, #0d2137 0%, #1a3a5c 100%)' }}>
+                <i className="fa-solid fa-globe"></i>
+                <div className="group-card-overlay"></div>
+              </div>
+              <div className="group-card-name">All Flights</div>
+            </a>
             {groups.map((group) => (
               <a key={group.id} href={`/agency/search-flights?group=${group.name}`} className="group-btn-dashboard">
                 <div className="group-card-image" style={group.imageUrl ? { backgroundImage: `url(${API_BASE_URL}${group.imageUrl})` } : undefined}>
