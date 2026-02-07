@@ -180,85 +180,115 @@ const SearchFlights = () => {
         ) : flights.length === 0 ? (
           <p className="no-results">No flights available</p>
         ) : (
-          <div className="table-wrapper">
-            <table className="flights-table">
-              <thead>
-                <tr>
-                  <th>Flight</th>
-                  <th>Route</th>
-                  <th>Date</th>
-                  <th>Time</th>
-                  <th>Class</th>
-                  <th>Meal</th>
-                  <th>Baggage</th>
-                  <th>Seats</th>
-                  <th>Fare</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {flights.map(flight => (
-                  <tr key={flight.id}>
-                    <td>
-                      <div className="flight-info">
-                        {(() => {
-                          const airline = airlines.find(a => a.name === flight.airlineName);
-                          return airline && airline.logoUrl ? (
-                            <img
-                              src={`${API_BASE_URL}${airline.logoUrl}`}
-                              alt={flight.airlineName}
-                              style={{ width: '36px', height: '24px', objectFit: 'contain', borderRadius: '3px', marginBottom: '4px' }}
-                            />
-                          ) : null;
-                        })()}
-                        <strong>{flight.airlineName}</strong>
-                        <span className="flight-number">{flight.flightNumber}</span>
+          (() => {
+            // Group flights by airline and sort airlines alphabetically
+            const grouped = flights.reduce((acc, flight) => {
+              const name = flight.airlineName || 'Unknown Airline';
+              if (!acc[name]) acc[name] = [];
+              acc[name].push(flight);
+              return acc;
+            }, {});
+
+            const sortedAirlines = Object.keys(grouped).sort((a, b) =>
+              a.localeCompare(b, undefined, { sensitivity: 'base' })
+            );
+
+            return sortedAirlines.map(airlineName => {
+              const airlineData = airlines.find(a => a.name === airlineName);
+              const airlineFlights = grouped[airlineName];
+
+              return (
+                <div key={airlineName} className="airline-section">
+                  <div className="airline-section-header">
+                    {airlineData && airlineData.logoUrl ? (
+                      <img
+                        src={`${API_BASE_URL}${airlineData.logoUrl}`}
+                        alt={airlineName}
+                        className="airline-section-logo"
+                      />
+                    ) : (
+                      <div className="airline-section-logo-placeholder">
+                        <i className="fa-solid fa-plane"></i>
                       </div>
-                    </td>
-                    <td>
-                      <div className="route">
-                        <span>{flight.departureCity}</span>
-                        <span className="arrow">→</span>
-                        <span>{flight.destinationCity}</span>
-                      </div>
-                    </td>
-                    <td>
-                      <div className="date-info">
-                        {new Date(flight.departureDate).toLocaleDateString()}
-                      </div>
-                    </td>
-                    <td>
-                      <div className="time-range">
-                        {flight.departureTime} - {flight.arrivalTime}
-                      </div>
-                    </td>
-                    <td>
-                      <span className={`class-badge ${flight.flightClass}`}>
-                        {flight.flightClass.toUpperCase()}
+                    )}
+                    <div className="airline-section-title">
+                      <h3>{airlineName}</h3>
+                      <span className="airline-flight-count">
+                        {airlineFlights.length} flight{airlineFlights.length !== 1 ? 's' : ''} available
                       </span>
-                    </td>
-                    <td className="meal-info">{flight.meal || 'No Meal'}</td>
-                    <td className="baggage-info">{flight.baggage || '20kg'}</td>
-                    <td className="seats">
-                      <span className={flight.seatsRemaining < 10 ? 'low-seats' : ''}>
-                        {flight.seatsRemaining}
-                      </span>
-                    </td>
-                    <td className="price">PKR {flight.pricePerSeat.toLocaleString()}</td>
-                    <td>
-                      <button 
-                        className="book-btn-table"
-                        onClick={() => handleBook(flight.id)}
-                        disabled={flight.seatsRemaining === 0}
-                      >
-                        {flight.seatsRemaining === 0 ? 'Full' : 'Book'}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    </div>
+                  </div>
+
+                  <div className="table-wrapper">
+                    <table className="flights-table">
+                      <thead>
+                        <tr>
+                          <th>Flight #</th>
+                          <th>Route</th>
+                          <th>Date</th>
+                          <th>Time</th>
+                          <th>Class</th>
+                          <th>Meal</th>
+                          <th>Baggage</th>
+                          <th>Seats</th>
+                          <th>Fare</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {airlineFlights.map(flight => (
+                          <tr key={flight.id}>
+                            <td>
+                              <span className="flight-number-cell">{flight.flightNumber}</span>
+                            </td>
+                            <td>
+                              <div className="route">
+                                <span>{flight.departureCity}</span>
+                                <span className="arrow">→</span>
+                                <span>{flight.destinationCity}</span>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="date-info">
+                                {new Date(flight.departureDate).toLocaleDateString()}
+                              </div>
+                            </td>
+                            <td>
+                              <div className="time-range">
+                                {flight.departureTime} - {flight.arrivalTime}
+                              </div>
+                            </td>
+                            <td>
+                              <span className={`class-badge ${flight.flightClass}`}>
+                                {flight.flightClass.toUpperCase()}
+                              </span>
+                            </td>
+                            <td className="meal-info">{flight.meal || 'No Meal'}</td>
+                            <td className="baggage-info">{flight.baggage || '20kg'}</td>
+                            <td className="seats">
+                              <span className={flight.seatsRemaining < 10 ? 'low-seats' : ''}>
+                                {flight.seatsRemaining}
+                              </span>
+                            </td>
+                            <td className="price">PKR {flight.pricePerSeat.toLocaleString()}</td>
+                            <td>
+                              <button 
+                                className="book-btn-table"
+                                onClick={() => handleBook(flight.id)}
+                                disabled={flight.seatsRemaining === 0}
+                              >
+                                {flight.seatsRemaining === 0 ? 'Full' : 'Book'}
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              );
+            });
+          })()
         )}
       </div>
     </div>
