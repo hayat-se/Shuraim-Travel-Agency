@@ -270,12 +270,7 @@ const SearchFlights = () => {
                               <i className="fa-solid fa-plane"></i>
                             </div>
                           )}
-                          <div className="route-group-info">
-                            <span className="route-group-route">{routeKey}</span>
-                            <span className="route-group-meta">
-                              {airlineName} &middot; {routeFlights.length} flight{routeFlights.length !== 1 ? 's' : ''}
-                            </span>
-                          </div>
+                          <span className="route-group-route">{routeKey}</span>
                         </div>
 
                         {/* Desktop Table View */}
