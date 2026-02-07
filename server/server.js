@@ -55,6 +55,9 @@ app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 
+// Image serving from DB (before rate limiter - images should load freely)
+app.use('/api/images', require('./routes/imageRoutes'));
+
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 300,

@@ -13,16 +13,31 @@ const createGroup = async (req, res) => {
       return res.status(400).json({ error: 'Group name already exists' });
     }
 
-    const imageUrl = req.file ? `/uploads/groups/${req.file.filename}` : null;
-
-    const group = await Group.create({
+    const groupData = {
       name,
-      imageUrl,
       isActive: typeof isActive === 'boolean' ? isActive : true,
       createdBy: req.user?.id || null
-    });
+    };
 
-    res.status(201).json({ message: 'Group created successfully', group });
+    if (req.file) {
+      groupData.imageData = req.file.buffer;
+      groupData.imageMimeType = req.file.mimetype;
+    }
+
+    const group = await Group.create(groupData);
+
+    // Set imageUrl to the serving endpoint
+    if (group.imageData) {
+      group.imageUrl = `/api/images/groups/${group.id}`;
+      await group.save();
+    }
+
+    // Return without blob data
+    const result = group.toJSON();
+    delete result.imageData;
+    delete result.imageMimeType;
+
+    res.status(201).json({ message: 'Group created successfully', group: result });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -37,13 +52,23 @@ const updateGroup = async (req, res) => {
       return res.status(404).json({ error: 'Group not found' });
     }
 
-    const updates = { ...req.body };
+    const updates = {};
+    if (req.body.name) updates.name = req.body.name;
+    if (req.body.isActive !== undefined) updates.isActive = req.body.isActive;
+
     if (req.file) {
-      updates.imageUrl = `/uploads/groups/${req.file.filename}`;
+      updates.imageData = req.file.buffer;
+      updates.imageMimeType = req.file.mimetype;
+      updates.imageUrl = `/api/images/groups/${group.id}`;
     }
 
     await group.update(updates);
-    res.status(200).json({ message: 'Group updated successfully', group });
+
+    const result = group.toJSON();
+    delete result.imageData;
+    delete result.imageMimeType;
+
+    res.status(200).json({ message: 'Group updated successfully', group: result });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -51,7 +76,10 @@ const updateGroup = async (req, res) => {
 
 const getAllGroups = async (req, res) => {
   try {
-    const groups = await Group.findAll({ order: [['createdAt', 'DESC']] });
+    const groups = await Group.findAll({
+      attributes: { exclude: ['imageData', 'imageMimeType'] },
+      order: [['createdAt', 'DESC']]
+    });
     res.status(200).json(groups);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -60,7 +88,11 @@ const getAllGroups = async (req, res) => {
 
 const getActiveGroups = async (req, res) => {
   try {
-    const groups = await Group.findAll({ where: { isActive: true }, order: [['createdAt', 'DESC']] });
+    const groups = await Group.findAll({
+      attributes: { exclude: ['imageData', 'imageMimeType'] },
+      where: { isActive: true },
+      order: [['createdAt', 'DESC']]
+    });
     res.status(200).json(groups);
   } catch (error) {
     res.status(500).json({ error: error.message });

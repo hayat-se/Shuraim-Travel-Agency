@@ -18,9 +18,7 @@ const createBank = async (req, res) => {
       return res.status(400).json({ error: 'Bank name, account title, and account number are required' });
     }
 
-    const imageUrl = req.file ? `/uploads/banks/${req.file.filename}` : null;
-
-    const bank = await Bank.create({
+    const bankData = {
       bankName,
       accountTitle,
       accountNumber,
@@ -29,12 +27,27 @@ const createBank = async (req, res) => {
       branchCode: branchCode || null,
       branchAddress: branchAddress || null,
       city: city || null,
-      imageUrl,
       isActive: typeof isActive === 'boolean' ? isActive : true,
       createdBy: req.user?.id || null
-    });
+    };
 
-    res.status(201).json({ message: 'Bank created successfully', bank });
+    if (req.file) {
+      bankData.imageData = req.file.buffer;
+      bankData.imageMimeType = req.file.mimetype;
+    }
+
+    const bank = await Bank.create(bankData);
+
+    if (bank.imageData) {
+      bank.imageUrl = `/api/images/banks/${bank.id}`;
+      await bank.save();
+    }
+
+    const result = bank.toJSON();
+    delete result.imageData;
+    delete result.imageMimeType;
+
+    res.status(201).json({ message: 'Bank created successfully', bank: result });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -49,13 +62,30 @@ const updateBank = async (req, res) => {
       return res.status(404).json({ error: 'Bank not found' });
     }
 
-    const updates = { ...req.body };
+    const updates = {};
+    if (req.body.bankName) updates.bankName = req.body.bankName;
+    if (req.body.accountTitle) updates.accountTitle = req.body.accountTitle;
+    if (req.body.accountNumber) updates.accountNumber = req.body.accountNumber;
+    if (req.body.iban !== undefined) updates.iban = req.body.iban;
+    if (req.body.branchName !== undefined) updates.branchName = req.body.branchName;
+    if (req.body.branchCode !== undefined) updates.branchCode = req.body.branchCode;
+    if (req.body.branchAddress !== undefined) updates.branchAddress = req.body.branchAddress;
+    if (req.body.city !== undefined) updates.city = req.body.city;
+    if (req.body.isActive !== undefined) updates.isActive = req.body.isActive;
+
     if (req.file) {
-      updates.imageUrl = `/uploads/banks/${req.file.filename}`;
+      updates.imageData = req.file.buffer;
+      updates.imageMimeType = req.file.mimetype;
+      updates.imageUrl = `/api/images/banks/${bank.id}`;
     }
+
     await bank.update(updates);
 
-    res.status(200).json({ message: 'Bank updated successfully', bank });
+    const result = bank.toJSON();
+    delete result.imageData;
+    delete result.imageMimeType;
+
+    res.status(200).json({ message: 'Bank updated successfully', bank: result });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -63,7 +93,10 @@ const updateBank = async (req, res) => {
 
 const getAllBanks = async (req, res) => {
   try {
-    const banks = await Bank.findAll({ order: [['createdAt', 'DESC']] });
+    const banks = await Bank.findAll({
+      attributes: { exclude: ['imageData', 'imageMimeType'] },
+      order: [['createdAt', 'DESC']]
+    });
     res.status(200).json(banks);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -72,7 +105,11 @@ const getAllBanks = async (req, res) => {
 
 const getActiveBanks = async (req, res) => {
   try {
-    const banks = await Bank.findAll({ where: { isActive: true }, order: [['createdAt', 'DESC']] });
+    const banks = await Bank.findAll({
+      attributes: { exclude: ['imageData', 'imageMimeType'] },
+      where: { isActive: true },
+      order: [['createdAt', 'DESC']]
+    });
     res.status(200).json(banks);
   } catch (error) {
     res.status(500).json({ error: error.message });

@@ -20,6 +20,14 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: true
     },
+    logoData: {
+      type: DataTypes.BLOB('long'),
+      allowNull: true
+    },
+    logoMimeType: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
     isActive: {
       type: DataTypes.BOOLEAN,
       defaultValue: true

@@ -13,17 +13,30 @@ const createAirline = async (req, res) => {
       return res.status(400).json({ error: 'Airline with this name already exists' });
     }
 
-    const logoUrl = req.file ? `/uploads/airlines/${req.file.filename}` : null;
-
-    const airline = await Airline.create({
+    const airlineData = {
       name,
       code: code || null,
-      logoUrl,
       isActive: true,
       createdBy: req.user?.id || null
-    });
+    };
 
-    res.status(201).json({ message: 'Airline created successfully', airline });
+    if (req.file) {
+      airlineData.logoData = req.file.buffer;
+      airlineData.logoMimeType = req.file.mimetype;
+    }
+
+    const airline = await Airline.create(airlineData);
+
+    if (airline.logoData) {
+      airline.logoUrl = `/api/images/airlines/${airline.id}`;
+      await airline.save();
+    }
+
+    const result = airline.toJSON();
+    delete result.logoData;
+    delete result.logoMimeType;
+
+    res.status(201).json({ message: 'Airline created successfully', airline: result });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -38,18 +51,26 @@ const updateAirline = async (req, res) => {
       return res.status(404).json({ error: 'Airline not found' });
     }
 
-    const updates = { ...req.body };
-    if (req.file) {
-      updates.logoUrl = `/uploads/airlines/${req.file.filename}`;
+    const updates = {};
+    if (req.body.name) updates.name = req.body.name;
+    if (req.body.code !== undefined) updates.code = req.body.code;
+    if (req.body.isActive !== undefined) {
+      updates.isActive = typeof req.body.isActive === 'string' ? req.body.isActive === 'true' : req.body.isActive;
     }
 
-    // Handle isActive string → boolean
-    if (typeof updates.isActive === 'string') {
-      updates.isActive = updates.isActive === 'true';
+    if (req.file) {
+      updates.logoData = req.file.buffer;
+      updates.logoMimeType = req.file.mimetype;
+      updates.logoUrl = `/api/images/airlines/${airline.id}`;
     }
 
     await airline.update(updates);
-    res.status(200).json({ message: 'Airline updated successfully', airline });
+
+    const result = airline.toJSON();
+    delete result.logoData;
+    delete result.logoMimeType;
+
+    res.status(200).json({ message: 'Airline updated successfully', airline: result });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -57,7 +78,10 @@ const updateAirline = async (req, res) => {
 
 const getAllAirlines = async (req, res) => {
   try {
-    const airlines = await Airline.findAll({ order: [['name', 'ASC']] });
+    const airlines = await Airline.findAll({
+      attributes: { exclude: ['logoData', 'logoMimeType'] },
+      order: [['name', 'ASC']]
+    });
     res.status(200).json(airlines);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -67,6 +91,7 @@ const getAllAirlines = async (req, res) => {
 const getActiveAirlines = async (req, res) => {
   try {
     const airlines = await Airline.findAll({
+      attributes: { exclude: ['logoData', 'logoMimeType'] },
       where: { isActive: true },
       order: [['name', 'ASC']]
     });
