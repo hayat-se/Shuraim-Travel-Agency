@@ -97,9 +97,9 @@ const searchFlights = async (req, res) => {
     if (group) where.group = group;
     
     if (departureDate) {
-      const date = new Date(departureDate);
-      const nextDate = new Date(date.getTime() + 24 * 60 * 60 * 1000);
-      where.departureDate = { [Op.between]: [date, nextDate] };
+      const startOfDay = new Date(departureDate + 'T00:00:00.000Z');
+      const endOfDay = new Date(departureDate + 'T23:59:59.999Z');
+      where.departureDate = { [Op.between]: [startOfDay, endOfDay] };
     }
     
     if (minPrice || maxPrice) {

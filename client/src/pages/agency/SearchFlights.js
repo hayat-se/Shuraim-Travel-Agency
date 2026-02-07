@@ -16,6 +16,7 @@ const SearchFlights = () => {
     minPrice: '',
     maxPrice: ''
   });
+  const [dateFilter, setDateFilter] = useState('');
   const [flights, setFlights] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -54,8 +55,11 @@ const SearchFlights = () => {
       setLoading(true);
       setError('');
       try {
-        const groupParam = selectedGroup !== 'ALL' ? `?group=${selectedGroup}` : '';
-        const response = await apiClient.get(`/api/admin/flights/search${groupParam}`);
+        const params = [];
+        if (selectedGroup !== 'ALL') params.push(`group=${selectedGroup}`);
+        if (dateFilter) params.push(`departureDate=${dateFilter}`);
+        const queryString = params.length > 0 ? `?${params.join('&')}` : '';
+        const response = await apiClient.get(`/api/admin/flights/search${queryString}`);
         setFlights(response.data);
       } catch (err) {
         const errorMessage = err.response?.data?.error || err.message || 'Error loading flights';
@@ -66,7 +70,7 @@ const SearchFlights = () => {
       }
     };
     loadFlights();
-  }, [selectedGroup]);
+  }, [selectedGroup, dateFilter]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -126,6 +130,30 @@ const SearchFlights = () => {
             </button>
           ))}
         </div>
+      </div>
+
+      <div className="date-filter-bar">
+        <div className="date-filter-inner">
+          <label><i className="fa-solid fa-calendar-days"></i> Filter by Date:</label>
+          <input
+            type="date"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+          />
+          {dateFilter && (
+            <button
+              className="clear-date-btn"
+              onClick={() => setDateFilter('')}
+            >
+              <i className="fa-solid fa-xmark"></i> Clear
+            </button>
+          )}
+        </div>
+        {dateFilter && (
+          <span className="date-filter-info">
+            Showing flights for: <strong>{new Date(dateFilter + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}</strong>
+          </span>
+        )}
       </div>
 
       <details className="search-filters">

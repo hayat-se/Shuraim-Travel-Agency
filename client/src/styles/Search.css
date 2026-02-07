@@ -65,6 +65,90 @@
   border-color: #0066cc;
 }
 
+/* Date Filter Bar */
+.date-filter-bar {
+  background: white;
+  padding: 16px 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.date-filter-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.date-filter-bar label {
+  font-weight: 600;
+  color: #0d2137;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.date-filter-bar label i {
+  color: #0066cc;
+  margin-right: 4px;
+}
+
+.date-filter-bar input[type="date"] {
+  padding: 8px 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #0d2137;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.date-filter-bar input[type="date"]:focus {
+  outline: none;
+  border-color: #0066cc;
+  background: white;
+}
+
+.clear-date-btn {
+  padding: 7px 14px;
+  border: none;
+  background: #fee2e2;
+  color: #dc2626;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.clear-date-btn:hover {
+  background: #fecaca;
+}
+
+.date-filter-info {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.date-filter-info strong {
+  color: #0066cc;
+}
+
+@media (max-width: 768px) {
+  .date-filter-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .date-filter-inner {
+    flex-wrap: wrap;
+  }
+}
+
 .search-filters {
   background: white;
   border-radius: 8px;
