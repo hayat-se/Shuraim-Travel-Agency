@@ -11,6 +11,117 @@
     margin-left: 0;
     padding: 60px 15px 30px 15px;
   }
+
+  .booking-container h1 {
+    font-size: 22px;
+    margin-bottom: 20px;
+  }
+
+  .flight-summary {
+    padding: 18px;
+    margin-bottom: 20px;
+  }
+
+  .flight-summary h2 {
+    font-size: 18px;
+  }
+
+  .flight-summary p {
+    font-size: 13px;
+  }
+
+  .booking-form {
+    padding: 18px;
+  }
+
+  .form-section h3 {
+    font-size: 16px;
+  }
+
+  .passenger-card {
+    padding: 14px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .price-summary {
+    padding: 16px;
+    margin: 20px 0;
+  }
+
+  .price-row.total {
+    font-size: 15px;
+  }
+
+  .submit-btn {
+    padding: 12px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .booking-container {
+    padding: 60px 10px 20px 10px;
+  }
+
+  .booking-container h1 {
+    font-size: 18px;
+    margin-bottom: 16px;
+  }
+
+  .flight-summary {
+    padding: 14px;
+  }
+
+  .flight-summary h2 {
+    font-size: 16px;
+  }
+
+  .flight-summary p {
+    font-size: 12px;
+  }
+
+  .booking-form {
+    padding: 14px;
+  }
+
+  .form-section h3 {
+    font-size: 15px;
+  }
+
+  .passenger-card {
+    padding: 12px;
+  }
+
+  .form-group label {
+    font-size: 13px;
+  }
+
+  .form-group input,
+  .form-group select {
+    padding: 8px;
+    font-size: 13px;
+  }
+
+  .price-summary {
+    padding: 12px;
+  }
+
+  .price-row {
+    font-size: 13px;
+  }
+
+  .price-row.total {
+    font-size: 14px;
+  }
+
+  .submit-btn {
+    padding: 11px;
+    font-size: 14px;
+  }
 }
 
 @media (min-width: 769px) {

@@ -11,6 +11,112 @@
     margin-left: 0;
     padding: 60px 15px 30px 15px;
   }
+
+  .bookings-container h1 {
+    font-size: 22px;
+    margin-bottom: 20px;
+  }
+
+  .booking-header {
+    padding: 14px 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .booking-header h3 {
+    font-size: 16px;
+  }
+
+  .booking-details {
+    padding: 16px;
+  }
+
+  .detail-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    font-size: 13px;
+  }
+
+  .passengers-list {
+    padding: 12px;
+  }
+
+  .passengers-list li {
+    font-size: 13px;
+  }
+
+  .booking-actions {
+    padding: 0 16px 16px 16px;
+    flex-direction: column;
+  }
+
+  .btn-download,
+  .btn-cancel {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .modal-content {
+    padding: 20px;
+  }
+
+  .modal-content h2 {
+    font-size: 20px;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .btn-cancel-modal,
+  .btn-confirm-cancel {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .bookings-container {
+    padding: 60px 10px 20px 10px;
+  }
+
+  .bookings-container h1 {
+    font-size: 18px;
+    margin-bottom: 16px;
+  }
+
+  .booking-header {
+    padding: 12px 14px;
+  }
+
+  .booking-header h3 {
+    font-size: 15px;
+  }
+
+  .booking-details {
+    padding: 12px;
+  }
+
+  .detail-row {
+    font-size: 12px;
+    gap: 4px;
+  }
+
+  .empty-state {
+    padding: 40px 16px;
+  }
+
+  .empty-state p {
+    font-size: 14px;
+  }
+
+  .cancellation-info {
+    padding: 12px;
+    font-size: 13px;
+  }
 }
 
 @media (min-width: 769px) {
