@@ -613,8 +613,8 @@
 }
 
 .airline-section-logo {
-  width: 52px;
-  height: 36px;
+  width: 62px;
+  height: 42px;
   object-fit: contain;
   border-radius: 6px;
   background: white;
@@ -623,8 +623,8 @@
 }
 
 .airline-section-logo-placeholder {
-  width: 52px;
-  height: 36px;
+  width: 62px;
+  height: 42px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -642,8 +642,8 @@
 }
 
 .route-group-route {
-  font-size: 22px;
-  font-weight: 800;
+  font-size: 17px;
+  font-weight: 700;
   color: #0d2137;
   letter-spacing: 1px;
 }
@@ -848,7 +848,7 @@
   }
 
   .route-group-route {
-    font-size: 18px;
+    font-size: 15px;
   }
 
   .route-group-meta {
@@ -856,13 +856,13 @@
   }
 
   .airline-section-logo {
-    width: 40px;
-    height: 28px;
+    width: 50px;
+    height: 34px;
   }
 
   .airline-section-logo-placeholder {
-    width: 40px;
-    height: 28px;
-    font-size: 16px;
+    width: 50px;
+    height: 34px;
+    font-size: 18px;
   }
 }
