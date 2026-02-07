@@ -6,8 +6,8 @@ const Navigation = ({ user, setUser }) => {
   const navigate = useNavigate();
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [openGroups, setOpenGroups] = useState({
-    Admin: true,
-    Bookings: true
+    Admin: false,
+    Bookings: false
   });
 
   const handleLogout = () => {
@@ -31,7 +31,7 @@ const Navigation = ({ user, setUser }) => {
         items: [
           { label: 'Review Users', icon: 'fa-user-check', path: '/admin/agencies' },
           { label: 'Add Bank', icon: 'fa-building-columns', path: '/admin/banks' },
-          { label: 'Add Airline', icon: 'fa-plane', path: '/admin/flights' },
+          { label: 'Add Airline', icon: 'fa-plane', path: '/admin/airlines' },
           { label: 'Add Country', icon: 'fa-flag', path: '/admin/dashboard' },
           { label: 'Discounts', icon: 'fa-tags', path: '/admin/payments' },
           { label: 'Portal Settings', icon: 'fa-gear', path: '/admin/feedback' }
@@ -42,9 +42,9 @@ const Navigation = ({ user, setUser }) => {
         label: 'Bookings',
         icon: 'fa-ticket',
         items: [
-          { label: 'Book Tickets', icon: 'fa-ticket-simple', path: '/admin/bookings' },
+          { label: 'Add Flights', icon: 'fa-plane-departure', path: '/admin/flights' },
           { label: 'Add Groups', icon: 'fa-layer-group', path: '/admin/groups' },
-          { label: 'My Bookings', icon: 'fa-list-check', path: '/admin/bookings' },
+          { label: 'All Bookings', icon: 'fa-list-check', path: '/admin/bookings' },
           { label: 'Ledger', icon: 'fa-book', path: '/admin/payments' },
           { label: 'Bank Details', icon: 'fa-university', path: '/admin/banks' }
         ]

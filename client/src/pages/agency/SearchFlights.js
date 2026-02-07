@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import apiClient from '../../config/axiosConfig';
+import { API_BASE_URL } from '../../config/api';
 import '../../styles/Search.css';
 
 const SearchFlights = () => {
@@ -18,7 +19,20 @@ const SearchFlights = () => {
   const [flights, setFlights] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [airlines, setAirlines] = useState([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchAirlines = async () => {
+      try {
+        const response = await apiClient.get('/api/airlines/active');
+        setAirlines(Array.isArray(response.data) ? response.data : []);
+      } catch (err) {
+        console.error('Error fetching airlines:', err);
+      }
+    };
+    fetchAirlines();
+  }, []);
 
   useEffect(() => {
     const groupFromUrl = searchParams.get('group') || 'ALL';
@@ -187,6 +201,16 @@ const SearchFlights = () => {
                   <tr key={flight.id}>
                     <td>
                       <div className="flight-info">
+                        {(() => {
+                          const airline = airlines.find(a => a.name === flight.airlineName);
+                          return airline && airline.logoUrl ? (
+                            <img
+                              src={`${API_BASE_URL}${airline.logoUrl}`}
+                              alt={flight.airlineName}
+                              style={{ width: '36px', height: '24px', objectFit: 'contain', borderRadius: '3px', marginBottom: '4px' }}
+                            />
+                          ) : null;
+                        })()}
                         <strong>{flight.airlineName}</strong>
                         <span className="flight-number">{flight.flightNumber}</span>
                       </div>

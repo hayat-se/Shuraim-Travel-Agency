@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../../config/axiosConfig';
+import { API_BASE_URL } from '../../config/api';
 import '../../styles/Management.css';
 
 const FlightManagement = () => {
@@ -29,10 +30,21 @@ const FlightManagement = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [airlines, setAirlines] = useState([]);
 
   useEffect(() => {
     fetchFlights();
+    fetchAirlines();
   }, []);
+
+  const fetchAirlines = async () => {
+    try {
+      const response = await apiClient.get('/api/airlines/active');
+      setAirlines(Array.isArray(response.data) ? response.data : []);
+    } catch (err) {
+      console.error('Error fetching airlines:', err);
+    }
+  };
 
   const fetchFlights = async () => {
     try {
@@ -160,14 +172,19 @@ const FlightManagement = () => {
       {showForm && (
         <form onSubmit={handleSubmit} className="form-container">
           <div className="form-row">
-            <input
-              type="text"
+            <select
               name="airlineName"
-              placeholder="Airline Name"
               value={formData.airlineName}
               onChange={handleChange}
               required
-            />
+            >
+              <option value="">Select Airline</option>
+              {airlines.map((airline) => (
+                <option key={airline.id} value={airline.name}>
+                  {airline.name}{airline.code ? ` (${airline.code})` : ''}
+                </option>
+              ))}
+            </select>
             <input
               type="text"
               name="flightNumber"
@@ -314,6 +331,7 @@ const FlightManagement = () => {
         <table className="data-table">
           <thead>
             <tr>
+              <th>Airline</th>
               <th>Flight Number</th>
               <th>Route</th>
               <th>Departure</th>
@@ -329,6 +347,19 @@ const FlightManagement = () => {
           <tbody>
             {flights.map(flight => (
               <tr key={flight.id}>
+                <td style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  {(() => {
+                    const airline = airlines.find(a => a.name === flight.airlineName);
+                    return airline && airline.logoUrl ? (
+                      <img
+                        src={`${API_BASE_URL}${airline.logoUrl}`}
+                        alt={flight.airlineName}
+                        style={{ width: '30px', height: '22px', objectFit: 'contain', borderRadius: '3px' }}
+                      />
+                    ) : null;
+                  })()}
+                  <span>{flight.airlineName}</span>
+                </td>
                 <td>{flight.flightNumber}</td>
                 <td>{flight.departureCity} → {flight.destinationCity}</td>
                 <td>{new Date(flight.departureDate).toLocaleDateString()}</td>

@@ -79,9 +79,26 @@ const getActiveBanks = async (req, res) => {
   }
 };
 
+const deleteBank = async (req, res) => {
+  try {
+    const { bankId } = req.params;
+    const bank = await Bank.findByPk(bankId);
+
+    if (!bank) {
+      return res.status(404).json({ error: 'Bank not found' });
+    }
+
+    await bank.destroy();
+    res.status(200).json({ message: 'Bank deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   createBank,
   updateBank,
   getAllBanks,
-  getActiveBanks
+  getActiveBanks,
+  deleteBank
 };

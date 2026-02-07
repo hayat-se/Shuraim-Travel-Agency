@@ -13,5 +13,6 @@ router.get('/', authMiddleware, agencyOnly, bankController.getActiveBanks);
 router.get('/admin', authMiddleware, adminOnly, bankController.getAllBanks);
 router.post('/admin', authMiddleware, adminOnly, uploadBankImage.single('image'), bankController.createBank);
 router.put('/admin/:bankId', authMiddleware, adminOnly, uploadBankImage.single('image'), bankController.updateBank);
+router.delete('/admin/:bankId', authMiddleware, adminOnly, bankController.deleteBank);
 
 module.exports = router;

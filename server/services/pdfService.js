@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const QRCode = require('qrcode');
 
-const generateETicket = async (booking, flight, agency) => {
+const generateETicket = async (booking, flight, agency, airlineLogoPath) => {
   return new Promise(async (resolve, reject) => {
     try {
       // Create tickets directory if it doesn't exist
@@ -18,9 +18,21 @@ const generateETicket = async (booking, flight, agency) => {
 
       doc.pipe(stream);
 
-      // Header
-      doc.fontSize(24).font('Helvetica-Bold').text('AIRLINE AGENCY MANAGEMENT SYSTEM', { align: 'center' });
-      doc.fontSize(12).text('Electronic Ticket (E-Ticket)', { align: 'center' });
+      // Airline Logo + Header
+      const headerY = doc.y;
+      if (airlineLogoPath && fs.existsSync(airlineLogoPath)) {
+        try {
+          doc.image(airlineLogoPath, 40, headerY, { width: 80, height: 50 });
+        } catch (imgErr) {
+          console.error('Error embedding airline logo:', imgErr.message);
+        }
+        doc.fontSize(20).font('Helvetica-Bold').text(flight.airlineName, 130, headerY + 5, { width: 380 });
+        doc.fontSize(11).text('Electronic Ticket (E-Ticket)', 130, headerY + 30, { width: 380 });
+        doc.y = headerY + 60;
+      } else {
+        doc.fontSize(24).font('Helvetica-Bold').text(flight.airlineName, { align: 'center' });
+        doc.fontSize(12).text('Electronic Ticket (E-Ticket)', { align: 'center' });
+      }
       doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
       doc.moveDown(0.5);
 

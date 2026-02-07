@@ -23,6 +23,7 @@ import BankManagement from './pages/admin/BankManagement';
 import PaymentManagement from './pages/admin/PaymentManagement';
 import FeedbackManagement from './pages/admin/FeedbackManagement';
 import GroupManagement from './pages/admin/GroupManagement';
+import AirlineManagement from './pages/admin/AirlineManagement';
 
 // Agency Pages
 import AgencyDashboard from './pages/agency/AgencyDashboard';
@@ -89,6 +90,11 @@ function AppContent({ user, setUser }) {
             <Route path="/admin/groups" element={
               <PrivateRoute user={user} role="admin">
                 <GroupManagement />
+              </PrivateRoute>
+            } />
+            <Route path="/admin/airlines" element={
+              <PrivateRoute user={user} role="admin">
+                <AirlineManagement />
               </PrivateRoute>
             } />
             <Route path="/admin/payments" element={

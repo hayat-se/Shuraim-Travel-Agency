@@ -1,7 +1,24 @@
-const { Booking, Flight, Agency, AuditLog } = require('../config/database');
+const { Booking, Flight, Agency, AuditLog, Airline } = require('../config/database');
 const { generateETicket } = require('../services/pdfService');
 const { sendBookingConfirmationEmail } = require('../services/emailService');
 const crypto = require('crypto');
+const path = require('path');
+const fs = require('fs');
+
+// Helper: resolve airline logo file path on disk
+const getAirlineLogoPath = async (airlineName) => {
+  try {
+    if (!Airline) return null;
+    const airline = await Airline.findOne({ where: { name: airlineName } });
+    if (airline && airline.logoUrl) {
+      const absPath = path.join(__dirname, '..', 'public', airline.logoUrl);
+      return fs.existsSync(absPath) ? absPath : null;
+    }
+  } catch (e) {
+    console.error('Airline logo lookup failed:', e.message);
+  }
+  return null;
+};
 
 // Create booking (Agency only)
 const createBooking = async (req, res) => {
@@ -79,7 +96,8 @@ const createBooking = async (req, res) => {
     });
 
     // Generate e-ticket
-    const ticketPath = await generateETicket(newBooking, flight, agency);
+    const airlineLogoPath = await getAirlineLogoPath(flight.airlineName);
+    const ticketPath = await generateETicket(newBooking, flight, agency, airlineLogoPath);
 
     // Update booking with ticket URL
     await newBooking.update({
@@ -321,7 +339,8 @@ const createGuestBooking = async (req, res) => {
       contactPerson: passengers[0].name,
       phone: passengers[0].phone || ''
     };
-    const ticketPath = await generateETicket(newBooking, flight, guestInfo);
+    const airlineLogoPath = await getAirlineLogoPath(flight.airlineName);
+    const ticketPath = await generateETicket(newBooking, flight, guestInfo, airlineLogoPath);
 
     // Update booking with ticket URL
     await newBooking.update({

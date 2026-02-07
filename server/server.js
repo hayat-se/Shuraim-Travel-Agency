@@ -196,6 +196,7 @@ app.use('/api/payments', require('./routes/paymentRoutes'));
 app.use('/api/ledger', require('./routes/ledgerRoutes'));
 app.use('/api/feedback', require('./routes/feedbackRoutes'));
 app.use('/api/groups', require('./routes/groupRoutes'));
+app.use('/api/airlines', require('./routes/airlineRoutes'));
 
 // Health Check
 app.get('/api/health', (req, res) => {

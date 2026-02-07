@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../../config/axiosConfig';
+import { API_BASE_URL } from '../../config/api';
 import '../../styles/Finance.css';
 
 const Banks = () => {
@@ -63,6 +64,14 @@ const Banks = () => {
         <div className="banks-grid">
           {banks.map((bank) => (
             <div key={bank.id} className="bank-card">
+              {bank.imageUrl && (
+                <div className="bank-image">
+                  <img
+                    src={`${API_BASE_URL}${bank.imageUrl}`}
+                    alt={bank.bankName}
+                  />
+                </div>
+              )}
               <div className="bank-header">
                 <h3>{bank.bankName}</h3>
                 <span className="bank-status">Active</span>
@@ -116,10 +125,26 @@ const Banks = () => {
                   </div>
                 )}
 
-                {bank.branchInfo && (
+                {(bank.branchName || bank.branchCode) && (
                   <div className="detail-item">
-                    <label>Branch Location</label>
-                    <p className="branch-info">{bank.branchInfo}</p>
+                    <label>Branch</label>
+                    <p className="branch-info">
+                      {bank.branchName}{bank.branchCode ? ` (${bank.branchCode})` : ''}
+                    </p>
+                  </div>
+                )}
+
+                {bank.city && (
+                  <div className="detail-item">
+                    <label>City</label>
+                    <p className="branch-info">{bank.city}</p>
+                  </div>
+                )}
+
+                {bank.branchAddress && (
+                  <div className="detail-item">
+                    <label>Branch Address</label>
+                    <p className="branch-info">{bank.branchAddress}</p>
                   </div>
                 )}
               </div>
@@ -153,6 +178,24 @@ const Banks = () => {
           border-color: #667eea;
           box-shadow: 0 8px 24px rgba(102, 126, 234, 0.12);
           transform: translateY(-4px);
+        }
+
+        .bank-image {
+          width: 100%;
+          height: 140px;
+          margin-bottom: 16px;
+          border-radius: 8px;
+          overflow: hidden;
+          background: #f1f5f9;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .bank-image img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
         }
 
         .bank-header {
