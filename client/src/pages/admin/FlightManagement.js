@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../../config/axiosConfig';
 import { API_BASE_URL } from '../../config/api';
+import AIRPORT_CITIES, { AIRPORT_COUNTRIES } from '../../config/airportCities';
 import '../../styles/Management.css';
 
 const FlightManagement = () => {
@@ -224,22 +225,40 @@ const FlightManagement = () => {
           </div>
 
           <div className="form-row">
-            <input
-              type="text"
+            <select
               name="departureCity"
-              placeholder="Departure City"
               value={formData.departureCity}
               onChange={handleChange}
               required
-            />
-            <input
-              type="text"
+            >
+              <option value="">Select Departure City</option>
+              {AIRPORT_COUNTRIES.map(country => (
+                <optgroup key={country} label={country}>
+                  {AIRPORT_CITIES.filter(a => a.country === country).map(a => (
+                    <option key={a.code} value={`${a.city} (${a.code})`}>
+                      {a.city} ({a.code})
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+            <select
               name="destinationCity"
-              placeholder="Destination City"
               value={formData.destinationCity}
               onChange={handleChange}
               required
-            />
+            >
+              <option value="">Select Destination City</option>
+              {AIRPORT_COUNTRIES.map(country => (
+                <optgroup key={country} label={country}>
+                  {AIRPORT_CITIES.filter(a => a.country === country).map(a => (
+                    <option key={a.code} value={`${a.city} (${a.code})`}>
+                      {a.city} ({a.code})
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
           </div>
 
           <div className="form-row">
