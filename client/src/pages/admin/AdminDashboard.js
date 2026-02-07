@@ -92,16 +92,21 @@ const AdminDashboard = () => {
 
       <div className="flight-groups-section">
         <h2><i className="fa-solid fa-plane"></i> Flight Groups</h2>
-        <div className="group-filter-dashboard">
-          {groups.map((group) => (
-            <a key={group.id} href={`/admin/flights?group=${group.name}`} className="group-btn-dashboard">
-              <div className="group-card-image" style={group.imageUrl ? { backgroundImage: `url(${group.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
-                {!group.imageUrl && <i className="fa-solid fa-layer-group"></i>}
-              </div>
-              <div className="group-card-name">{group.name}</div>
-            </a>
-          ))}
-        </div>
+        {groups.length === 0 ? (
+          <p style={{ color: '#999', textAlign: 'center', padding: '20px' }}>No flight groups added yet. Go to Bookings → Add Groups.</p>
+        ) : (
+          <div className="group-filter-dashboard">
+            {groups.map((group) => (
+              <a key={group.id} href={`/admin/flights?group=${group.name}`} className="group-btn-dashboard">
+                <div className="group-card-image" style={group.imageUrl ? { backgroundImage: `url(${group.imageUrl})` } : undefined}>
+                  {!group.imageUrl && <i className="fa-solid fa-layer-group"></i>}
+                  <div className="group-card-overlay"></div>
+                </div>
+                <div className="group-card-name">{group.name}</div>
+              </a>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

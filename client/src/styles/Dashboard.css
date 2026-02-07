@@ -173,14 +173,14 @@
 .flight-groups-section {
   background: white;
   padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   margin-top: 30px;
 }
 
 .flight-groups-section h2 {
-  color: #333;
-  margin-bottom: 20px;
+  color: #0d2137;
+  margin-bottom: 24px;
   font-size: 20px;
   display: flex;
   align-items: center;
@@ -189,38 +189,37 @@
 
 .group-filter-dashboard {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
 }
 
 .group-btn-dashboard {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
+  align-items: stretch;
   background: white;
   color: #0f172a;
   text-decoration: none;
-  border-radius: 8px;
+  border-radius: 14px;
   font-weight: 600;
-  font-size: 14px;
-  transition: all 0.3s ease;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  transition: all 0.35s ease;
+  border: none;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  height: 160px;
 }
 
 .group-btn-dashboard:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(0, 102, 204, 0.2);
-  border-color: #0066cc;
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
 }
 
 .group-card-image {
-  flex: 1;
+  position: relative;
   width: 100%;
+  height: 160px;
   background: linear-gradient(135deg, #0066cc 0%, #004399 100%);
+  background-size: cover;
+  background-position: center;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -228,15 +227,25 @@
   color: white;
 }
 
+.group-card-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(to top, rgba(0,0,0,0.35) 0%, transparent 100%);
+  pointer-events: none;
+}
+
 .group-card-name {
-  width: 100%;
-  padding: 12px;
+  padding: 14px 16px;
   text-align: center;
-  font-size: 13px;
-  font-weight: 600;
-  color: #0f172a;
+  font-size: 15px;
+  font-weight: 700;
+  color: #0d2137;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
   background: white;
-  border-top: 1px solid #e5e7eb;
 }
 
 .loading {
@@ -276,83 +285,66 @@
   color: #f44336;
 }
 
-/* Highlighted Flight Groups Section */
+/* Highlighted Flight Groups Section (override for specific pages) */
 .flight-groups-section {
-  background: linear-gradient(135deg, rgba(0, 102, 204, 0.08) 0%, rgba(0, 68, 153, 0.08) 100%);
-  border: 2px solid #0066cc;
-  border-radius: 12px;
+  background: white;
+  border: none;
+  border-radius: 14px;
   padding: 30px;
   margin-top: 30px;
-  box-shadow: 0 4px 15px rgba(0, 102, 204, 0.15);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 
 .flight-groups-section h2 {
-  color: #0066cc;
-  margin-bottom: 20px;
+  color: #0d2137;
+  margin-bottom: 24px;
   font-size: 22px;
   font-weight: 700;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
 }
 
 .group-filter-dashboard {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
 }
 
 .group-btn-dashboard {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 25px 15px;
-  background: linear-gradient(135deg, #0066cc 0%, #004399 100%);
-  color: white;
+  align-items: stretch;
+  background: white;
+  color: #0f172a;
   text-decoration: none;
-  border-radius: 12px;
+  border-radius: 14px;
   font-weight: 600;
-  font-size: 14px;
-  transition: all 0.3s ease;
-  border: 2px solid #0066cc;
-  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
-  position: relative;
+  transition: all 0.35s ease;
+  border: none;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  min-height: 140px;
-  gap: 10px;
+  position: relative;
 }
 
 .group-btn-dashboard::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.1);
-  transition: left 0.3s ease;
+  display: none;
 }
 
 .group-btn-dashboard:hover {
-  transform: translateY(-8px) scale(1.05);
-  box-shadow: 0 8px 25px rgba(0, 102, 204, 0.5);
-  background: linear-gradient(135deg, #004399 0%, #003366 100%);
-  border-color: #ffeb3b;
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+  background: white;
+  border-color: transparent;
 }
 
 .group-btn-dashboard:hover::before {
-  left: 100%;
+  display: none;
 }
 
+/* Legacy group icon/name classes - kept for backward compatibility */
 .group-icon {
   font-size: 32px;
   display: block;
   line-height: 1;
-}
-
-.group-icon i {
-  font-size: 32px;
-  color: #ffffff;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .group-name {

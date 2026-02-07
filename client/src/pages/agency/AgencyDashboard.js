@@ -70,16 +70,11 @@ const AgencyDashboard = ({ user }) => {
           <p style={{ color: '#999', textAlign: 'center', padding: '20px' }}>No flight groups available yet.</p>
         ) : (
           <div className="group-filter-dashboard">
-            <a href="/agency/search-flights?group=ALL" className="group-btn-dashboard">
-              <div className="group-card-image">
-                <i className="fa-solid fa-globe"></i>
-              </div>
-              <div className="group-card-name">All Flights</div>
-            </a>
             {groups.map((group) => (
               <a key={group.id} href={`/agency/search-flights?group=${group.name}`} className="group-btn-dashboard">
-                <div className="group-card-image" style={group.imageUrl ? { backgroundImage: `url(${API_BASE_URL}${group.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
+                <div className="group-card-image" style={group.imageUrl ? { backgroundImage: `url(${API_BASE_URL}${group.imageUrl})` } : undefined}>
                   {!group.imageUrl && <i className="fa-solid fa-layer-group"></i>}
+                  <div className="group-card-overlay"></div>
                 </div>
                 <div className="group-card-name">{group.name}</div>
               </a>
