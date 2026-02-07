@@ -161,6 +161,33 @@ const cancelFlight = async (req, res) => {
   }
 };
 
+// Delete flight permanently (Admin only)
+const deleteFlight = async (req, res) => {
+  try {
+    const { flightId } = req.params;
+
+    const flight = await Flight.findByPk(flightId);
+    if (!flight) {
+      return res.status(404).json({ error: 'Flight not found' });
+    }
+
+    // Check if flight has any bookings
+    if (flight.seatsBooked > 0) {
+      return res.status(400).json({ 
+        error: 'Cannot delete flight with existing bookings. Cancel the flight instead.' 
+      });
+    }
+
+    await flight.destroy();
+
+    res.status(200).json({
+      message: 'Flight deleted successfully'
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Get seat availability
 const getSeatAvailability = async (req, res) => {
   try {
@@ -190,5 +217,6 @@ module.exports = {
   searchFlights,
   updateFlight,
   cancelFlight,
+  deleteFlight,
   getSeatAvailability
 };

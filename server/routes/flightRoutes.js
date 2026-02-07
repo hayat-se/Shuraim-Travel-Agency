@@ -12,6 +12,7 @@ router.get('/:flightId', flightController.getFlightById);
 router.post('/', authMiddleware, adminOnly, flightController.createFlight);
 router.put('/:flightId', authMiddleware, adminOnly, flightController.updateFlight);
 router.delete('/:flightId/cancel', authMiddleware, adminOnly, flightController.cancelFlight);
+router.delete('/:flightId', authMiddleware, adminOnly, flightController.deleteFlight);
 router.get('/:flightId/availability', flightController.getSeatAvailability);
 
 module.exports = router;

@@ -143,6 +143,23 @@ const FlightManagement = () => {
     setError('');
   };
 
+  const handleDelete = async (flight) => {
+    const confirmMsg = `Are you sure you want to permanently delete flight ${flight.flightNumber} (${flight.departureCity} → ${flight.destinationCity})?\n\nThis action cannot be undone.`;
+    if (!window.confirm(confirmMsg)) return;
+
+    try {
+      await apiClient.delete(`/api/admin/flights/${flight.id}`);
+      setSuccess(`Flight ${flight.flightNumber} deleted successfully!`);
+      setError('');
+      fetchFlights();
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || err.message || 'Error deleting flight';
+      setError(errorMessage);
+      setSuccess('');
+    }
+  };
+
   if (loading) return <div className="loading">Loading...</div>;
 
   return (
@@ -372,6 +389,9 @@ const FlightManagement = () => {
                 <td className="actions">
                   <button className="btn-edit" onClick={() => handleEditClick(flight)}>
                     ✎ Edit
+                  </button>
+                  <button className="btn-delete" onClick={() => handleDelete(flight)}>
+                    🗑 Delete
                   </button>
                 </td>
               </tr>
