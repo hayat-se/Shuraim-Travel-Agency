@@ -2,37 +2,23 @@ const { Sequelize } = require('sequelize');
 const fs = require('fs');
 const path = require('path');
 
-// Use SQLite for development if MySQL is not available
-const dbType = process.env.DB_TYPE || 'sqlite';
-
-let sequelize;
-
-if (dbType === 'mysql') {
-  sequelize = new Sequelize(
-    process.env.DB_NAME || 'airline_agency',
-    process.env.DB_USER || 'root',
-    process.env.DB_PASSWORD || 'password',
-    {
-      host: process.env.DB_HOST || 'localhost',
-      port: process.env.DB_PORT || 3306,
-      dialect: 'mysql',
-      logging: false,
-      pool: {
-        max: 10,
-        min: 2,
-        acquire: 30000,
-        idle: 10000
-      }
+const sequelize = new Sequelize(
+  process.env.DB_NAME || 'railway',
+  process.env.DB_USER || 'root',
+  process.env.DB_PASSWORD || 'password',
+  {
+    host: process.env.DB_HOST || 'localhost',
+    port: process.env.DB_PORT || 3306,
+    dialect: 'mysql',
+    logging: false,
+    pool: {
+      max: 10,
+      min: 2,
+      acquire: 30000,
+      idle: 10000
     }
-  );
-} else {
-  // SQLite for development
-  sequelize = new Sequelize({
-    dialect: 'sqlite',
-    storage: path.join(__dirname, '../airline_agency.db'),
-    logging: false
-  });
-}
+  }
+);
 
 const db = {};
 

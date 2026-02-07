@@ -63,123 +63,50 @@ const apiLimiter = rateLimit({
 });
 app.use('/api', apiLimiter);
 
-// Initialize database
-db.sequelize.authenticate()
-  .then(() => console.log('MySQL connected successfully'))
-  .catch(err => console.log('MySQL connection error:', err.message));
+// Initialize database and start server
+const bcrypt = require('bcryptjs');
 
-// Sync models with database
-const isSqlite = (process.env.DB_TYPE || 'sqlite') === 'sqlite';
-db.sequelize.sync(isSqlite ? undefined : undefined)
-  .then(async () => {
-    console.log('Database synced');
-    try {
-      if (db.Booking) {
-        await db.Booking.update(
-          { status: 'hold' },
-          { where: { status: 'confirmed' } }
-        );
-        await db.Booking.update(
-          { status: 'sold' },
-          { where: { status: 'completed' } }
-        );
-      }
-    } catch (err) {
-      console.log('Booking status migration error:', err.message);
+const initializeApp = async () => {
+  try {
+    // Connect to MySQL
+    await db.sequelize.authenticate();
+    console.log('MySQL connected successfully');
+
+    // Sync all tables (alter: true adds missing columns automatically)
+    await db.sequelize.sync({ alter: true });
+    console.log('Database tables synced');
+
+    // Auto-create admin user if not exists
+    const adminEmail = 'admin@airline.com';
+    const existingAdmin = await db.Admin.findOne({ where: { email: adminEmail } });
+    if (!existingAdmin) {
+      const hashedPassword = await bcrypt.hash('admin123', 10);
+      await db.Admin.create({
+        name: 'System Administrator',
+        email: adminEmail,
+        password: hashedPassword,
+        role: 'super_admin',
+        companyName: 'Shuraim Air Travels & Tours',
+        phone: '+92-300-1234567',
+        address: 'Karachi, Pakistan',
+        city: 'Karachi',
+        country: 'Pakistan'
+      });
+      console.log('Admin user created (admin@airline.com / admin123)');
     }
-    if (isSqlite) {
-      try {
-        const queryInterface = db.sequelize.getQueryInterface();
-        const flightColumns = await queryInterface.describeTable('Flights');
 
-        if (!flightColumns.group) {
-          await queryInterface.addColumn('Flights', 'group', {
-            type: db.Sequelize.STRING,
-            defaultValue: 'ALL'
-          });
-          console.log('SQLite migration: added Flights.group');
-        }
-
-        if (!flightColumns.meal) {
-          await queryInterface.addColumn('Flights', 'meal', {
-            type: db.Sequelize.STRING,
-            defaultValue: 'No Meal'
-          });
-          console.log('SQLite migration: added Flights.meal');
-        }
-
-        if (!flightColumns.baggage) {
-          await queryInterface.addColumn('Flights', 'baggage', {
-            type: db.Sequelize.STRING,
-            defaultValue: '20kg'
-          });
-          console.log('SQLite migration: added Flights.baggage');
-        }
-
-        const agencyColumns = await queryInterface.describeTable('agencies');
-        if (!agencyColumns.approvedAt) {
-          await queryInterface.addColumn('agencies', 'approvedAt', {
-            type: db.Sequelize.DATE,
-            allowNull: true
-          });
-          console.log('SQLite migration: added agencies.approvedAt');
-        }
-
-        if (!agencyColumns.approvedBy) {
-          await queryInterface.addColumn('agencies', 'approvedBy', {
-            type: db.Sequelize.INTEGER,
-            allowNull: true
-          });
-          console.log('SQLite migration: added agencies.approvedBy');
-        }
-
-        if (!agencyColumns.rejectionReason) {
-          await queryInterface.addColumn('agencies', 'rejectionReason', {
-            type: db.Sequelize.TEXT,
-            allowNull: true
-          });
-          console.log('SQLite migration: added agencies.rejectionReason');
-        }
-
-        const bookingColumns = await queryInterface.describeTable('bookings');
-        if (!bookingColumns.cancellationReason) {
-          await queryInterface.addColumn('bookings', 'cancellationReason', {
-            type: db.Sequelize.TEXT,
-            allowNull: true
-          });
-          console.log('SQLite migration: added bookings.cancellationReason');
-        }
-
-        if (!bookingColumns.cancelledBy) {
-          await queryInterface.addColumn('bookings', 'cancelledBy', {
-            type: db.Sequelize.STRING,
-            allowNull: true
-          });
-          console.log('SQLite migration: added bookings.cancelledBy');
-        }
-
-        if (!bookingColumns.cancelledAt) {
-          await queryInterface.addColumn('bookings', 'cancelledAt', {
-            type: db.Sequelize.DATE,
-            allowNull: true
-          });
-          console.log('SQLite migration: added bookings.cancelledAt');
-        }
-      } catch (err) {
-        console.log('SQLite migration error:', err.message);
-      }
-    }
-    
-    // Start booking scheduler to auto-convert 'hold' to 'sold' when flight departs
+    // Start booking scheduler
     const schedulerEnabled = (process.env.BOOKING_SCHEDULER_ENABLED || 'true')
       .toLowerCase() === 'true';
     if (schedulerEnabled) {
       startBookingScheduler();
-    } else {
-      console.log('[BookingScheduler] Scheduler disabled by BOOKING_SCHEDULER_ENABLED');
     }
-  })
-  .catch(err => console.log('Database sync error:', err.message));
+  } catch (err) {
+    console.error('Database initialization error:', err.message);
+  }
+};
+
+initializeApp();
 
 // Make db available globally
 global.db = db;
