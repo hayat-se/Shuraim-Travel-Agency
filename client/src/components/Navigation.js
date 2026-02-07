@@ -24,6 +24,7 @@ const Navigation = ({ user, setUser }) => {
 
   const menuItems = user?.role === 'admin'
     ? [
+      { label: 'Dashboard', icon: 'fa-chart-line', path: '/admin/dashboard' },
       {
         type: 'group',
         label: 'Admin',
@@ -32,7 +33,6 @@ const Navigation = ({ user, setUser }) => {
           { label: 'Review Users', icon: 'fa-user-check', path: '/admin/agencies' },
           { label: 'Add Bank', icon: 'fa-building-columns', path: '/admin/banks' },
           { label: 'Add Airline', icon: 'fa-plane', path: '/admin/airlines' },
-          { label: 'Add Country', icon: 'fa-flag', path: '/admin/dashboard' },
           { label: 'Discounts', icon: 'fa-tags', path: '/admin/payments' },
           { label: 'Portal Settings', icon: 'fa-gear', path: '/admin/feedback' }
         ]
