@@ -204,41 +204,22 @@ const cancelBooking = async (req, res) => {
     }
 
     if (booking.status === 'sold') {
-      return res.status(400).json({ error: 'Cannot cancel a sold ticket (flight has already departed)' });
+      return res.status(400).json({ error: 'Cannot cancel a sold ticket' });
     }
 
     const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
 
     if (!isAdmin) {
-      // Agency requests cancellation
-      if (booking.status === 'cancel_requested') {
-        return res.status(400).json({ error: 'Cancellation already requested' });
+      // Agency can only cancel within 1 hour of booking
+      const bookingAge = Date.now() - new Date(booking.createdAt).getTime();
+      const ONE_HOUR = 60 * 60 * 1000;
+
+      if (bookingAge > ONE_HOUR) {
+        return res.status(400).json({ error: 'Cancellation window expired. Bookings can only be cancelled within 1 hour of booking.' });
       }
-
-      await booking.update({
-        status: 'cancel_requested',
-        cancellationReason: reason || null,
-        cancelledBy: req.user.role,
-        cancelledAt: new Date()
-      });
-
-      await AuditLog.create({
-        action: 'booking_cancelled',
-        userId: req.user.id,
-        userRole: req.user.role,
-        userEmail: req.user.email,
-        bookingId: booking.id,
-        flightId: booking.flightId,
-        details: { reason: reason || 'No reason provided', requestOnly: true }
-      });
-
-      return res.status(200).json({
-        message: 'Cancellation request sent to admin',
-        booking
-      });
     }
 
-    // Admin approves cancellation
+    // Direct cancellation (agency within 1hr or admin anytime)
     const flight = await Flight.findByPk(booking.flightId);
     await flight.update({
       seatsBooked: flight.seatsBooked - booking.seatsBooked,
@@ -247,7 +228,7 @@ const cancelBooking = async (req, res) => {
 
     await booking.update({
       status: 'cancelled',
-      cancellationReason: reason || booking.cancellationReason || null,
+      cancellationReason: reason || null,
       cancelledBy: req.user.role,
       cancelledAt: new Date()
     });
@@ -259,7 +240,7 @@ const cancelBooking = async (req, res) => {
       userEmail: req.user.email,
       bookingId: booking.id,
       flightId: booking.flightId,
-      details: { seatsFreed: booking.seatsBooked, reason: reason || booking.cancellationReason || 'No reason provided' }
+      details: { seatsFreed: booking.seatsBooked, reason: reason || 'No reason provided' }
     });
 
     res.status(200).json({

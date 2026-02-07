@@ -60,6 +60,27 @@ const MyBookings = () => {
     setCancellationReason('');
   };
 
+  // Check if booking is within 1-hour cancel window
+  const getCancelTimeLeft = (booking) => {
+    const created = new Date(booking.createdAt).getTime();
+    const deadline = created + 60 * 60 * 1000; // 1 hour
+    const remaining = deadline - Date.now();
+    return remaining > 0 ? remaining : 0;
+  };
+
+  const formatTimeLeft = (ms) => {
+    const mins = Math.floor(ms / 60000);
+    const secs = Math.floor((ms % 60000) / 1000);
+    return `${mins}m ${secs}s`;
+  };
+
+  // Auto-refresh to update countdown timers
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => setTick(t => t + 1), 30000); // refresh every 30s
+    return () => clearInterval(timer);
+  }, []);
+
   const handleConfirmCancel = async () => {
     if (!selectedBooking) return;
 
@@ -70,17 +91,17 @@ const MyBookings = () => {
         { reason: cancellationReason }
       );
 
-      // Update local state to show requested cancellation
+      // Update local state - booking is now directly cancelled
       setBookings(prev =>
         prev.map(b =>
-          b.id === selectedBooking.id ? { ...b, status: 'cancel_requested', cancellationReason: cancellationReason || null } : b
+          b.id === selectedBooking.id ? { ...b, status: 'cancelled', cancellationReason: cancellationReason || null } : b
         )
       );
 
       setShowCancelModal(false);
       setCancellationReason('');
       setSelectedBooking(null);
-      alert('Cancellation request sent to admin. You will see it cancelled after approval.');
+      alert('Booking cancelled successfully. Seats have been freed.');
     } catch (err) {
       const errorMessage = err.response?.data?.error || err.message || 'Error cancelling booking';
       alert('Error: ' + errorMessage);
@@ -150,14 +171,6 @@ const MyBookings = () => {
                     <strong>Cancellation Reason:</strong> {booking.cancellationReason}
                   </div>
                 )}
-                {booking.status === 'cancel_requested' && (
-                  <div className="cancellation-info">
-                    <strong>Cancellation Requested:</strong> Waiting for admin approval.
-                    {booking.cancellationReason && (
-                      <span> Reason: {booking.cancellationReason}</span>
-                    )}
-                  </div>
-                )}
               </div>
 
               <div className="booking-actions">
@@ -169,12 +182,12 @@ const MyBookings = () => {
                     📥 Download E-Ticket
                   </button>
                 )}
-                {(booking.status === 'hold' || booking.status === 'confirmed') && (
+                {(booking.status === 'hold' || booking.status === 'confirmed') && getCancelTimeLeft(booking) > 0 && (
                   <button 
                     className="btn-cancel"
                     onClick={() => handleCancelClick(booking)}
                   >
-                    <i className="fa-solid fa-trash-alt"></i> Cancel Booking
+                    <i className="fa-solid fa-trash-alt"></i> Cancel ({formatTimeLeft(getCancelTimeLeft(booking))} left)
                   </button>
                 )}
               </div>
