@@ -18,7 +18,7 @@ const FlightManagement = () => {
     flightClass: 'economy',
     group: 'ALL',
     status: 'active',
-    meal: 'No Meal',
+    meal: 'Yes',
     baggage: '20kg',
     totalSeatsAvailable: '',
     pricePerSeat: ''
@@ -138,7 +138,7 @@ const FlightManagement = () => {
       flightClass: flight.flightClass || 'economy',
       group: flight.group || 'ALL',
       status: flight.status || 'active',
-      meal: flight.meal || 'No Meal',
+      meal: flight.meal || 'No',
       baggage: flight.baggage || '20kg',
       totalSeatsAvailable: flight.totalSeatsAvailable || '',
       pricePerSeat: flight.pricePerSeat || ''
@@ -329,13 +329,14 @@ const FlightManagement = () => {
           </div>
 
           <div className="form-row">
-            <input
-              type="text"
+            <select
               name="meal"
-              placeholder="Meal (e.g., Breakfast, Lunch, No Meal)"
               value={formData.meal}
               onChange={handleChange}
-            />
+            >
+              <option value="Yes">Meal: Yes</option>
+              <option value="No">Meal: No</option>
+            </select>
             <input
               type="text"
               name="baggage"

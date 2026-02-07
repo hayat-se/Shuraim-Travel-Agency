@@ -279,7 +279,13 @@ const SearchFlights = () => {
                                 {flight.flightClass.toUpperCase()}
                               </span>
                             </td>
-                            <td className="meal-info">{flight.meal || 'No Meal'}</td>
+                            <td className="meal-info">
+                              {flight.meal === 'Yes' || flight.meal === 'yes' ? (
+                                <span style={{ color: '#16a34a', fontWeight: 600 }}><i className="fa-solid fa-utensils"></i> Yes</span>
+                              ) : (
+                                <span style={{ color: '#94a3b8' }}><i className="fa-solid fa-xmark"></i> No</span>
+                              )}
+                            </td>
                             <td className="baggage-info">{flight.baggage || '20kg'}</td>
                             <td className="seats">
                               <span className={flight.seatsRemaining < 10 ? 'low-seats' : ''}>
