@@ -14,12 +14,9 @@ const AdminDashboard = () => {
     canceledTickets: 0
   });
   const [loading, setLoading] = useState(true);
-  
-  const [groups, setGroups] = useState([]);
 
   useEffect(() => {
     fetchStats();
-    fetchGroups();
   }, []);
 
   const fetchStats = async () => {
@@ -30,15 +27,6 @@ const AdminDashboard = () => {
       console.error('Error fetching stats:', error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchGroups = async () => {
-    try {
-      const response = await apiClient.get('/api/groups/admin');
-      setGroups(Array.isArray(response.data) ? response.data : []);
-    } catch (error) {
-      console.error('Error fetching groups:', error);
     }
   };
 
@@ -88,25 +76,6 @@ const AdminDashboard = () => {
           <h3><i className="fa-solid fa-times-circle"></i> Cancelled Tickets</h3>
           <p className="stat-number">{stats.canceledTickets}</p>
         </div>
-      </div>
-
-      <div className="flight-groups-section">
-        <h2><i className="fa-solid fa-plane"></i> Flight Groups</h2>
-        {groups.length === 0 ? (
-          <p style={{ color: '#999', textAlign: 'center', padding: '20px' }}>No flight groups added yet. Go to Bookings → Add Groups.</p>
-        ) : (
-          <div className="group-filter-dashboard">
-            {groups.map((group) => (
-              <a key={group.id} href={`/admin/flights?group=${group.name}`} className="group-btn-dashboard">
-                <div className="group-card-image" style={group.imageUrl ? { backgroundImage: `url(${group.imageUrl})` } : undefined}>
-                  {!group.imageUrl && <i className="fa-solid fa-layer-group"></i>}
-                  <div className="group-card-overlay"></div>
-                </div>
-                <div className="group-card-name">{group.name}</div>
-              </a>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );
