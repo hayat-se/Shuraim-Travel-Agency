@@ -58,7 +58,7 @@ const createBooking = async (req, res) => {
     // Calculate total price
     const totalPrice = flight.pricePerSeat * seatsBooked;
 
-    // Create booking
+    // Create booking in 'hold' status initially
     const newBooking = await Booking.create({
       bookingId,
       flightId: flightId,
@@ -66,8 +66,8 @@ const createBooking = async (req, res) => {
       seatsBooked,
       totalPrice,
       passengers,
-      status: 'sold',
-      paymentStatus: 'completed'
+      status: 'hold',
+      paymentStatus: 'pending'
     });
 
     // Update flight seats

@@ -1,12 +1,16 @@
 const { Booking, Flight } = require('../config/database');
 
+const AUTO_SELL_HOURS = 2; // Bookings auto-convert to 'sold' after 2 hours
+
 /**
- * Update bookings from 'hold' to 'sold' when flight departure time has passed
- * This runs periodically to sync booking statuses with flight departure times
+ * Update bookings from 'hold' to 'sold':
+ *   1. If 2 hours have passed since booking was created (not cancelled) → sold
+ *   2. If flight departure time has passed → sold
  */
-const updateBookingStatusesFromFlightDeparture = async () => {
+const updateBookingStatuses = async () => {
   try {
     const now = new Date();
+    const twoHoursAgo = new Date(now.getTime() - AUTO_SELL_HOURS * 60 * 60 * 1000);
 
     // Get all 'hold' or 'cancel_requested' bookings
     const holdBookings = await Booking.findAll({
@@ -14,26 +18,41 @@ const updateBookingStatusesFromFlightDeparture = async () => {
       include: [{ model: Flight, as: 'flight' }]
     });
 
+    let updatedCount = 0;
+
     for (const booking of holdBookings) {
-      if (!booking.flight) continue;
+      let shouldSell = false;
+      let reason = '';
 
-      // If ticket is generated or payment completed, mark as sold immediately
-      if (booking.ticketGenerated || booking.paymentStatus === 'completed') {
-        await booking.update({ status: 'sold' });
-        console.log(`[BookingScheduler] Booking ${booking.bookingId} status updated to 'sold' (payment/ticket)`);
-        continue;
+      // Rule 1: If 2 hours have passed since booking creation → auto-sell
+      const bookingCreatedAt = new Date(booking.createdAt);
+      if (bookingCreatedAt <= twoHoursAgo) {
+        shouldSell = true;
+        reason = `2+ hours elapsed since booking (created ${bookingCreatedAt.toISOString()})`;
       }
 
-      // Parse flight departure date and time
-      const flightDepartureDate = new Date(booking.flight.departureDate);
-      const [hours, minutes] = booking.flight.departureTime.split(':').map(Number);
-      flightDepartureDate.setHours(hours, minutes, 0, 0);
-
-      // If departure time has passed, mark as 'sold'
-      if (flightDepartureDate < now) {
-        await booking.update({ status: 'sold' });
-        console.log(`[BookingScheduler] Booking ${booking.bookingId} status updated from '${booking.status}' to 'sold'`);
+      // Rule 2: If flight departure time has passed → sell
+      if (!shouldSell && booking.flight) {
+        const flightDepartureDate = new Date(booking.flight.departureDate);
+        if (booking.flight.departureTime) {
+          const [hours, minutes] = booking.flight.departureTime.split(':').map(Number);
+          flightDepartureDate.setHours(hours, minutes, 0, 0);
+        }
+        if (flightDepartureDate < now) {
+          shouldSell = true;
+          reason = 'flight has departed';
+        }
       }
+
+      if (shouldSell) {
+        await booking.update({ status: 'sold', paymentStatus: 'completed' });
+        updatedCount++;
+        console.log(`[BookingScheduler] ${booking.bookingId} → sold (${reason})`);
+      }
+    }
+
+    if (updatedCount > 0) {
+      console.log(`[BookingScheduler] ${updatedCount} booking(s) updated to 'sold'`);
     }
   } catch (error) {
     console.error('[BookingScheduler] Error updating booking statuses:', error.message);
@@ -42,19 +61,19 @@ const updateBookingStatusesFromFlightDeparture = async () => {
 
 /**
  * Start the booking scheduler
- * Runs every 5 minutes to check and update booking statuses
+ * Runs every 2 minutes to check and update booking statuses
  */
 const startBookingScheduler = () => {
-  console.log('[BookingScheduler] Starting booking scheduler...');
-  
+  console.log('[BookingScheduler] Starting booking scheduler (auto-sell after 2 hours)...');
+
   // Run immediately on start
-  updateBookingStatusesFromFlightDeparture();
-  
-  // Then run every 5 minutes (300000 ms)
-  setInterval(updateBookingStatusesFromFlightDeparture, 300000);
+  updateBookingStatuses();
+
+  // Then run every 2 minutes (120000 ms)
+  setInterval(updateBookingStatuses, 120000);
 };
 
 module.exports = {
   startBookingScheduler,
-  updateBookingStatusesFromFlightDeparture
+  updateBookingStatuses
 };

@@ -1,25 +1,25 @@
 const express = require('express');
 const { Op } = require('sequelize');
 const router = express.Router();
-const Booking = require('../models/Booking');
-const Flight = require('../models/Flight');
-const Agency = require('../models/Agency');
+const db = require('../config/database');
 const { authMiddleware, adminOnly } = require('../middleware/auth');
 
 // Admin Dashboard - Get statistics
 router.get('/admin/stats', authMiddleware, adminOnly, async (req, res) => {
   try {
+    const { Booking, Flight, Agency } = db;
+
     const totalFlights = await Flight.count({ where: { status: 'active' } });
     const totalAgencies = await Agency.count({ where: { status: 'approved' } });
     const pendingAgencies = await Agency.count({ where: { status: 'pending' } });
-    
+
     // Get ticket counts by status
-    const soldTickets = await Booking.count({ where: { status: { [Op.in]: ['sold', 'completed'] } } });
-    const holdTickets = await Booking.count({ where: { status: { [Op.in]: ['hold', 'confirmed', 'cancel_requested'] } } });
-    const canceledTickets = await Booking.count({ where: { status: { [Op.in]: ['cancelled', 'canceled'] } } });
+    const soldTickets = await Booking.count({ where: { status: 'sold' } });
+    const holdTickets = await Booking.count({ where: { status: { [Op.in]: ['hold', 'cancel_requested'] } } });
+    const canceledTickets = await Booking.count({ where: { status: 'cancelled' } });
 
     const totalBookings = await Booking.count();
-    const totalRevenue = await Booking.sum('totalPrice') || 0;
+    const totalRevenue = await Booking.sum('totalPrice', { where: { status: { [Op.ne]: 'cancelled' } } }) || 0;
 
     res.status(200).json({
       totalFlights,
@@ -32,6 +32,7 @@ router.get('/admin/stats', authMiddleware, adminOnly, async (req, res) => {
       totalRevenue
     });
   } catch (error) {
+    console.error('Admin stats error:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -39,15 +40,16 @@ router.get('/admin/stats', authMiddleware, adminOnly, async (req, res) => {
 // Agency Dashboard - Get statistics
 router.get('/agency/stats', authMiddleware, async (req, res) => {
   try {
-    // Get ticket counts by status
+    const { Booking, Agency } = db;
+
     const soldTickets = await Booking.count({
-      where: { agencyId: req.user.id, status: { [Op.in]: ['sold', 'completed'] } }
+      where: { agencyId: req.user.id, status: 'sold' }
     });
     const holdTickets = await Booking.count({
-      where: { agencyId: req.user.id, status: { [Op.in]: ['hold', 'confirmed', 'cancel_requested'] } }
+      where: { agencyId: req.user.id, status: { [Op.in]: ['hold', 'cancel_requested'] } }
     });
     const cancelledTickets = await Booking.count({
-      where: { agencyId: req.user.id, status: { [Op.in]: ['cancelled', 'canceled'] } }
+      where: { agencyId: req.user.id, status: 'cancelled' }
     });
 
     const agency = await Agency.findByPk(req.user.id);
@@ -60,37 +62,7 @@ router.get('/agency/stats', authMiddleware, async (req, res) => {
       city: agency?.city || ''
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Get booking statistics by route
-router.get('/admin/bookings-by-route', authMiddleware, adminOnly, async (req, res) => {
-  try {
-    const stats = await Booking.aggregate([
-      {
-        $lookup: {
-          from: 'flights',
-          localField: 'flight',
-          foreignField: '_id',
-          as: 'flightData'
-        }
-      },
-      { $unwind: '$flightData' },
-      {
-        $group: {
-          _id: {
-            from: '$flightData.departureCity',
-            to: '$flightData.destinationCity'
-          },
-          bookings: { $sum: 1 },
-          revenue: { $sum: '$totalPrice' }
-        }
-      }
-    ]);
-
-    res.status(200).json(stats);
-  } catch (error) {
+    console.error('Agency stats error:', error);
     res.status(500).json({ error: error.message });
   }
 });
