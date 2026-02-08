@@ -74,7 +74,7 @@ const LandingPage = () => {
                 </svg>
               </span>
               <div className="brand-text">
-                <h1>Shuraim Air Travels & Tours</h1>
+                <h1>Shuraim Air Travel & Tours</h1>
               </div>
             </div>
           </div>

@@ -89,7 +89,7 @@ const initializeApp = async () => {
         email: adminEmail,
         password: hashedPassword,
         role: 'super_admin',
-        companyName: 'Shuraim Air Travels & Tours',
+        companyName: 'Shuraim Air Travel & Tours',
         phone: '+92-300-1234567',
         address: 'Karachi, Pakistan',
         city: 'Karachi',

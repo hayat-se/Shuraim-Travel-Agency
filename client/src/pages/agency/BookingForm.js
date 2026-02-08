@@ -22,11 +22,12 @@ const BookingForm = () => {
       const response = await apiClient.get(`/api/admin/flights/${flightId}`);
       setFlight(response.data);
       setPassengers(Array(1).fill({
-        name: '',
-        cnic: '',
+        givenName: '',
+        surname: '',
+        title: 'MR.',
         passport: '',
-        phone: '',
-        email: ''
+        dob: '',
+        doe: ''
       }));
     } catch (error) {
       console.error('Error fetching flight:', error);
@@ -39,11 +40,12 @@ const BookingForm = () => {
     const seats = parseInt(e.target.value);
     setSeatsToBook(seats);
     setPassengers(Array(seats).fill({
-      name: '',
-      cnic: '',
+      givenName: '',
+      surname: '',
+      title: 'MR.',
       passport: '',
-      phone: '',
-      email: ''
+      dob: '',
+      doe: ''
     }));
   };
 
@@ -61,8 +63,8 @@ const BookingForm = () => {
     
     // Validate all passengers
     for (let i = 0; i < passengers.length; i++) {
-      if (!passengers[i].name || !passengers[i].cnic) {
-        alert(`Please fill in Name and CNIC for Passenger ${i + 1}`);
+      if (!passengers[i].givenName || !passengers[i].surname || !passengers[i].passport) {
+        alert(`Please fill in Given Name, Surname, and Passport # for Passenger ${i + 1}`);
         return;
       }
     }
@@ -139,60 +141,68 @@ const BookingForm = () => {
               
               <div className="form-row">
                 <div className="form-group">
-                  <label>Full Name</label>
+                  <label>{index + 1}- GIVEN NAME</label>
                   <input
                     type="text"
-                    value={passenger.name}
-                    onChange={(e) => handlePassengerChange(index, 'name', e.target.value)}
+                    value={passenger.givenName}
+                    onChange={(e) => handlePassengerChange(index, 'givenName', e.target.value)}
+                    placeholder="e.g. Muhammad"
                     required
                   />
                 </div>
                 <div className="form-group">
-                  <label>Age</label>
+                  <label>{index + 1}- SURNAME</label>
                   <input
-                    type="number"
-                    value={passenger.age || ''}
-                    onChange={(e) => handlePassengerChange(index, 'age', e.target.value)}
+                    type="text"
+                    value={passenger.surname}
+                    onChange={(e) => handlePassengerChange(index, 'surname', e.target.value)}
+                    placeholder="e.g. Surname"
+                    required
                   />
                 </div>
               </div>
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>CNIC</label>
-                  <input
-                    type="text"
-                    value={passenger.cnic}
-                    onChange={(e) => handlePassengerChange(index, 'cnic', e.target.value)}
-                    placeholder="12345-1234567-1"
-                    required
-                  />
+                  <label>{index + 1}- TITLE</label>
+                  <select
+                    value={passenger.title}
+                    onChange={(e) => handlePassengerChange(index, 'title', e.target.value)}
+                  >
+                    <option value="MR.">MR.</option>
+                    <option value="MRS.">MRS.</option>
+                    <option value="MS.">MS.</option>
+                    <option value="MSTR.">MSTR.</option>
+                    <option value="MISS">MISS</option>
+                  </select>
                 </div>
                 <div className="form-group">
-                  <label>Passport (Optional)</label>
+                  <label>{index + 1}- PASSPORT #</label>
                   <input
                     type="text"
                     value={passenger.passport}
                     onChange={(e) => handlePassengerChange(index, 'passport', e.target.value)}
+                    placeholder="e.g. FP1417751"
+                    required
                   />
                 </div>
               </div>
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>Phone</label>
+                  <label>{index + 1}- DOB (BIRTH)</label>
                   <input
-                    type="tel"
-                    value={passenger.phone}
-                    onChange={(e) => handlePassengerChange(index, 'phone', e.target.value)}
+                    type="date"
+                    value={passenger.dob}
+                    onChange={(e) => handlePassengerChange(index, 'dob', e.target.value)}
                   />
                 </div>
                 <div className="form-group">
-                  <label>Email</label>
+                  <label>{index + 1}- DOE (EXPIRY)</label>
                   <input
-                    type="email"
-                    value={passenger.email}
-                    onChange={(e) => handlePassengerChange(index, 'email', e.target.value)}
+                    type="date"
+                    value={passenger.doe}
+                    onChange={(e) => handlePassengerChange(index, 'doe', e.target.value)}
                   />
                 </div>
               </div>

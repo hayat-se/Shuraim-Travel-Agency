@@ -160,7 +160,9 @@ const MyBookings = () => {
                     <strong>Passengers:</strong>
                     <ul>
                       {booking.passengers.map((passenger, idx) => (
-                        <li key={idx}>{passenger.name} ({passenger.cnic})</li>
+                        <li key={idx}>
+                          {passenger.title || ''} {passenger.givenName ? `${passenger.givenName} ${passenger.surname || ''}` : passenger.name} — Passport: {passenger.passport || passenger.cnic || '-'}
+                        </li>
                       ))}
                     </ul>
                   </div>
