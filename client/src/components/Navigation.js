@@ -98,7 +98,7 @@ const Navigation = ({ user, setUser }) => {
             <div className="portal-brand">
               <div className="portal-logo">SA</div>
               <div className="portal-brand-text">
-                <h1 className="navbar-title">Shuraim Air Travels & Tours</h1>
+                <h1 className="navbar-title">Shuraim Air Travel & Tours</h1>
                 <p className="navbar-subtitle">Your Travel Partner</p>
               </div>
             </div>
@@ -115,7 +115,7 @@ const Navigation = ({ user, setUser }) => {
             <div className="drawer-brand">
               <div className="portal-logo">SA</div>
               <div className="portal-brand-text">
-                <h1 className="navbar-title">Shuraim Air Travels & Tours</h1>
+                <h1 className="navbar-title">Shuraim Air Travel & Tours</h1>
                 <p className="navbar-subtitle">Your Travel Partner</p>
               </div>
             </div>
