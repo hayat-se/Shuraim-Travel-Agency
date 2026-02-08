@@ -299,6 +299,31 @@ const blockAgency = async (req, res) => {
   }
 };
 
+// Unblock agency (Admin only)
+const unblockAgency = async (req, res) => {
+  try {
+    const { agencyId } = req.params;
+
+    const agency = await Agency.findByPk(agencyId);
+    if (!agency) {
+      return res.status(404).json({ error: 'Agency not found' });
+    }
+
+    if (agency.status !== 'blocked') {
+      return res.status(400).json({ error: 'Agency is not blocked' });
+    }
+
+    await agency.update({ status: 'approved' });
+
+    res.status(200).json({
+      message: 'Agency unblocked successfully',
+      agency: agency
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   adminLogin,
   agencyRegister,
@@ -309,5 +334,6 @@ module.exports = {
   getAllAgencies,
   approveAgency,
   rejectAgency,
-  blockAgency
+  blockAgency,
+  unblockAgency
 };

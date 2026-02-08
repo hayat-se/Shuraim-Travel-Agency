@@ -73,6 +73,21 @@ const AgencyManagement = () => {
     }
   };
 
+  const handleUnblock = async (agencyId) => {
+    if (window.confirm('Are you sure you want to unblock this agency?')) {
+      try {
+        setActionId(agencyId);
+        await apiClient.put(`/api/admin/agencies/${agencyId}/unblock`, {});
+        alert('Agency unblocked successfully!');
+        fetchAgencies();
+      } catch (error) {
+        alert(error.response?.data?.error || 'Error unblocking agency');
+      } finally {
+        setActionId(null);
+      }
+    }
+  };
+
   const matchesSearch = (agency) => {
     const term = searchTerm.trim().toLowerCase();
     if (!term) return true;
@@ -221,6 +236,16 @@ const AgencyManagement = () => {
                       >
                         <i className="fa-solid fa-ban"></i>
                         {actionId === agency.id ? ' Blocking...' : ' Block'}
+                      </button>
+                    )}
+                    {agency.status === 'blocked' && (
+                      <button 
+                        className="btn-approve"
+                        onClick={() => handleUnblock(agency.id)}
+                        disabled={actionId === agency.id}
+                      >
+                        <i className="fa-solid fa-unlock"></i>
+                        {actionId === agency.id ? ' Unblocking...' : ' Unblock'}
                       </button>
                     )}
                   </td>

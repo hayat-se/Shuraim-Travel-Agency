@@ -18,4 +18,7 @@ router.put('/:agencyId/reject', authMiddleware, adminOnly, authController.reject
 // Block agency (Admin only)
 router.put('/:agencyId/block', authMiddleware, adminOnly, authController.blockAgency);
 
+// Unblock agency (Admin only)
+router.put('/:agencyId/unblock', authMiddleware, adminOnly, authController.unblockAgency);
+
 module.exports = router;
