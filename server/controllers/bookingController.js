@@ -428,7 +428,7 @@ module.exports = {
   getAgencyBookings,
   getBookingById,
   getAllBookings,
-  cancelBooking
+  cancelBooking,
   confirmBooking,
   updateBookingDetails,
 };
