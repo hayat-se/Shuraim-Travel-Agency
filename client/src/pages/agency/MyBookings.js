@@ -77,7 +77,7 @@ const MyBookings = () => {
   // Auto-refresh to update countdown timers
   const [, setTick] = useState(0);
   useEffect(() => {
-    const timer = setInterval(() => setTick(t => t + 1), 30000); // refresh every 30s
+    const timer = setInterval(() => setTick(t => t + 1), 1000); // refresh every 1s
     return () => clearInterval(timer);
   }, []);
 
