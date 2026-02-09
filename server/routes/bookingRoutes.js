@@ -1,11 +1,11 @@
-// Agency update booking details (within 1 hour)
-router.put('/:bookingId/update', authMiddleware, bookingController.updateBookingDetails);
-// Admin confirm booking
-router.put('/:bookingId/confirm', authMiddleware, adminOnly, bookingController.confirmBooking);
 const express = require('express');
 const router = express.Router();
 const bookingController = require('../controllers/bookingController');
 const { authMiddleware, agencyOnly, adminOnly } = require('../middleware/auth');
+// Agency update booking details (within 1 hour)
+router.put('/:bookingId/update', authMiddleware, bookingController.updateBookingDetails);
+// Admin confirm booking
+router.put('/:bookingId/confirm', authMiddleware, adminOnly, bookingController.confirmBooking);
 // Create guest booking (Public - No auth required)
 router.post('/guest', bookingController.createGuestBooking);
 
