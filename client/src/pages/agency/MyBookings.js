@@ -1,15 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import UpdateBooking from './UpdateBooking';
-import apiClient from '../../config/axiosConfig';
-import '../../styles/MyBookings.css';
-
 import React, { useState, useEffect } from "react";
+import "../../styles/MyBookings.css";
 
 function MyBookings() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Temporary safe logic
     setLoading(false);
   }, []);
 
@@ -22,4 +19,3 @@ function MyBookings() {
 }
 
 export default MyBookings;
-    fetchBookings();

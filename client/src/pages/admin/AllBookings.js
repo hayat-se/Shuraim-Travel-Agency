@@ -1,12 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 
 function AllBookings() {
   const [bookings, setBookings] = useState([]);
 
   useEffect(() => {
-    // TEMP SAFE FIX so build passes
-    // Replace later with real API call
     setBookings([]);
   }, []);
 
