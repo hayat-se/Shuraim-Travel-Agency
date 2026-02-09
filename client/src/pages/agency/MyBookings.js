@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import UpdateBooking from './UpdateBooking';
+import apiClient from '../../config/axiosConfig';
+import '../../styles/MyBookings.css';
+
+const MyBookings = () => {
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [updateBooking, setUpdateBooking] = useState(null);
   const handleUpdateClick = (booking) => {
     setUpdateBooking(booking);
     setShowUpdateModal(true);
   };
-import apiClient from '../../config/axiosConfig';
-import '../../styles/MyBookings.css';
 
 const MyBookings = () => {
   const [bookings, setBookings] = useState([]);
