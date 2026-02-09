@@ -1,3 +1,71 @@
+// Agency: Update booking passenger details (within 1 hour)
+const updateBookingDetails = async (req, res) => {
+  try {
+    const { bookingId } = req.params;
+    const { passengers } = req.body;
+    const booking = await Booking.findOne({ where: { bookingId } });
+    if (!booking) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+    // Only agency that owns the booking can update, and only within 1 hour
+    if (req.user.role !== 'agency' && req.user.role !== 'super_admin' && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Not authorized' });
+    }
+    if (req.user.role === 'agency' && booking.agencyId !== req.user.id) {
+      return res.status(403).json({ error: 'Not authorized' });
+    }
+    if (booking.status === 'cancelled') {
+      return res.status(400).json({ error: 'Cannot update a cancelled booking' });
+    }
+    // Only allow update within 1 hour of booking creation
+    const bookingAge = Date.now() - new Date(booking.createdAt).getTime();
+    const ONE_HOUR = 60 * 60 * 1000;
+    if (bookingAge > ONE_HOUR && req.user.role === 'agency') {
+      return res.status(400).json({ error: 'Update window expired. Bookings can only be updated within 1 hour of booking.' });
+    }
+    await booking.update({ passengers });
+    await AuditLog.create({
+      action: 'booking_updated',
+      userId: req.user.id,
+      userRole: req.user.role,
+      userEmail: req.user.email,
+      bookingId: booking.id,
+      details: { updated: true }
+    });
+    res.status(200).json({ message: 'Booking updated', booking });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+// Admin: Confirm booking
+const confirmBooking = async (req, res) => {
+  try {
+    const { bookingId } = req.params;
+    const booking = await Booking.findOne({ where: { bookingId } });
+    if (!booking) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+    if (booking.status !== 'hold') {
+      return res.status(400).json({ error: 'Only bookings in hold status can be confirmed' });
+    }
+    // Only admin can confirm
+    if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
+      return res.status(403).json({ error: 'Not authorized' });
+    }
+    await booking.update({ status: 'confirmed' });
+    await AuditLog.create({
+      action: 'booking_confirmed',
+      userId: req.user.id,
+      userRole: req.user.role,
+      userEmail: req.user.email,
+      bookingId: booking.id,
+      details: { confirmed: true }
+    });
+    res.status(200).json({ message: 'Booking confirmed', booking });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 const { Booking, Flight, Agency, AuditLog, Airline } = require('../config/database');
 const { generateETicket } = require('../services/pdfService');
 const { sendBookingConfirmationEmail } = require('../services/emailService');
@@ -361,4 +429,6 @@ module.exports = {
   getBookingById,
   getAllBookings,
   cancelBooking
+  confirmBooking,
+  updateBookingDetails,
 };

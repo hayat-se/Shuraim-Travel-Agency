@@ -1,3 +1,14 @@
+  const handleConfirm = async (bookingId) => {
+    if (window.confirm('Are you sure you want to confirm this booking?')) {
+      try {
+        await apiClient.put(`/api/bookings/${bookingId}/confirm`, {});
+        alert('Booking confirmed successfully!');
+        fetchBookings();
+      } catch (error) {
+        alert(error.response?.data?.error || 'Error confirming booking');
+      }
+    }
+  };
 import React, { useState, useEffect } from 'react';
 import apiClient from '../../config/axiosConfig';
 import '../../styles/Management.css';
@@ -72,12 +83,20 @@ const AllBookings = () => {
                 <td>{new Date(booking.createdAt).toLocaleDateString()}</td>
                 <td className="actions">
                   {booking.status === 'hold' && (
-                    <button 
-                      className="btn-cancel"
-                      onClick={() => handleCancel(booking.bookingId)}
-                    >
-                      Cancel
-                    </button>
+                    <>
+                      <button 
+                        className="btn-approve"
+                        onClick={() => handleConfirm(booking.bookingId)}
+                      >
+                        Confirm
+                      </button>
+                      <button 
+                        className="btn-cancel"
+                        onClick={() => handleCancel(booking.bookingId)}
+                      >
+                        Cancel
+                      </button>
+                    </>
                   )}
                   {booking.status === 'cancel_requested' && (
                     <button 

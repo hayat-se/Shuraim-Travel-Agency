@@ -1,4 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import UpdateBooking from './UpdateBooking';
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [updateBooking, setUpdateBooking] = useState(null);
+  const handleUpdateClick = (booking) => {
+    setUpdateBooking(booking);
+    setShowUpdateModal(true);
+  };
 import apiClient from '../../config/axiosConfig';
 import '../../styles/MyBookings.css';
 
@@ -185,13 +192,29 @@ const MyBookings = () => {
                   </button>
                 )}
                 {(booking.status === 'hold' || booking.status === 'confirmed') && getCancelTimeLeft(booking) > 0 && (
-                  <button 
-                    className="btn-cancel"
-                    onClick={() => handleCancelClick(booking)}
-                  >
-                    <i className="fa-solid fa-trash-alt"></i> Cancel ({formatTimeLeft(getCancelTimeLeft(booking))} left)
-                  </button>
+                  <>
+                    <button 
+                      className="btn-update"
+                      onClick={() => handleUpdateClick(booking)}
+                    >
+                      <i className="fa-solid fa-pen"></i> Update Details
+                    </button>
+                    <button 
+                      className="btn-cancel"
+                      onClick={() => handleCancelClick(booking)}
+                    >
+                      <i className="fa-solid fa-trash-alt"></i> Cancel ({formatTimeLeft(getCancelTimeLeft(booking))} left)
+                    </button>
+                  </>
                 )}
+                    {/* Update Modal */}
+                    {showUpdateModal && updateBooking && (
+                      <UpdateBooking 
+                        booking={updateBooking} 
+                        onClose={() => setShowUpdateModal(false)} 
+                        onUpdated={fetchBookings}
+                      />
+                    )}
               </div>
             </div>
           ))}
