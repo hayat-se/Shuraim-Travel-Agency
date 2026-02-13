@@ -72,36 +72,6 @@ const SearchFlights = () => {
     loadFlights();
   }, [selectedGroup, dateFilter]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFilters(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-
-    try {
-      const queryString = Object.entries(filters)
-        .filter(([, value]) => value)
-        .map(([key, value]) => `${key}=${value}`)
-        .join('&');
-
-      const groupParam = selectedGroup !== 'ALL' ? `&group=${selectedGroup}` : '';
-      const response = await apiClient.get(`/api/admin/flights/search?${queryString}${groupParam}`);
-      setFlights(response.data);
-    } catch (err) {
-      const errorMessage = err.response?.data?.error || err.message || 'Error searching flights';
-      setError(errorMessage);
-      console.error('Error searching flights:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleBook = (flightId) => {
     navigate(`/agency/book/${flightId}`);
