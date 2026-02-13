@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import AIRLINE_PRESETS from '../../config/airlinePresets';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import apiClient from '../../config/axiosConfig';
 import '../../styles/Search.css';
 
 const SearchFlights = () => {
+    // Helper to get airline logo by name
+    const getAirlineLogo = (airlineName) => {
+      const preset = AIRLINE_PRESETS.find(a => a.name.toLowerCase() === (airlineName || '').toLowerCase());
+      return preset ? preset.logo : null;
+    };
   const [searchParams] = useSearchParams();
   const initialGroup = searchParams.get('group') || 'ALL';
   const [selectedGroup, setSelectedGroup] = useState(initialGroup);
@@ -53,6 +59,12 @@ const SearchFlights = () => {
 
   return (
     <div className="search-container">
+      {/* Show selected group name as heading */}
+      <div style={{ marginBottom: 16 }}>
+        <h2 style={{ color: '#1a2330', fontWeight: 600, fontSize: 22 }}>
+          {selectedGroup === 'ALL' ? 'All Flight Groups' : `Group: ${selectedGroup}`}
+        </h2>
+      </div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', marginBottom: 24 }}>
         <h1 style={{ marginBottom: 0 }}>Search & Book Flights</h1>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -132,7 +144,10 @@ const SearchFlights = () => {
                       <span className="ft-flight-number">{flight.flightNumber}</span>
                     </td>
                     <td className="ft-airline">
-                      {flight.airlineName || flight.airline || 'N/A'}
+                      {getAirlineLogo(flight.airlineName) ? (
+                        <img src={getAirlineLogo(flight.airlineName)} alt={flight.airlineName} style={{ height: 32, marginRight: 8, verticalAlign: 'middle', borderRadius: 4 }} />
+                      ) : null}
+                      <span>{flight.airlineName || flight.airline || 'N/A'}</span>
                     </td>
                     <td className="ft-date">
                       {new Date(flight.departureDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
