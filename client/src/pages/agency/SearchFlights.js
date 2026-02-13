@@ -75,10 +75,10 @@ const SearchFlights = () => {
       <h1>Search & Book Flights</h1>
 
       <div className="group-filter" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
-          <div>
-            <h3 style={{ marginBottom: 8 }}>Select Flight Group</h3>
-            <div className="group-buttons">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+            <h3 style={{ marginBottom: 0, marginRight: 16 }}>Select Flight Group</h3>
+            <div className="group-buttons" style={{ display: 'flex', flexDirection: 'row', gap: 8 }}>
               <button
                 className={`group-btn ${selectedGroup === 'ALL' ? 'active' : ''}`}
                 onClick={() => setSelectedGroup('ALL')}
@@ -96,7 +96,7 @@ const SearchFlights = () => {
               ))}
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <label style={{ marginRight: 4 }}><i className="fa-solid fa-calendar-days"></i> Filter by Date:</label>
             <input
               type="date"
