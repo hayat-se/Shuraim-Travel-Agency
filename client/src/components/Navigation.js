@@ -55,7 +55,6 @@ const Navigation = ({ user, setUser }) => {
       { label: 'Search Flights', icon: 'fa-magnifying-glass', path: '/agency/search-flights' },
       { label: 'My Bookings', icon: 'fa-ticket', path: '/agency/my-bookings' },
       { label: 'My Ledger', icon: 'fa-book', path: '/agency/ledger' },
-      { label: 'Payments', icon: 'fa-credit-card', path: '/agency/payments' },
       { label: 'Banks', icon: 'fa-university', path: '/agency/banks' },
       { label: 'Give Feedback', icon: 'fa-comments', path: '/agency/feedback' }
     ];
