@@ -8,14 +8,6 @@ const SearchFlights = () => {
   const [searchParams] = useSearchParams();
   const initialGroup = searchParams.get('group') || 'ALL';
   const [selectedGroup, setSelectedGroup] = useState(initialGroup);
-  const [filters, setFilters] = useState({
-    departureCity: '',
-    destinationCity: '',
-    departureDate: '',
-    flightClass: '',
-    minPrice: '',
-    maxPrice: ''
-  });
   const [dateFilter, setDateFilter] = useState('');
   const [flights, setFlights] = useState([]);
   const [loading, setLoading] = useState(true);
