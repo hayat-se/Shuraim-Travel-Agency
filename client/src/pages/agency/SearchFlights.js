@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import apiClient from '../../config/axiosConfig';
-import { API_BASE_URL } from '../../config/api';
 import '../../styles/Search.css';
 
 const SearchFlights = () => {
@@ -12,7 +11,6 @@ const SearchFlights = () => {
   const [flights, setFlights] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [airlines, setAirlines] = useState([]);
   const [groups, setGroups] = useState([]);
   const navigate = useNavigate();
 
