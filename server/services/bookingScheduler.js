@@ -27,12 +27,12 @@ const updateBookingStatuses = async () => {
     }
 
     // Auto-cancel 'hold' bookings that were not confirmed after another hour (2 hours from creation)
-    const twoHoursAgo = new Date(now.getTime() - 2 * AUTO_CANCEL_PENDING_MINUTES * 60 * 1000);
+    const twoHoursAgoForCancel = new Date(now.getTime() - 2 * AUTO_CANCEL_PENDING_MINUTES * 60 * 1000);
     const holdBookingsToCancel = await Booking.findAll({ where: { status: 'hold' } });
     let cancelledCount = 0;
     for (const booking of holdBookingsToCancel) {
       const bookingCreatedAt = new Date(booking.createdAt);
-      if (bookingCreatedAt <= twoHoursAgo) {
+      if (bookingCreatedAt <= twoHoursAgoForCancel) {
         await booking.update({ status: 'cancelled' });
         cancelledCount++;
         console.log(`[BookingScheduler] ${booking.bookingId} auto-cancelled after 2 hours (hold)`);
