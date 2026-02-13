@@ -69,50 +69,54 @@ const SearchFlights = () => {
     navigate(`/agency/book/${flightId}`);
   };
 
+
   return (
     <div className="search-container">
       <h1>Search & Book Flights</h1>
 
-      <div className="group-filter">
-        <h3>Select Flight Group</h3>
-        <div className="group-buttons">
-          <button
-            className={`group-btn ${selectedGroup === 'ALL' ? 'active' : ''}`}
-            onClick={() => setSelectedGroup('ALL')}
-          >
-            All Flights
-          </button>
-          {groups.map(group => (
-            <button
-              key={group.id}
-              className={`group-btn ${selectedGroup === group.name ? 'active' : ''}`}
-              onClick={() => setSelectedGroup(group.name)}
-            >
-              {group.name} Group
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="date-filter-bar">
-        <div className="date-filter-inner">
-          <label><i className="fa-solid fa-calendar-days"></i> Filter by Date:</label>
-          <input
-            type="date"
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
-          />
-          {dateFilter && (
-            <button
-              className="clear-date-btn"
-              onClick={() => setDateFilter('')}
-            >
-              <i className="fa-solid fa-xmark"></i> Clear
-            </button>
-          )}
+      <div className="group-filter" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div>
+            <h3 style={{ marginBottom: 8 }}>Select Flight Group</h3>
+            <div className="group-buttons">
+              <button
+                className={`group-btn ${selectedGroup === 'ALL' ? 'active' : ''}`}
+                onClick={() => setSelectedGroup('ALL')}
+              >
+                All Flights
+              </button>
+              {groups.map(group => (
+                <button
+                  key={group.id}
+                  className={`group-btn ${selectedGroup === group.name ? 'active' : ''}`}
+                  onClick={() => setSelectedGroup(group.name)}
+                >
+                  {group.name} Group
+                </button>
+              ))}
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+            <label style={{ marginRight: 4 }}><i className="fa-solid fa-calendar-days"></i> Filter by Date:</label>
+            <input
+              type="date"
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
+              style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #ccc' }}
+            />
+            {dateFilter && (
+              <button
+                className="clear-date-btn"
+                onClick={() => setDateFilter('')}
+                style={{ marginLeft: 4 }}
+              >
+                <i className="fa-solid fa-xmark"></i> Clear
+              </button>
+            )}
+          </div>
         </div>
         {dateFilter && (
-          <span className="date-filter-info">
+          <span className="date-filter-info" style={{ marginLeft: 'auto', fontSize: 13, color: '#555' }}>
             Showing flights for: <strong>{new Date(dateFilter + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}</strong>
           </span>
         )}
@@ -122,7 +126,6 @@ const SearchFlights = () => {
       {error && <div className="error-message">{error}</div>}
 
       <div className="results-container">
-        <h2>Available Flights {selectedGroup !== 'ALL' && `- ${selectedGroup} Group`}</h2>
         {loading ? (
           <div className="loading">Loading flights...</div>
         ) : flights.length === 0 ? (
