@@ -23,36 +23,29 @@ const SearchFlights = () => {
         console.error('Error fetching groups:', err);
       }
     };
-    fetchAirlines();
     fetchGroups();
   }, []);
-
-  useEffect(() => {
-    const groupFromUrl = searchParams.get('group') || 'ALL';
-    setSelectedGroup(groupFromUrl);
-  }, [searchParams]);
-
-  useEffect(() => {
-    const loadFlights = async () => {
-      setLoading(true);
-      setError('');
-      try {
-        const params = [];
-        if (selectedGroup !== 'ALL') params.push(`group=${selectedGroup}`);
-        if (dateFilter) params.push(`departureDate=${dateFilter}`);
-        const queryString = params.length > 0 ? `?${params.join('&')}` : '';
-        const response = await apiClient.get(`/api/admin/flights/search${queryString}`);
-        setFlights(response.data);
-      } catch (err) {
-        const errorMessage = err.response?.data?.error || err.message || 'Error loading flights';
-        setError(errorMessage);
-        console.error('Error loading flights:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadFlights();
-  }, [selectedGroup, dateFilter]);
+    useEffect(() => {
+      const loadFlights = async () => {
+        setLoading(true);
+        setError('');
+        try {
+          const params = [];
+          if (selectedGroup !== 'ALL') params.push(`group=${selectedGroup}`);
+          if (dateFilter) params.push(`departureDate=${dateFilter}`);
+          const queryString = params.length > 0 ? `?${params.join('&')}` : '';
+          const response = await apiClient.get(`/api/admin/flights/search${queryString}`);
+          setFlights(response.data);
+        } catch (err) {
+          const errorMessage = err.response?.data?.error || err.message || 'Error loading flights';
+          setError(errorMessage);
+          console.error('Error loading flights:', err);
+        } finally {
+          setLoading(false);
+        }
+      };
+      loadFlights();
+    }, [selectedGroup, dateFilter]);
 
   const handleBook = (flightId) => {
     navigate(`/agency/book/${flightId}`);
