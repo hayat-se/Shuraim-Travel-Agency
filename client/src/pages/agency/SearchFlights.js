@@ -15,14 +15,6 @@ const SearchFlights = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchAirlines = async () => {
-      try {
-        const response = await apiClient.get('/api/airlines/active');
-        setAirlines(Array.isArray(response.data) ? response.data : []);
-      } catch (err) {
-        console.error('Error fetching airlines:', err);
-      }
-    };
     const fetchGroups = async () => {
       try {
         const response = await apiClient.get('/api/groups');
