@@ -65,20 +65,7 @@ const SearchFlights = () => {
   return (
     <div className="search-container">
       {/* Airline logo and name above table, route if available */}
-      {flights.length > 0 && (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 24, marginBottom: 16 }}>
-          {getAirlineLogo(flights[0].airlineName) && (
-            <img src={getAirlineLogo(flights[0].airlineName)} alt={flights[0].airlineName} style={{ height: 48, maxWidth: 180, objectFit: 'contain' }} />
-          )}
-          <span style={{ fontSize: 32, fontWeight: 600, color: '#b89c4e', letterSpacing: 2 }}>{flights[0].airlineName}</span>
-          {/* Show route if available */}
-          {flights[0].departureCity && flights[0].destinationCity && (
-            <span style={{ fontSize: 22, color: '#3a3a3a', fontWeight: 500, marginLeft: 24 }}>
-              {flights[0].departureCity.toUpperCase()} - {flights[0].destinationCity.toUpperCase()}
-            </span>
-          )}
-        </div>
-      )}
+      {/* No airline logo above table, logo will be in table */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', marginBottom: 24 }}>
         <h1 style={{ marginBottom: 0 }}>Search & Book Flights</h1>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -108,6 +95,7 @@ const SearchFlights = () => {
           <div className="group-buttons" style={{ display: 'flex', flexDirection: 'row', gap: 8 }}>
             <button
               className={`group-btn ${selectedGroup === 'ALL' ? 'active' : ''}`}
+              style={{ minWidth: 100, fontWeight: 600, fontSize: 16 }}
               onClick={() => setSelectedGroup('ALL')}
             >
               All Flights
@@ -116,6 +104,7 @@ const SearchFlights = () => {
               <button
                 key={group.id}
                 className={`group-btn ${selectedGroup === group.groupName ? 'active' : ''}`}
+                style={{ minWidth: 60, fontWeight: 600, fontSize: 16 }}
                 onClick={() => setSelectedGroup(group.groupName)}
               >
                 {group.groupName}
@@ -139,6 +128,7 @@ const SearchFlights = () => {
             <table className="ft-table" style={{ width: '100%', borderRadius: 12, overflow: 'hidden', boxShadow: '0 2px 8px #eee' }}>
               <thead>
                 <tr style={{ background: '#1a2330', color: '#fff', fontSize: 18 }}>
+                  <th>LOGO</th>
                   <th>DATE</th>
                   <th>TIME</th>
                   <th>BAG</th>
@@ -150,6 +140,11 @@ const SearchFlights = () => {
               <tbody>
                 {flights.map(flight => (
                   <tr key={flight.id} style={{ background: '#232f3e', color: '#fff', fontWeight: 500, fontSize: 17 }}>
+                    <td>
+                      {getAirlineLogo(flight.airlineName) && (
+                        <img src={getAirlineLogo(flight.airlineName)} alt={flight.airlineName} style={{ height: 36, maxWidth: 90, objectFit: 'contain', background: '#fff', borderRadius: 4, padding: 2 }} />
+                      )}
+                    </td>
                     <td>{new Date(flight.departureDate).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
                     <td>{flight.departureTime} - {flight.arrivalTime}</td>
                     <td>{flight.baggage || '20kg'}</td>
