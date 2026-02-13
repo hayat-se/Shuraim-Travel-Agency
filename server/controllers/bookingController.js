@@ -179,33 +179,44 @@ const createBooking = async (req, res) => {
       agency.agencyName,
       bookingId,
       flight,
-      try {
-        const { bookingId } = req.params;
-        const booking = await Booking.findOne({ where: { bookingId } });
-        if (!booking) {
-          return res.status(404).json({ error: 'Booking not found' });
-        }
-        if (booking.status !== 'pending') {
-          return res.status(400).json({ error: 'Only bookings in pending status can be confirmed' });
-        }
-        // Only admin can confirm
-        if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
-          return res.status(403).json({ error: 'Not authorized' });
-        }
-        await booking.update({ status: 'sold', paymentStatus: 'completed' });
-        await AuditLog.create({
-          action: 'booking_confirmed',
-          userId: req.user.id,
-          userRole: req.user.role,
-          userEmail: req.user.email,
-          bookingId: booking.id,
-          details: { confirmed: true }
-        });
-        res.status(200).json({ message: 'Booking confirmed and sold', booking });
-      } catch (error) {
-        res.status(500).json({ error: error.message });
-      }
-    };
+      totalPrice,
+      ticketPath
+    );
+
+    res.status(201).json({
+      message: 'Booking created successfully',
+      booking: newBooking,
+      ticketUrl: newBooking.ticketUrl
+    });
+// Admin: Confirm booking (pending -> sold)
+const confirmBooking = async (req, res) => {
+  try {
+    const { bookingId } = req.params;
+    const booking = await Booking.findOne({ where: { bookingId } });
+    if (!booking) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+    if (booking.status !== 'pending') {
+      return res.status(400).json({ error: 'Only bookings in pending status can be confirmed' });
+    }
+    // Only admin can confirm
+    if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
+      return res.status(403).json({ error: 'Not authorized' });
+    }
+    await booking.update({ status: 'sold', paymentStatus: 'completed' });
+    await AuditLog.create({
+      action: 'booking_confirmed',
+      userId: req.user.id,
+      userRole: req.user.role,
+      userEmail: req.user.email,
+      bookingId: booking.id,
+      details: { confirmed: true }
+    });
+    res.status(200).json({ message: 'Booking confirmed and sold', booking });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 };
 
 // Get booking by ID
