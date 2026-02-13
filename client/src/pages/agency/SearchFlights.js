@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import AIRLINE_PRESETS from '../../config/airlinePresets';
+// Helper to get airline preset by name
+const getAirlinePreset = (airlineName) => {
+  return AIRLINE_PRESETS.find(a => a.name.toLowerCase() === (airlineName || '').toLowerCase());
+};
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import apiClient from '../../config/axiosConfig';
 import '../../styles/Search.css';
@@ -7,7 +11,7 @@ import '../../styles/Search.css';
 const SearchFlights = () => {
     // Helper to get airline logo by name
     const getAirlineLogo = (airlineName) => {
-      const preset = AIRLINE_PRESETS.find(a => a.name.toLowerCase() === (airlineName || '').toLowerCase());
+      const preset = getAirlinePreset(airlineName);
       return preset ? preset.logo : null;
     };
   const [searchParams] = useSearchParams();
@@ -59,12 +63,21 @@ const SearchFlights = () => {
 
   return (
     <div className="search-container">
-      {/* Show selected group name as heading */}
-      <div style={{ marginBottom: 16 }}>
-        <h2 style={{ color: '#1a2330', fontWeight: 600, fontSize: 22 }}>
-          {selectedGroup === 'ALL' ? 'All Flight Groups' : `Group: ${selectedGroup}`}
-        </h2>
-      </div>
+      {/* Airline logo and name above table, route if available */}
+      {flights.length > 0 && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 24, marginBottom: 16 }}>
+          {getAirlineLogo(flights[0].airlineName) && (
+            <img src={getAirlineLogo(flights[0].airlineName)} alt={flights[0].airlineName} style={{ height: 48, maxWidth: 180, objectFit: 'contain' }} />
+          )}
+          <span style={{ fontSize: 32, fontWeight: 600, color: '#b89c4e', letterSpacing: 2 }}>{flights[0].airlineName}</span>
+          {/* Show route if available */}
+          {flights[0].departureCity && flights[0].destinationCity && (
+            <span style={{ fontSize: 22, color: '#3a3a3a', fontWeight: 500, marginLeft: 24 }}>
+              {flights[0].departureCity.toUpperCase()} - {flights[0].destinationCity.toUpperCase()}
+            </span>
+          )}
+        </div>
+      )}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', marginBottom: 24 }}>
         <h1 style={{ marginBottom: 0 }}>Search & Book Flights</h1>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -124,61 +137,31 @@ const SearchFlights = () => {
           <div className="desktop-table">
             <table className="ft-table" style={{ width: '100%', borderRadius: 12, overflow: 'hidden', boxShadow: '0 2px 8px #eee' }}>
               <thead>
-                <tr style={{ background: '#1a2330', color: '#fff' }}>
-                  <th>FLIGHT</th>
-                  <th>AIRLINE</th>
+                <tr style={{ background: '#1a2330', color: '#fff', fontSize: 18 }}>
                   <th>DATE</th>
                   <th>TIME</th>
-                  <th>CLASS</th>
                   <th>BAG</th>
                   <th>MEAL</th>
-                  <th>SEATS</th>
-                  <th>FARE (PKR)</th>
+                  <th>FARE</th>
                   <th></th>
                 </tr>
               </thead>
               <tbody>
                 {flights.map(flight => (
-                  <tr key={flight.id} className={flight.seatsRemaining < 5 ? 'low-availability' : ''} style={{ background: '#fcf8f5' }}>
-                    <td className="ft-flight">
-                      <span className="ft-flight-number">{flight.flightNumber}</span>
-                    </td>
-                    <td className="ft-airline">
-                      {getAirlineLogo(flight.airlineName) ? (
-                        <img src={getAirlineLogo(flight.airlineName)} alt={flight.airlineName} style={{ height: 32, marginRight: 8, verticalAlign: 'middle', borderRadius: 4 }} />
-                      ) : null}
-                      <span>{flight.airlineName || flight.airline || 'N/A'}</span>
-                    </td>
-                    <td className="ft-date">
-                      {new Date(flight.departureDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
-                    </td>
-                    <td className="ft-time">
-                      <span className="ft-dep-time">{flight.departureTime}</span>
-                      <span className="ft-time-sep">-</span>
-                      <span className="ft-arr-time">{flight.arrivalTime}</span>
-                    </td>
-                    <td className="ft-class">
-                      <span className={`ft-class-tag ${flight.flightClass}`}>{flight.flightClass === 'economy' ? 'ECO' : 'BIZ'}</span>
-                    </td>
-                    <td className="ft-bag">{flight.baggage || '20kg'}</td>
-                    <td className="ft-meal">
-                      {flight.meal === 'Yes' || flight.meal === 'yes' ? (
-                        <span className="ft-meal-yes"><i className="fa-solid fa-check"></i></span>
-                      ) : (
-                        <span className="ft-meal-no"><i className="fa-solid fa-xmark"></i></span>
-                      )}
-                    </td>
-                    <td className="ft-seats">
-                      <span className={flight.seatsRemaining < 10 ? 'ft-seats-low' : 'ft-seats-ok'}>{flight.seatsRemaining}</span>
-                    </td>
-                    <td className="ft-fare">{flight.pricePerSeat.toLocaleString()}</td>
-                    <td className="ft-action">
+                  <tr key={flight.id} style={{ background: '#232f3e', color: '#fff', fontWeight: 500, fontSize: 17 }}>
+                    <td>{new Date(flight.departureDate).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
+                    <td>{flight.departureTime} - {flight.arrivalTime}</td>
+                    <td>{flight.baggage || '20kg'}</td>
+                    <td style={{ color: '#7fff00', fontWeight: 700 }}>{(flight.meal === 'Yes' || flight.meal === 'yes') ? 'YES' : 'NO'}</td>
+                    <td style={{ fontWeight: 700 }}>{parseInt(flight.pricePerSeat).toLocaleString()} PKR/-</td>
+                    <td>
                       <button 
                         className="ft-book-btn"
+                        style={{ background: '#ffb300', color: '#232f3e', fontWeight: 700, borderRadius: 6, padding: '6px 18px', fontSize: 16 }}
                         onClick={() => handleBook(flight.id)}
                         disabled={flight.seatsRemaining === 0}
                       >
-                        {flight.seatsRemaining === 0 ? 'Full' : 'Book Now'}
+                        Book Now
                       </button>
                     </td>
                   </tr>
