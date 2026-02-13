@@ -1,6 +1,7 @@
 const { Booking, Flight } = require('../config/database');
 
 const AUTO_SELL_HOURS = 2; // Bookings auto-convert to 'sold' after 2 hours
+const AUTO_CANCEL_PENDING_MINUTES = 60; // Pending bookings auto-cancel after 1 hour
 
 /**
  * Update bookings from 'hold' to 'sold':
@@ -12,7 +13,33 @@ const updateBookingStatuses = async () => {
     const now = new Date();
     const twoHoursAgo = new Date(now.getTime() - AUTO_SELL_HOURS * 60 * 60 * 1000);
 
-    // Get all 'hold' or 'cancel_requested' bookings
+    // After 1 hour, move 'pending' bookings to 'hold'
+    const oneHourAgo = new Date(now.getTime() - AUTO_CANCEL_PENDING_MINUTES * 60 * 1000);
+    const pendingBookings = await Booking.findAll({ where: { status: 'pending' } });
+    let movedToHoldCount = 0;
+    for (const booking of pendingBookings) {
+      const bookingCreatedAt = new Date(booking.createdAt);
+      if (bookingCreatedAt <= oneHourAgo) {
+        await booking.update({ status: 'hold' });
+        movedToHoldCount++;
+        console.log(`[BookingScheduler] ${booking.bookingId} moved to hold after 1 hour pending`);
+      }
+    }
+
+    // Auto-cancel 'hold' bookings that were not confirmed after another hour (2 hours from creation)
+    const twoHoursAgo = new Date(now.getTime() - 2 * AUTO_CANCEL_PENDING_MINUTES * 60 * 1000);
+    const holdBookingsToCancel = await Booking.findAll({ where: { status: 'hold' } });
+    let cancelledCount = 0;
+    for (const booking of holdBookingsToCancel) {
+      const bookingCreatedAt = new Date(booking.createdAt);
+      if (bookingCreatedAt <= twoHoursAgo) {
+        await booking.update({ status: 'cancelled' });
+        cancelledCount++;
+        console.log(`[BookingScheduler] ${booking.bookingId} auto-cancelled after 2 hours (hold)`);
+      }
+    }
+
+    // Existing logic for 'hold' and 'cancel_requested' bookings
     const holdBookings = await Booking.findAll({
       where: { status: ['hold', 'cancel_requested'] },
       include: [{ model: Flight, as: 'flight' }]
@@ -53,6 +80,9 @@ const updateBookingStatuses = async () => {
 
     if (updatedCount > 0) {
       console.log(`[BookingScheduler] ${updatedCount} booking(s) updated to 'sold'`);
+    }
+    if (cancelledCount > 0) {
+      console.log(`[BookingScheduler] ${cancelledCount} booking(s) auto-cancelled after 1 hour pending`);
     }
   } catch (error) {
     console.error('[BookingScheduler] Error updating booking statuses:', error.message);
