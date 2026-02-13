@@ -156,64 +156,6 @@ const SearchFlights = () => {
         )}
       </div>
 
-      <details className="search-filters">
-        <summary><i className="fa-solid fa-filter"></i> Advanced Search Filters</summary>
-        <form onSubmit={handleSearch} className="search-form">
-          <div className="form-row">
-            <input
-              type="text"
-              name="departureCity"
-              placeholder="From City"
-              value={filters.departureCity}
-              onChange={handleChange}
-            />
-            <input
-              type="text"
-              name="destinationCity"
-              placeholder="To City"
-              value={filters.destinationCity}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="form-row">
-            <input
-              type="date"
-              name="departureDate"
-              value={filters.departureDate}
-              onChange={handleChange}
-            />
-            <select
-              name="flightClass"
-              value={filters.flightClass}
-              onChange={handleChange}
-            >
-              <option value="">All Classes</option>
-              <option value="economy">Economy</option>
-              <option value="business">Business</option>
-            </select>
-          </div>
-
-          <div className="form-row">
-            <input
-              type="number"
-              name="minPrice"
-              placeholder="Min Price (PKR)"
-              value={filters.minPrice}
-              onChange={handleChange}
-            />
-            <input
-              type="number"
-              name="maxPrice"
-              placeholder="Max Price (PKR)"
-              value={filters.maxPrice}
-              onChange={handleChange}
-            />
-          </div>
-
-          <button type="submit" className="search-btn"><i className="fa-solid fa-search"></i> Apply Filters</button>
-        </form>
-      </details>
 
       {error && <div className="error-message">{error}</div>}
 
