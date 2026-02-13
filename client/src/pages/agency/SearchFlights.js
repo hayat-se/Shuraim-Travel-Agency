@@ -165,58 +165,7 @@ const SearchFlights = () => {
                 </table>
               </div>
             );
-                                <th>SEATS</th>
-                                <th>FARE (PKR)</th>
-                                <th></th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {routeFlights.map(flight => (
-                                <tr key={flight.id} className={flight.seatsRemaining < 5 ? 'low-availability' : ''}>
-                                  <td className="ft-flight">
-                                    <span className="ft-flight-number">{flight.flightNumber}</span>
-                                  </td>
-                                  <td className="ft-date">
-                                    {new Date(flight.departureDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
-                                  </td>
-                                  <td className="ft-time">
-                                    <span className="ft-dep-time">{flight.departureTime}</span>
-                                    <span className="ft-time-sep">-</span>
-                                    <span className="ft-arr-time">{flight.arrivalTime}</span>
-                                  </td>
-                                  <td className="ft-class">
-                                    <span className={`ft-class-tag ${flight.flightClass}`}>
-                                      {flight.flightClass === 'economy' ? 'ECO' : 'BIZ'}
-                                    </span>
-                                  </td>
-                                  <td className="ft-bag">{flight.baggage || '20kg'}</td>
-                                  <td className="ft-meal">
-                                    {flight.meal === 'Yes' || flight.meal === 'yes' ? (
-                                      <span className="ft-meal-yes"><i className="fa-solid fa-check"></i></span>
-                                    ) : (
-                                      <span className="ft-meal-no"><i className="fa-solid fa-xmark"></i></span>
-                                    )}
-                                  </td>
-                                  <td className="ft-seats">
-                                    <span className={flight.seatsRemaining < 10 ? 'ft-seats-low' : 'ft-seats-ok'}>
-                                      {flight.seatsRemaining}
-                                    </span>
-                                  </td>
-                                  <td className="ft-fare">{flight.pricePerSeat.toLocaleString()}</td>
-                                  <td className="ft-action">
-                                    <button 
-                                      className="ft-book-btn"
-                                      onClick={() => handleBook(flight.id)}
-                                      disabled={flight.seatsRemaining === 0}
-                                    >
-                                      {flight.seatsRemaining === 0 ? 'Full' : 'Book Now'}
-                                    </button>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
+
 
                         {/* Mobile Card View */}
                         <div className="mobile-cards">
