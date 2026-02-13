@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "../../styles/MyBookings.css";
 
+
 function MyBookings() {
-  const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
