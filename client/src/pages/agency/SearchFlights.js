@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import apiClient from '../../config/axiosConfig';
 import AIRLINE_PRESETS from '../../config/airlinePresets';
+import '../../styles/Search.css';
+
 // Helper to get airline preset by name
 const getAirlinePreset = (airlineName) => {
   return AIRLINE_PRESETS.find(a => a.name.toLowerCase() === (airlineName || '').toLowerCase());
 };
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import apiClient from '../../config/axiosConfig';
-import '../../styles/Search.css';
 
 const SearchFlights = () => {
     // Helper to get airline logo by name
