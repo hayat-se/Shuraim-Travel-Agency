@@ -75,7 +75,8 @@ const SearchFlights = () => {
         </div>
       </div>
 
-      <div className="group-filter" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      {/* Airline Group Buttons */}
+      <div className="group-filter" style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
           <h3 style={{ marginBottom: 0, marginRight: 16 }}>Select Flight Group</h3>
           <div className="group-buttons" style={{ display: 'flex', flexDirection: 'row', gap: 8 }}>
@@ -113,6 +114,7 @@ const SearchFlights = () => {
               <thead>
                 <tr style={{ background: '#1a2330', color: '#fff' }}>
                   <th>FLIGHT</th>
+                  <th>AIRLINE</th>
                   <th>DATE</th>
                   <th>TIME</th>
                   <th>CLASS</th>
@@ -128,6 +130,9 @@ const SearchFlights = () => {
                   <tr key={flight.id} className={flight.seatsRemaining < 5 ? 'low-availability' : ''} style={{ background: '#fcf8f5' }}>
                     <td className="ft-flight">
                       <span className="ft-flight-number">{flight.flightNumber}</span>
+                    </td>
+                    <td className="ft-airline">
+                      {flight.airlineName || flight.airline || 'N/A'}
                     </td>
                     <td className="ft-date">
                       {new Date(flight.departureDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
@@ -180,6 +185,10 @@ const SearchFlights = () => {
 
                 <div className="ft-card-details">
                   <div className="ft-card-row">
+                    <div className="ft-card-item">
+                      <span className="ft-card-label">AIRLINE</span>
+                      <span className="ft-card-value">{flight.airlineName || flight.airline || 'N/A'}</span>
+                    </div>
                     <div className="ft-card-item">
                       <span className="ft-card-label">TIME</span>
                       <span className="ft-card-value">{flight.departureTime} - {flight.arrivalTime}</span>
