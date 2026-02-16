@@ -45,7 +45,13 @@ function MyBookings() {
             <tbody>
               {bookings.map((booking) => (
                 <tr key={booking._id}>
-                  <td style={{fontWeight:600}}>{booking.reference || booking._id.slice(-6).toUpperCase()}</td>
+                  <td style={{fontWeight:600}}>{
+                    booking.reference
+                      ? booking.reference
+                      : (booking._id && typeof booking._id === 'string' && booking._id.length >= 6
+                        ? booking._id.slice(-6).toUpperCase()
+                        : 'N/A')
+                  }</td>
                   <td>
                     <span className={`status-badge status-${booking.status?.toLowerCase()}`}>{booking.status}</span>
                   </td>
