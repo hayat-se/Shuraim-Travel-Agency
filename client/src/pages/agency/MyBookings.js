@@ -45,12 +45,14 @@ function MyBookings() {
             <tbody>
               {bookings.map((booking) => (
                 <tr key={booking._id}>
-                  <td>{booking.reference || booking._id}</td>
-                  <td>{booking.status}</td>
-                  <td>{booking.flight?.flightNumber || "N/A"}</td>
-                  <td>{booking.flight?.departureDate ? new Date(booking.flight.departureDate).toLocaleDateString() : "N/A"}</td>
+                  <td style={{fontWeight:600}}>{booking.reference || booking._id.slice(-6).toUpperCase()}</td>
+                  <td>
+                    <span className={`status-badge status-${booking.status?.toLowerCase()}`}>{booking.status}</span>
+                  </td>
+                  <td>{booking.flight?.flightNumber || <span style={{color:'#bbb'}}>N/A</span>}</td>
+                  <td>{booking.flight?.departureDate ? new Date(booking.flight.departureDate).toLocaleDateString() : <span style={{color:'#bbb'}}>N/A</span>}</td>
                   <td>{booking.passengers?.length || 0}</td>
-                  <td>{booking.totalPrice ? `₹${booking.totalPrice}` : "N/A"}</td>
+                  <td>{typeof booking.totalPrice === 'number' ? booking.totalPrice.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }) : <span style={{color:'#bbb'}}>N/A</span>}</td>
                 </tr>
               ))}
             </tbody>

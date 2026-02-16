@@ -1,3 +1,72 @@
+.bookings-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 18px;
+}
+
+.bookings-table th, .bookings-table td {
+  padding: 16px 14px;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.bookings-table th {
+  background: linear-gradient(90deg, #f7f7f7 80%, #e9f3ff 100%);
+  font-weight: 700;
+  color: #1a237e;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+}
+
+.bookings-table tr:nth-child(even) {
+  background: #f8fbff;
+}
+
+.bookings-table tr:hover {
+  background: #e3f2fd;
+  transition: background 0.2s;
+}
+
+.bookings-table td {
+  color: #222;
+  font-size: 15px;
+}
+
+/* Status badge styles */
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: capitalize;
+  letter-spacing: 0.2px;
+  background: #e3e3e3;
+  color: #444;
+}
+.status-badge.status-active { background: #e0f7fa; color: #00796b; }
+.status-badge.status-pending { background: #fff3e0; color: #f57c00; }
+.status-badge.status-cancelled { background: #ffebee; color: #c62828; }
+.status-badge.status-hold { background: #fffde7; color: #fbc02d; }
+.status-badge.status-sold { background: #e8f5e9; color: #388e3c; }
+.status-badge.status-approved { background: #e3fcec; color: #388e3c; }
+.status-badge.status-rejected { background: #fbe9e7; color: #d84315; }
+.status-badge.status-blocked { background: #ede7f6; color: #5e35b1; }
+
+@media (max-width: 768px) {
+  .bookings-table th, .bookings-table td {
+    padding: 10px 6px;
+    font-size: 13px;
+  }
+  .bookings-table th {
+    font-size: 14px;
+  }
+}
 /* Bookings Table Styles */
 .table-responsive {
   width: 100%;
