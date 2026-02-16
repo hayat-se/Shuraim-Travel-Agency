@@ -54,7 +54,7 @@ const AgencyLogin = ({ setUser }) => {
       <div className="auth-card">
 
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '2rem' }}>
-          <img src={process.env.PUBLIC_URL + '/assets/logo.png'} alt="Logo" style={{ width: 70, height: 70, marginBottom: '1rem', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }} />
+          <img src="/assets/logo.png" alt="Logo" style={{ width: 70, height: 70, marginBottom: '1rem', borderRadius: '12px' }} />
           <h1 style={{ fontWeight: 700, fontSize: '2rem', margin: 0, color: '#222' }}>Agency Login</h1>
         </div>
 
