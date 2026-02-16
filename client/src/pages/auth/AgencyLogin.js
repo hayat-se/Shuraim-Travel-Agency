@@ -52,8 +52,11 @@ const AgencyLogin = ({ setUser }) => {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h1>Agency Login</h1>
-        <p className="subtitle">Airline Agency Management System</p>
+
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '2rem' }}>
+          <img src={process.env.PUBLIC_URL + '/assets/logo.png'} alt="Logo" style={{ width: 70, height: 70, marginBottom: '1rem', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }} />
+          <h1 style={{ fontWeight: 700, fontSize: '2rem', margin: 0, color: '#222' }}>Agency Login</h1>
+        </div>
 
         {error && <div className="error-message">{error}</div>}
 
