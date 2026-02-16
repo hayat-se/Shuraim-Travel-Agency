@@ -24,12 +24,3 @@
     <div id="root"></div>
   </body>
 </html>
-```
-
-**Key fixes:**
-1. Changed `type="image/x-icon"` → `type="image/png"`
-2. Changed path from `/client/public/assets/favicon.ico` → `/assets/favicon.png`
-
-The `client/public/` folder is served as the web root, so anything inside it is accessible without the `client/public/` prefix. To confirm it's working, open your browser and go to:
-```
-http://localhost:YOUR_PORT/assets/favicon.png
