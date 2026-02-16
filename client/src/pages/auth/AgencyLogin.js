@@ -54,8 +54,13 @@ const AgencyLogin = ({ setUser }) => {
       <div className="auth-card">
 
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '2rem' }}>
-          <img src="/assets/logo.png" alt="Logo" style={{ width: 120, height: 120, objectFit: 'contain', marginBottom: '1.2rem', borderRadius: '16px' }} />
-          <h1 style={{ fontWeight: 700, fontSize: '2.2rem', margin: 0, color: '#222' }}>Agency Login</h1>
+          <img src="/assets/logo.png" alt="Logo" style={{ width: 70, height: 70, objectFit: 'contain', marginBottom: '1.2rem', borderRadius: '12px' }} />
+          <div style={{ fontWeight: 700, fontSize: '2.2rem', margin: 0, color: '#222', marginBottom: '0.2rem', letterSpacing: '0.02em' }}>
+            شريم
+          </div>
+          <div style={{ fontWeight: 700, fontSize: '1.3rem', color: '#222', marginBottom: '0.1rem', letterSpacing: '0.04em' }}>SHURAIM</div>
+          <div style={{ fontSize: '0.95rem', color: '#555', marginBottom: '1.2rem', letterSpacing: '0.04em' }}>AIR TRAVEL & TOURS</div>
+          <div style={{ background: '#f3f4f6', borderRadius: '20px', padding: '8px 24px', fontWeight: 500, color: '#222', fontSize: '1rem', marginBottom: '0.5rem', boxShadow: 'none', letterSpacing: '0.04em' }}>AGENCY PORTAL</div>
         </div>
 
         {error && <div className="error-message">{error}</div>}
