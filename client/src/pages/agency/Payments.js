@@ -1,6 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import apiClient from '../../config/axiosConfig';
+import AIRLINE_PRESETS from '../../config/airlinePresets';
 import '../../styles/Finance.css';
+// Helper to get airline preset by name
+const getAirlinePreset = (airlineName) => {
+  return AIRLINE_PRESETS.find(a => a.name.toLowerCase() === (airlineName || '').toLowerCase());
+};
+
+const getAirlineLogo = (airlineName) => {
+  const preset = getAirlinePreset(airlineName);
+  return preset ? preset.logo : null;
+};
 
 const Payments = () => {
   const [banks, setBanks] = useState([]);
@@ -140,6 +150,7 @@ const Payments = () => {
         <table className="data-table">
           <thead>
             <tr>
+              <th>LOGO</th>
               <th>Date</th>
               <th>Bank</th>
               <th>Reference</th>
@@ -150,11 +161,16 @@ const Payments = () => {
           <tbody>
             {payments.length === 0 ? (
               <tr>
-                <td colSpan="5">No payments submitted yet.</td>
+                <td colSpan="6">No payments submitted yet.</td>
               </tr>
             ) : (
               payments.map((payment) => (
                 <tr key={payment.id}>
+                  <td>
+                    {payment.flight && getAirlineLogo(payment.flight.airlineName) && (
+                      <img src={getAirlineLogo(payment.flight.airlineName)} alt={payment.flight.airlineName} style={{ height: 32, maxWidth: 80, objectFit: 'contain', background: '#fff', borderRadius: 4, padding: 2 }} />
+                    )}
+                  </td>
                   <td>{new Date(payment.paymentDate || payment.createdAt).toLocaleDateString()}</td>
                   <td>{payment.bank?.bankName || 'Bank'}</td>
                   <td>{payment.referenceNumber}</td>
