@@ -1,3 +1,44 @@
+/* Bookings Table Styles */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 24px;
+}
+
+.bookings-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.bookings-table th, .bookings-table td {
+  padding: 14px 12px;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.bookings-table th {
+  background: #f7f7f7;
+  font-weight: 600;
+  color: #333;
+}
+
+.bookings-table tr:last-child td {
+  border-bottom: none;
+}
+
+.bookings-table tr:hover {
+  background: #f5faff;
+  transition: background 0.2s;
+}
+
+.bookings-table td {
+  color: #444;
+  font-size: 15px;
+}
 .bookings-container {
   max-width: 1000px;
   margin: 0 auto;

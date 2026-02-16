@@ -30,23 +30,31 @@ function MyBookings() {
       {error && <p className="error">{error}</p>}
       {!loading && bookings.length === 0 && !error && <p>No bookings yet</p>}
       {!loading && bookings.length > 0 && (
-        <div>
-          {bookings.map((booking) => (
-            <div className="booking-details" key={booking._id}>
-              <div className="booking-header">
-                <h3>Booking Reference: {booking.reference || booking._id}</h3>
-                <span>Status: {booking.status}</span>
-              </div>
-              <div className="detail-row">
-                <span>Flight: {booking.flight?.flightNumber || "N/A"}</span>
-                <span>Date: {booking.flight?.departureDate ? new Date(booking.flight.departureDate).toLocaleDateString() : "N/A"}</span>
-                <span>Passengers: {booking.passengers?.length || 0}</span>
-              </div>
-              <div className="detail-row">
-                <span>Total Price: {booking.totalPrice ? `₹${booking.totalPrice}` : "N/A"}</span>
-              </div>
-            </div>
-          ))}
+        <div className="table-responsive">
+          <table className="bookings-table">
+            <thead>
+              <tr>
+                <th>Reference</th>
+                <th>Status</th>
+                <th>Flight</th>
+                <th>Date</th>
+                <th>Passengers</th>
+                <th>Total Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              {bookings.map((booking) => (
+                <tr key={booking._id}>
+                  <td>{booking.reference || booking._id}</td>
+                  <td>{booking.status}</td>
+                  <td>{booking.flight?.flightNumber || "N/A"}</td>
+                  <td>{booking.flight?.departureDate ? new Date(booking.flight.departureDate).toLocaleDateString() : "N/A"}</td>
+                  <td>{booking.passengers?.length || 0}</td>
+                  <td>{booking.totalPrice ? `₹${booking.totalPrice}` : "N/A"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>
