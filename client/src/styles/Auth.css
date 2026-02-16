@@ -16,14 +16,13 @@
 }
 
 .auth-card {
-  background: rgba(255, 255, 255, 0.98);
-  padding: 20px;
-  border-radius: 16px;
-  /* box-shadow removed for flat design */
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  backdrop-filter: blur(8px);
+  background: #fff;
+  padding: 24px 32px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
   width: 100%;
-  max-width: 480px;
+  max-width: 520px;
+  box-shadow: none;
 }
 
 .auth-card.wide {
