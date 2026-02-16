@@ -44,9 +44,12 @@ const AdminLogin = ({ setUser }) => {
   return (
     <div className="auth-container">
       <div className="auth-card admin">
-        <div className="auth-badge admin">Admin Portal</div>
-        <h1>Admin Login</h1>
-        <p className="subtitle">Secure access to the management console</p>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '2rem' }}>
+          <img src="/assets/logo.png" alt="Logo" style={{ width: 120, height: 120, objectFit: 'contain', marginBottom: '1.2rem', borderRadius: '16px' }} />
+          <div className="auth-badge admin">Admin Portal</div>
+          <h1 style={{ fontWeight: 700, fontSize: '2.2rem', margin: 0, color: '#222' }}>Admin Login</h1>
+          <p className="subtitle">Secure access to the management console</p>
+        </div>
 
         {error && <div className="error-message">{error}</div>}
 
