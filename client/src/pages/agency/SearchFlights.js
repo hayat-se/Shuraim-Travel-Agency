@@ -18,7 +18,9 @@ const SearchFlights = () => {
 
   // Helper to get airline route info
   const getAirlineRoute = (flight) => {
-    return `${flight.departureAirport} - ${flight.arrivalAirport}`;
+    const departure = flight.departureCity || 'N/A';
+    const destination = flight.destinationCity || 'N/A';
+    return `${departure} - ${destination}`;
   };
 
   const [searchParams] = useSearchParams();
@@ -131,10 +133,10 @@ const SearchFlights = () => {
           {groups.map(group => (
             <button
               key={group.id}
-              className={`group-btn ${selectedGroup === group.groupName ? 'active' : ''}`}
-              onClick={() => setSelectedGroup(group.groupName)}
+              className={`group-btn ${selectedGroup === group.name ? 'active' : ''}`}
+              onClick={() => setSelectedGroup(group.name)}
             >
-              {group.groupName}
+              {group.name}
             </button>
           ))}
         </div>
@@ -172,12 +174,16 @@ const SearchFlights = () => {
                 {/* Airline Header with Logo and Route */}
                 <div className="airline-header">
                   <div className="airline-info">
-                    {airlineLogo && (
+                    {airlineLogo ? (
                       <img 
                         src={airlineLogo} 
                         alt={airlineName} 
                         className="airline-logo-header"
                       />
+                    ) : (
+                      <div className="airline-logo-placeholder">
+                        <i className="fa-solid fa-plane"></i>
+                      </div>
                     )}
                     <div className="airline-details">
                       <h2 className="airline-name">{airlineName}</h2>
