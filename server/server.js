@@ -137,6 +137,37 @@ const cleanupAdminIndexes = async () => {
 // Call cleanup on server start
 cleanupAdminIndexes();
 
+// --- AUTO DB ADMIN USER CREATION ---
+const ensureAdminUser = async () => {
+  try {
+    const adminEmail = 'admin@airline.com';
+    const existingAdmin = await db.Admin.findOne({ where: { email: adminEmail } });
+    if (!existingAdmin) {
+      const bcrypt = require('bcrypt');
+      const hashedPassword = await bcrypt.hash('admin123', 10);
+      await db.Admin.create({
+        name: 'System Administrator',
+        email: adminEmail,
+        password: hashedPassword,
+        role: 'super_admin',
+        companyName: 'Shuraim Air Travel & Tours',
+        phone: '+92-300-1234567',
+        address: 'Karachi, Pakistan',
+        city: 'Karachi',
+        country: 'Pakistan'
+      });
+      console.log('Admin user created (admin@airline.com / admin123)');
+    } else {
+      console.log('Admin user already exists');
+    }
+  } catch (err) {
+    console.error('Admin user creation failed:', err.message);
+  }
+};
+
+// Call admin user creation on server start
+ensureAdminUser();
+
 // Make db available globally
 global.db = db;
 
