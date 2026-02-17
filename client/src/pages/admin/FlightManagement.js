@@ -83,8 +83,14 @@ const FlightManagement = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Only save the group code (e.g., 'MCT') in the DB
+      let groupCode = formData.group;
+      if (typeof groupCode === 'string' && groupCode.includes(' ')) {
+        groupCode = groupCode.split(' ')[0];
+      }
       const payload = {
         ...formData,
+        group: groupCode,
         totalSeatsAvailable: Number(formData.totalSeatsAvailable),
         pricePerSeat: Number(formData.pricePerSeat)
       };
