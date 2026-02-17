@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from "react";
 import apiClient from "../../config/axiosConfig";
 import { API_ENDPOINTS } from "../../config/api";
@@ -30,39 +31,29 @@ function MyBookings() {
       {error && <p className="error">{error}</p>}
       {!loading && bookings.length === 0 && !error && <p>No bookings yet</p>}
       {!loading && bookings.length > 0 && (
-        <div className="table-responsive">
-          <table className="bookings-table">
-            <thead>
-              <tr>
-                <th>Reference</th>
-                <th>Status</th>
-                <th>Flight</th>
-                <th>Date</th>
-                <th>Passengers</th>
-                <th>Total Price</th>
-              </tr>
-            </thead>
-            <tbody>
-              {bookings.map((booking) => (
-                <tr key={booking._id}>
-                  <td style={{fontWeight:600}}>{
-                    booking.reference
-                      ? booking.reference
-                      : (booking._id && typeof booking._id === 'string' && booking._id.length >= 6
-                        ? booking._id.slice(-6).toUpperCase()
-                        : 'N/A')
-                  }</td>
-                  <td>
-                    <span className={`status-badge status-${booking.status?.toLowerCase()}`}>{booking.status}</span>
-                  </td>
-                  <td>{booking.flight?.flightNumber || <span style={{color:'#bbb'}}>N/A</span>}</td>
-                  <td>{booking.flight?.departureDate ? new Date(booking.flight.departureDate).toLocaleDateString() : <span style={{color:'#bbb'}}>N/A</span>}</td>
-                  <td>{booking.passengers?.length || 0}</td>
-                  <td>{typeof booking.totalPrice === 'number' ? booking.totalPrice.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }) : <span style={{color:'#bbb'}}>N/A</span>}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="booking-cards-list">
+          {bookings.map((booking) => (
+            <div className="booking-card" key={booking._id}>
+              <div className="booking-card-header">
+                <div className="booking-ref">
+                  <span className="booking-label">Reference:</span> <strong>{booking.reference ? booking.reference : (booking._id && typeof booking._id === 'string' && booking._id.length >= 6 ? booking._id.slice(-6).toUpperCase() : 'N/A')}</strong>
+                </div>
+                <span className={`status-badge status-${booking.status?.toLowerCase()}`}>{booking.status}</span>
+              </div>
+              <div className="booking-card-main">
+                <div className="flight-info">
+                  <div><span className="booking-label">Flight:</span> <strong>{booking.flight?.flightNumber || <span style={{color:'#bbb'}}>N/A</span>}</strong></div>
+                  <div><span className="booking-label">Date:</span> <strong>{booking.flight?.departureDate ? new Date(booking.flight.departureDate).toLocaleDateString() : <span style={{color:'#bbb'}}>N/A</span>}</strong></div>
+                </div>
+                <div className="passenger-info">
+                  <span className="booking-label">Passengers:</span> <strong>{booking.passengers?.length || 0}</strong>
+                </div>
+                <div className="price-info">
+                  <span className="booking-label">Total Price:</span> <strong>{typeof booking.totalPrice === 'number' ? booking.totalPrice.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }) : <span style={{color:'#bbb'}}>N/A</span>}</strong>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
