@@ -52,19 +52,14 @@ const AgencyLogin = ({ setUser }) => {
   return (
     <div className="auth-container">
       <div className="auth-card">
-
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '2rem' }}>
-          <img src="/assets/logo.png" alt="Logo" style={{ width: 70, height: 70, objectFit: 'contain', marginBottom: '1.2rem', borderRadius: '12px' }} />
-          <div style={{ fontWeight: 700, fontSize: '2.2rem', margin: 0, color: '#222', marginBottom: '0.2rem', letterSpacing: '0.02em' }}>
-            شريم
-          </div>
-          <div style={{ fontWeight: 700, fontSize: '1.3rem', color: '#222', marginBottom: '0.1rem', letterSpacing: '0.04em' }}>SHURAIM</div>
-          <div style={{ fontSize: '0.95rem', color: '#555', marginBottom: '1.2rem', letterSpacing: '0.04em' }}>AIR TRAVEL & TOURS</div>
-          <div style={{ background: '#f3f4f6', borderRadius: '20px', padding: '8px 24px', fontWeight: 500, color: '#222', fontSize: '1rem', marginBottom: '0.5rem', boxShadow: 'none', letterSpacing: '0.04em' }}>AGENCY PORTAL</div>
+          <img src="/assets/logo.png" alt="Logo" style={{ width: 48, height: 48, objectFit: 'contain', marginBottom: '1.2rem', borderRadius: '8px' }} />
+          <div style={{ fontWeight: 700, fontSize: '2rem', margin: 0, color: '#222', marginBottom: '0.2rem', letterSpacing: '0.02em' }}>شريم</div>
+          <div style={{ fontWeight: 700, fontSize: '1.1rem', color: '#222', marginBottom: '0.1rem', letterSpacing: '0.04em' }}>SHURAIM</div>
+          <div style={{ fontSize: '0.9rem', color: '#555', marginBottom: '1.2rem', letterSpacing: '0.04em' }}>AIR TRAVEL & TOURS</div>
+          <div style={{ background: '#f3f4f6', borderRadius: '20px', padding: '8px 24px', fontWeight: 500, color: '#222', fontSize: '1rem', marginBottom: '0.5rem', boxShadow: 'none', letterSpacing: '0.04em', width: 'fit-content' }}>AGENCY PORTAL</div>
         </div>
-
         {error && <div className="error-message">{error}</div>}
-
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Email</label>
@@ -77,7 +72,6 @@ const AgencyLogin = ({ setUser }) => {
               placeholder="agency@example.com"
             />
           </div>
-
           <div className="form-group">
             <label>Password</label>
             <input
@@ -89,12 +83,10 @@ const AgencyLogin = ({ setUser }) => {
               placeholder="Enter your password"
             />
           </div>
-
           <button type="submit" className="submit-btn" disabled={loading}>
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
-
         <div className="auth-links">
           <p>Forgot your password?</p>
           <div className="auth-link-actions">
