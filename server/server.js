@@ -115,6 +115,28 @@ const initializeApp = async () => {
 
 initializeApp();
 
+// --- AUTO DB INDEX CLEANUP FOR ADMINS TABLE ---
+const cleanupAdminIndexes = async () => {
+  try {
+    const [indexes] = await db.sequelize.query('SHOW INDEX FROM admins;');
+    const emailIndexes = indexes.filter(idx => idx.Column_name === 'email' && idx.Key_name !== 'PRIMARY');
+    let kept = false;
+    for (const idx of emailIndexes) {
+      if (idx.Non_unique === 0 && !kept) {
+        kept = true;
+        continue;
+      }
+      await db.sequelize.query(`DROP INDEX \`${idx.Key_name}\` ON admins;`);
+    }
+    console.log('Duplicate indexes on admins.email cleaned up.');
+  } catch (err) {
+    console.error('Index cleanup failed:', err.message);
+  }
+};
+
+// Call cleanup on server start
+cleanupAdminIndexes();
+
 // Make db available globally
 global.db = db;
 
