@@ -159,6 +159,28 @@ const cleanupAgencyIndexes = async () => {
 // Call agency index cleanup on server start
 cleanupAgencyIndexes();
 
+// --- AUTO DB INDEX CLEANUP FOR AIRLINES TABLE ---
+const cleanupAirlineIndexes = async () => {
+  try {
+    const [indexes] = await db.sequelize.query('SHOW INDEX FROM airlines;');
+    const nameIndexes = indexes.filter(idx => idx.Column_name === 'name' && idx.Key_name !== 'PRIMARY');
+    let kept = false;
+    for (const idx of nameIndexes) {
+      if (idx.Non_unique === 0 && !kept) {
+        kept = true;
+        continue;
+      }
+      await db.sequelize.query(`DROP INDEX \`${idx.Key_name}\` ON airlines;`);
+    }
+    console.log('Duplicate indexes on airlines.name cleaned up.');
+  } catch (err) {
+    console.error('Airline index cleanup failed:', err.message);
+  }
+};
+
+// Call airline index cleanup on server start
+cleanupAirlineIndexes();
+
 // --- AUTO DB ADMIN USER CREATION ---
 const ensureAdminUser = async () => {
   try {
