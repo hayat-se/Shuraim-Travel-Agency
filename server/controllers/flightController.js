@@ -27,6 +27,11 @@ const createFlight = async (req, res) => {
       return res.status(400).json({ error: 'Flight number already exists' });
     }
 
+    // Only store group code (e.g., 'MCT')
+    let groupCode = group || 'ALL';
+    if (typeof groupCode === 'string' && groupCode.includes(' ')) {
+      groupCode = groupCode.split(' ')[0];
+    }
     const newFlight = await Flight.create({
       airlineName,
       flightNumber,
@@ -37,7 +42,7 @@ const createFlight = async (req, res) => {
       arrivalDate: new Date(arrivalDate),
       arrivalTime,
       flightClass,
-      group: group || 'ALL',
+      group: groupCode,
       meal: meal || 'No Meal',
       baggage: baggage || '20kg',
       totalSeatsAvailable,
@@ -129,6 +134,10 @@ const updateFlight = async (req, res) => {
       return res.status(404).json({ error: 'Flight not found' });
     }
 
+    // Only store group code (e.g., 'MCT') on update
+    if (updates.group && typeof updates.group === 'string' && updates.group.includes(' ')) {
+      updates.group = updates.group.split(' ')[0];
+    }
     await flight.update(updates);
 
     res.status(200).json({
