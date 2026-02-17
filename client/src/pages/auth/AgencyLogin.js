@@ -51,15 +51,14 @@ const AgencyLogin = ({ setUser }) => {
 
   return (
     <div className="auth-container">
-      <div className="auth-card">
+      <div className="auth-card admin">
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '2rem' }}>
-          <img src="/assets/logo.png" alt="Logo" style={{ width: 48, height: 48, objectFit: 'contain', marginBottom: '1.2rem', borderRadius: '8px' }} />
-          <div style={{ fontWeight: 700, fontSize: '2rem', margin: 0, color: '#222', marginBottom: '0.2rem', letterSpacing: '0.02em' }}>شريم</div>
-          <div style={{ fontWeight: 700, fontSize: '1.1rem', color: '#222', marginBottom: '0.1rem', letterSpacing: '0.04em' }}>SHURAIM</div>
-          <div style={{ fontSize: '0.9rem', color: '#555', marginBottom: '1.2rem', letterSpacing: '0.04em' }}>AIR TRAVEL & TOURS</div>
-          <div style={{ background: '#f3f4f6', borderRadius: '20px', padding: '8px 24px', fontWeight: 500, color: '#222', fontSize: '1rem', marginBottom: '0.5rem', boxShadow: 'none', letterSpacing: '0.04em', width: 'fit-content' }}>AGENCY PORTAL</div>
+          <img src="/assets/logo.png" alt="Logo" style={{ width: 120, height: 120, objectFit: 'contain', marginBottom: '1.2rem', borderRadius: '16px' }} />
+          <div className="auth-badge admin">Agency Portal</div>
         </div>
+
         {error && <div className="error-message">{error}</div>}
+
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Email</label>
@@ -72,6 +71,7 @@ const AgencyLogin = ({ setUser }) => {
               placeholder="agency@example.com"
             />
           </div>
+
           <div className="form-group">
             <label>Password</label>
             <input
@@ -83,14 +83,16 @@ const AgencyLogin = ({ setUser }) => {
               placeholder="Enter your password"
             />
           </div>
+
           <button type="submit" className="submit-btn" disabled={loading}>
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
+
         <div className="auth-links">
-          <p>Forgot your password?</p>
+          <p>Are you an admin?</p>
           <div className="auth-link-actions">
-            <a href="/agency/forgot-password">Reset Password</a>
+            <a href="/admin/login">Admin Login</a>
             <span className="divider">or</span>
             <a href="/agency/register">Register Agency</a>
           </div>
