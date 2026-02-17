@@ -34,7 +34,7 @@ const AgencyLogin = ({ setUser }) => {
       localStorage.setItem('user', JSON.stringify({ ...user, role: 'agency' }));
 
       setUser({ ...user, role: 'agency' });
-      
+
       // Check if there's an intended booking to redirect to
       const intendedBooking = sessionStorage.getItem('intendedBooking');
       if (intendedBooking) {
@@ -61,6 +61,9 @@ const AgencyLogin = ({ setUser }) => {
           top: 32,
           right: 40,
           zIndex: 10,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
           textDecoration: 'none',
           background: 'linear-gradient(90deg, #00c6ff 0%, #0072ff 100%)',
           color: '#fff',
@@ -84,7 +87,10 @@ const AgencyLogin = ({ setUser }) => {
           e.currentTarget.style.boxShadow = '0 4px 16px 0 rgba(0,114,255,0.12)';
         }}
       >
-        🏠 Home
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+          <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V9.5z" />
+        </svg>
+        Home
       </Link>
       {/* End Home Button */}
       <div className="auth-card admin">

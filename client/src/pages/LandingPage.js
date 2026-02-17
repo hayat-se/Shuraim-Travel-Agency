@@ -69,9 +69,11 @@ const LandingPage = () => {
           <div className="navbar-logo">
             <div className="logo" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
               <span className="logo-icon">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {/* <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                </svg>
+                </svg> */}
+                <img src="/assets/logo2.png" alt="" />
+
               </span>
               <div className="brand-text">
                 <h1>Shuraim Air Travel & Tours</h1>
@@ -138,7 +140,7 @@ const LandingPage = () => {
           <h2>Our Services</h2>
           <p>Comprehensive solutions for your travel booking needs</p>
         </div>
-        
+
         <div className="services-grid">
           <div className="service-card">
             <div className="service-icon">
@@ -261,7 +263,7 @@ const LandingPage = () => {
           <div className="about-content">
             <h2>About Shuraim</h2>
             <p>Shuraim Air Travel & Tours is a licensed travel agency providing professional B2B flight booking solutions. With years of experience in the travel industry, we are committed to delivering exceptional service to our partner agencies.</p>
-            
+
             <div className="company-info">
               <div className="info-item">
                 <span className="info-label">Company Name:</span>
@@ -370,7 +372,7 @@ const LandingPage = () => {
             <span className="contact-badge">Contact Us</span>
             <h2 className="contact-title-main">Get In Touch</h2>
             <p className="contact-subtitle-main">
-              Ready to partner with us? Our team is here to assist you with all your travel booking needs. 
+              Ready to partner with us? Our team is here to assist you with all your travel booking needs.
               Reach out through any channel below.
             </p>
           </div>
@@ -522,9 +524,7 @@ const LandingPage = () => {
             <div className="footer-section company">
               <div className="footer-logo">
                 <div className="logo-icon-footer">
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                  </svg>
+                  <img src="/assets/logo2.png" alt="" />
                 </div>
                 <div className="footer-brand-text">
                   <h3>Shuraim</h3>

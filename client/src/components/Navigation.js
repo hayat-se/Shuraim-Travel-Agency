@@ -62,8 +62,8 @@ const Navigation = ({ user, setUser }) => {
     <>
       {/* Mobile Top Bar */}
       <div className="mobile-top-bar">
-        <button 
-          className="mobile-menu-toggle" 
+        <button
+          className="mobile-menu-toggle"
           onClick={() => setMobileDrawerOpen(!mobileDrawerOpen)}
           aria-label="Toggle navigation menu"
         >
@@ -71,7 +71,7 @@ const Navigation = ({ user, setUser }) => {
           <span></span>
           <span></span>
         </button>
-        
+
         <div className="mobile-brand">
           <div className="mobile-logo">SA</div>
           <div className="mobile-brand-text">
@@ -83,8 +83,8 @@ const Navigation = ({ user, setUser }) => {
 
       {/* Mobile Drawer Overlay */}
       {mobileDrawerOpen && (
-        <div 
-          className="drawer-overlay active" 
+        <div
+          className="drawer-overlay active"
           onClick={() => setMobileDrawerOpen(false)}
         ></div>
       )}
@@ -165,11 +165,11 @@ const Navigation = ({ user, setUser }) => {
               </div>
             </div>
           </div>
-          
+
           <div className="nav-user">
             <span className="user-info">{user?.email}</span>
-            <button 
-              className="logout-btn" 
+            <button
+              className="logout-btn"
               onClick={handleLogout}
             >
               <i className="fa-solid fa-sign-out-alt"></i> Logout
