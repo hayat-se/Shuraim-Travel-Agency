@@ -317,7 +317,7 @@ const FlightManagement = () => {
             >
               <option value="ALL">ALL Groups</option>
               {groups.map(group => (
-                <option key={group.id} value={group.name}>{group.name} Group</option>
+                <option key={group.id} value={group.code || group.name}>{group.name || group.code}</option>
               ))}
             </select>
           </div>
