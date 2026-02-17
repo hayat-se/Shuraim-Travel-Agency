@@ -29,7 +29,9 @@ const SearchFlights = () => {
     const fetchGroups = async () => {
       try {
         const response = await apiClient.get('/api/groups');
-        setGroups(Array.isArray(response.data) ? response.data : []);
+        const groupList = Array.isArray(response.data) ? response.data : [];
+        console.log('Fetched groups:', groupList); // Debug log
+        setGroups(groupList);
       } catch (err) {
         console.error('Error fetching groups:', err);
       }
@@ -100,16 +102,19 @@ const SearchFlights = () => {
             >
               All Flights
             </button>
-            {groups.map(group => (
-              <button
-                key={group.id}
-                className={`group-btn ${selectedGroup === group.groupName ? 'active' : ''}`}
-                style={{ minWidth: 60, fontWeight: 600, fontSize: 16 }}
-                onClick={() => setSelectedGroup(group.groupName)}
-              >
-                {group.groupName}
-              </button>
-            ))}
+            {groups.map(group => {
+              const label = group.groupName || group.name || group.id || 'Unnamed Group';
+              return (
+                <button
+                  key={group.id || label}
+                  className={`group-btn ${selectedGroup === label ? 'active' : ''}`}
+                  style={{ minWidth: 60, fontWeight: 600, fontSize: 16 }}
+                  onClick={() => setSelectedGroup(label)}
+                >
+                  {label}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
