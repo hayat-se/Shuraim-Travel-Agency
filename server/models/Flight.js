@@ -69,8 +69,9 @@ module.exports = (sequelize) => {
       defaultValue: 'active'
     },
     group: {
-      type: DataTypes.ENUM('ALL', 'KSA', 'UAE', 'QATAR', 'BAHRAIN', 'OMAN', 'KUWAIT'),
-      defaultValue: 'ALL'
+      type: DataTypes.STRING,
+      defaultValue: 'ALL',
+      allowNull: false
     },
     meal: {
       type: DataTypes.STRING,
