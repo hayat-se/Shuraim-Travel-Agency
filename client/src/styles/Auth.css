@@ -1,3 +1,35 @@
+/* Animated Home Button Styles */
+.home-btn-animated {
+  position: absolute;
+  top: 32px;
+  right: 40px;
+  z-index: 10;
+  text-decoration: none;
+  background: linear-gradient(90deg, #00c6ff 0%, #0072ff 100%);
+  color: #fff;
+  padding: 12px 28px;
+  border-radius: 18px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  box-shadow: 0 4px 16px 0 rgba(0,114,255,0.12);
+  letter-spacing: 0.04em;
+  transition: transform 0.18s cubic-bezier(.4,2,.6,1), box-shadow 0.18s;
+  animation: homeBtnPulse 1.6s infinite;
+  border: none;
+  cursor: pointer;
+  display: inline-block;
+}
+
+.home-btn-animated:hover, .home-btn-animated:focus {
+  transform: scale(1.08);
+  box-shadow: 0 6px 24px 0 rgba(0,114,255,0.18);
+}
+
+@keyframes homeBtnPulse {
+  0% { box-shadow: 0 4px 16px 0 rgba(0,114,255,0.12); }
+  50% { box-shadow: 0 8px 32px 0 rgba(0,114,255,0.22); transform: scale(1.04); }
+  100% { box-shadow: 0 4px 16px 0 rgba(0,114,255,0.12); }
+}
 .auth-container {
   display: flex;
   justify-content: center;
