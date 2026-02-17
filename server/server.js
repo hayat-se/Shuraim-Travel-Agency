@@ -6,6 +6,11 @@ const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 const path = require('path');
 
+// adding this for long name
+const db = require('./config/database');
+db.sequelize.sync({ alter: true }).then(() => {
+  console.log('Database synchronized');
+});
 // Import database
 const db = require('./config/database');
 const { startBookingScheduler } = require('./services/bookingScheduler');
