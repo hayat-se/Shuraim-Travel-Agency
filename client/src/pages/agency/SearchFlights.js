@@ -57,7 +57,9 @@ const SearchFlights = () => {
     const fetchGroups = async () => {
       try {
         const response = await apiClient.get('/api/groups');
-        setGroups(Array.isArray(response.data) ? response.data : []);
+        const groupList = Array.isArray(response.data) ? response.data : [];
+        console.log('Fetched groups:', groupList); // Debug log
+        setGroups(groupList);
       } catch (err) {
         console.error('Error fetching groups:', err);
       }
