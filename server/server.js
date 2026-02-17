@@ -6,13 +6,12 @@ const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 const path = require('path');
 
-// adding this for long name
+// adding this for long name and sync
 const db = require('./config/database');
 db.sequelize.sync({ alter: true }).then(() => {
   console.log('Database synchronized');
+  // You can start your server here if needed
 });
-// Import database
-const db = require('./config/database');
 const { startBookingScheduler } = require('./services/bookingScheduler');
 
 const app = express();
