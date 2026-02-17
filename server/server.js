@@ -137,6 +137,28 @@ const cleanupAdminIndexes = async () => {
 // Call cleanup on server start
 cleanupAdminIndexes();
 
+// --- AUTO DB INDEX CLEANUP FOR AGENCIES TABLE ---
+const cleanupAgencyIndexes = async () => {
+  try {
+    const [indexes] = await db.sequelize.query('SHOW INDEX FROM agencies;');
+    const emailIndexes = indexes.filter(idx => idx.Column_name === 'email' && idx.Key_name !== 'PRIMARY');
+    let kept = false;
+    for (const idx of emailIndexes) {
+      if (idx.Non_unique === 0 && !kept) {
+        kept = true;
+        continue;
+      }
+      await db.sequelize.query(`DROP INDEX \`${idx.Key_name}\` ON agencies;`);
+    }
+    console.log('Duplicate indexes on agencies.email cleaned up.');
+  } catch (err) {
+    console.error('Agency index cleanup failed:', err.message);
+  }
+};
+
+// Call agency index cleanup on server start
+cleanupAgencyIndexes();
+
 // --- AUTO DB ADMIN USER CREATION ---
 const ensureAdminUser = async () => {
   try {
