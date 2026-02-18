@@ -1,3 +1,6 @@
+// Deprecated: This script used Sequelize/MySQL. Use Supabase for airline seeding now.
+// This script inserts all major Pakistani airlines into the database.
+// Airline logos should be placed in:
 /**
  * Seed Pakistani Airlines
  *

@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { Admin, Agency, AuditLog } = require('../config/database');
+const supabase = require('../api/index');
 const { sendApprovalEmail, sendRejectionEmail, sendPasswordResetOtpEmail } = require('../services/emailService');
 
 // Admin Login
@@ -8,7 +8,13 @@ const adminLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const admin = await Admin.findOne({ where: { email } });
+
+    const { data: adminArr, error: adminErr } = await supabase
+      .from('admins')
+      .select('*')
+      .eq('email', email)
+      .limit(1);
+    const admin = adminArr && adminArr[0];
     if (!admin) {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
@@ -57,7 +63,12 @@ const agencyRegister = async (req, res) => {
     } = req.body;
 
     // Check if agency already exists
-    const existingAgency = await Agency.findOne({ where: { email } });
+    const { data: existingAgencyArr, error: existingAgencyErr } = await supabase
+      .from('agencies')
+      .select('*')
+      .eq('email', email)
+      .limit(1);
+    const existingAgency = existingAgencyArr && existingAgencyArr[0];
     if (existingAgency) {
       return res.status(400).json({ error: 'Email already registered' });
     }
@@ -65,20 +76,26 @@ const agencyRegister = async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newAgency = await Agency.create({
-      agencyName,
-      email,
-      password: hashedPassword,
-      contactPerson,
-      phone,
-      phone2,
-      address,
-      city,
-      registrationNumber,
-      taxId,
-      status: 'pending'
-    });
-
+    const { data: newAgency, error: createError } = await supabase
+      .from('agencies')
+      .insert([
+        {
+          agencyName,
+          email,
+          password: hashedPassword,
+          contactPerson,
+          phone,
+          phone2,
+          address,
+          city,
+          registrationNumber,
+          taxId,
+          status: 'pending'
+        }
+      ])
+      .select()
+      .single();
+    if (createError) throw createError;
     res.status(201).json({
       message: 'Agency registration request submitted. Please wait for admin approval.',
       agencyId: newAgency.id
@@ -93,12 +110,17 @@ const agencyLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const agency = await Agency.findOne({ where: { email } });
+    const { data: agencyArr, error: agencyErr } = await supabase
+      .from('agencies')
+      .select('*')
+      .eq('email', email)
+      .limit(1);
+    const agency = agencyArr && agencyArr[0];
     if (!agency) {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
 
-    if (agency.status !== 'approved') {
+    if (agency && agency.status !== 'approved') {
       return res.status(403).json({ error: `Your account is ${agency.status}. Please wait for admin approval.` });
     }
 
@@ -142,7 +164,12 @@ const requestAgencyPasswordReset = async (req, res) => {
       return res.status(400).json({ error: 'Email is required' });
     }
 
-    const agency = await Agency.findOne({ where: { email } });
+    const { data: agencyArr, error: agencyErr } = await supabase
+      .from('agencies')
+      .select('*')
+      .eq('email', email)
+      .limit(1);
+    const agency = agencyArr && agencyArr[0];
 
     // Always respond success to avoid account enumeration
     if (!agency) {
@@ -153,10 +180,10 @@ const requestAgencyPasswordReset = async (req, res) => {
     const otpHash = await bcrypt.hash(otp, 10);
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
-    await agency.update({
-      resetOtpHash: otpHash,
-      resetOtpExpiresAt: expiresAt
-    });
+    await supabase
+      .from('agencies')
+      .update({ resetOtpHash: otpHash, resetOtpExpiresAt: expiresAt })
+      .eq('id', agency.id);
 
     await sendPasswordResetOtpEmail(agency.agencyName, agency.email, otp);
 
@@ -174,7 +201,12 @@ const resetAgencyPassword = async (req, res) => {
       return res.status(400).json({ error: 'Email, OTP, and new password are required' });
     }
 
-    const agency = await Agency.findOne({ where: { email } });
+    const { data: agencyArr2, error: agencyErr2 } = await supabase
+      .from('agencies')
+      .select('*')
+      .eq('email', email)
+      .limit(1);
+    const agency = agencyArr2 && agencyArr2[0];
     if (!agency || !agency.resetOtpHash || !agency.resetOtpExpiresAt) {
       return res.status(400).json({ error: 'Invalid or expired OTP' });
     }
@@ -190,11 +222,10 @@ const resetAgencyPassword = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await agency.update({
-      password: hashedPassword,
-      resetOtpHash: null,
-      resetOtpExpiresAt: null
-    });
+    await supabase
+      .from('agencies')
+      .update({ password: hashedPassword, resetOtpHash: null, resetOtpExpiresAt: null })
+      .eq('id', agency.id);
 
     return res.status(200).json({ message: 'Password reset successful' });
   } catch (error) {
@@ -205,7 +236,10 @@ const resetAgencyPassword = async (req, res) => {
 // Get pending agency requests (Admin only)
 const getPendingAgencies = async (req, res) => {
   try {
-    const agencies = await Agency.findAll({ where: { status: 'pending' } });
+    const { data: agencies, error: pendingErr } = await supabase
+      .from('agencies')
+      .select('*')
+      .eq('status', 'pending');
     res.status(200).json(agencies);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -215,7 +249,9 @@ const getPendingAgencies = async (req, res) => {
 // Get all agencies (Admin only)
 const getAllAgencies = async (req, res) => {
   try {
-    const agencies = await Agency.findAll();
+    const { data: agencies, error: allErr } = await supabase
+      .from('agencies')
+      .select('*');
     res.status(200).json(agencies);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -227,16 +263,20 @@ const approveAgency = async (req, res) => {
   try {
     const { agencyId } = req.params;
 
-    const agency = await Agency.findByPk(agencyId);
+    const { data: agencyArr3, error: agencyErr3 } = await supabase
+      .from('agencies')
+      .select('*')
+      .eq('id', agencyId)
+      .limit(1);
+    const agency = agencyArr3 && agencyArr3[0];
     if (!agency) {
       return res.status(404).json({ error: 'Agency not found' });
     }
 
-    await agency.update({
-      status: 'approved',
-      approvedAt: new Date(),
-      approvedBy: req.user.id
-    });
+    await supabase
+      .from('agencies')
+      .update({ status: 'approved', approvedAt: new Date(), approvedBy: req.user.id })
+      .eq('id', agencyId);
 
     // Send approval email
     await sendApprovalEmail(agency.agencyName, agency.email);
@@ -256,15 +296,20 @@ const rejectAgency = async (req, res) => {
     const { agencyId } = req.params;
     const { reason } = req.body;
 
-    const agency = await Agency.findByPk(agencyId);
+    const { data: agencyArr4, error: agencyErr4 } = await supabase
+      .from('agencies')
+      .select('*')
+      .eq('id', agencyId)
+      .limit(1);
+    const agency = agencyArr4 && agencyArr4[0];
     if (!agency) {
       return res.status(404).json({ error: 'Agency not found' });
     }
 
-    await agency.update({
-      status: 'rejected',
-      rejectionReason: reason
-    });
+    await supabase
+      .from('agencies')
+      .update({ status: 'rejected', rejectionReason: reason })
+      .eq('id', agencyId);
 
     // Send rejection email
     await sendRejectionEmail(agency.agencyName, agency.email, reason);
@@ -283,12 +328,20 @@ const blockAgency = async (req, res) => {
   try {
     const { agencyId } = req.params;
 
-    const agency = await Agency.findByPk(agencyId);
+    const { data: agencyArr5, error: agencyErr5 } = await supabase
+      .from('agencies')
+      .select('*')
+      .eq('id', agencyId)
+      .limit(1);
+    const agency = agencyArr5 && agencyArr5[0];
     if (!agency) {
       return res.status(404).json({ error: 'Agency not found' });
     }
 
-    await agency.update({ status: 'blocked' });
+    await supabase
+      .from('agencies')
+      .update({ status: 'blocked' })
+      .eq('id', agencyId);
 
     res.status(200).json({
       message: 'Agency blocked',
@@ -304,7 +357,12 @@ const unblockAgency = async (req, res) => {
   try {
     const { agencyId } = req.params;
 
-    const agency = await Agency.findByPk(agencyId);
+    const { data: agencyArr6, error: agencyErr6 } = await supabase
+      .from('agencies')
+      .select('*')
+      .eq('id', agencyId)
+      .limit(1);
+    const agency = agencyArr6 && agencyArr6[0];
     if (!agency) {
       return res.status(404).json({ error: 'Agency not found' });
     }
@@ -313,7 +371,10 @@ const unblockAgency = async (req, res) => {
       return res.status(400).json({ error: 'Agency is not blocked' });
     }
 
-    await agency.update({ status: 'approved' });
+    await supabase
+      .from('agencies')
+      .update({ status: 'approved' })
+      .eq('id', agencyId);
 
     res.status(200).json({
       message: 'Agency unblocked successfully',

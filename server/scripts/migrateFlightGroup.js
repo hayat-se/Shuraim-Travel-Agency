@@ -5,7 +5,8 @@ const { sequelize } = require('../config/database');
  * This fixes the "Data truncated for column 'group'" error
  */
 
-async function migrateFlightGroupColumn() {
+// Deprecated: This migration script used Sequelize/MySQL. Use Supabase for migrations now.
+// async function migrateFlightGroupColumn() {
   try {
     console.log('Starting migration: Converting flight.group from ENUM to VARCHAR...');
     
@@ -27,4 +28,4 @@ async function migrateFlightGroupColumn() {
 }
 
 // Run migration
-migrateFlightGroupColumn();
+// migrateFlightGroupColumn();

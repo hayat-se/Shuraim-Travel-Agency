@@ -6,12 +6,7 @@ const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 const path = require('path');
 
-// adding this for long name and sync
-const db = require('./config/database');
-db.sequelize.sync({ alter: true }).then(() => {
-  console.log('Database synchronized');
-  // You can start your server here if needed
-});
+const supabase = require('./api/index');
 const { startBookingScheduler } = require('./services/bookingScheduler');
 
 const app = express();
@@ -70,50 +65,11 @@ const apiLimiter = rateLimit({
 });
 app.use('/api', apiLimiter);
 
-// Initialize database and start server
-const bcrypt = require('bcryptjs');
-
-const initializeApp = async () => {
-  try {
-    // Connect to MySQL
-    await db.sequelize.authenticate();
-    console.log('MySQL connected successfully');
-
-    // Sync all tables (alter: true adds missing columns automatically)
-    await db.sequelize.sync({ alter: true });
-    console.log('Database tables synced');
-
-    // Auto-create admin user if not exists
-    const adminEmail = 'admin@airline.com';
-    const existingAdmin = await db.Admin.findOne({ where: { email: adminEmail } });
-    if (!existingAdmin) {
-      const hashedPassword = await bcrypt.hash('admin123', 10);
-      await db.Admin.create({
-        name: 'System Administrator',
-        email: adminEmail,
-        password: hashedPassword,
-        role: 'super_admin',
-        companyName: 'Shuraim Air Travel & Tours',
-        phone: '+92-300-1234567',
-        address: 'Karachi, Pakistan',
-        city: 'Karachi',
-        country: 'Pakistan'
-      });
-      console.log('Admin user created (admin@airline.com / admin123)');
-    }
-
-    // Start booking scheduler
-    const schedulerEnabled = (process.env.BOOKING_SCHEDULER_ENABLED || 'true')
-      .toLowerCase() === 'true';
-    if (schedulerEnabled) {
-      startBookingScheduler();
-    }
-  } catch (err) {
-    console.error('Database initialization error:', err.message);
-  }
-};
-
-initializeApp();
+// Booking scheduler can be started here if needed
+const schedulerEnabled = (process.env.BOOKING_SCHEDULER_ENABLED || 'true').toLowerCase() === 'true';
+if (schedulerEnabled) {
+  startBookingScheduler();
+}
 
 // --- AUTO DB INDEX CLEANUP FOR ADMINS TABLE ---
 const cleanupAdminIndexes = async () => {
@@ -159,90 +115,6 @@ const cleanupAgencyIndexes = async () => {
 // Call agency index cleanup on server start
 cleanupAgencyIndexes();
 
-// --- AUTO DB INDEX CLEANUP FOR AIRLINES TABLE ---
-const cleanupAirlineIndexes = async () => {
-  try {
-    const [indexes] = await db.sequelize.query('SHOW INDEX FROM airlines;');
-    const nameIndexes = indexes.filter(idx => idx.Column_name === 'name' && idx.Key_name !== 'PRIMARY');
-    let kept = false;
-    for (const idx of nameIndexes) {
-      if (idx.Non_unique === 0 && !kept) {
-        kept = true;
-        continue;
-      }
-      await db.sequelize.query(`DROP INDEX \`${idx.Key_name}\` ON airlines;`);
-    }
-    console.log('Duplicate indexes on airlines.name cleaned up.');
-  } catch (err) {
-    console.error('Airline index cleanup failed:', err.message);
-  }
-};
-
-// Call airline index cleanup on server start
-cleanupAirlineIndexes();
-
-// --- AUTO DB INDEX CLEANUP FOR FLIGHTS TABLE ---
-const cleanupFlightIndexes = async () => {
-  try {
-    const [indexes] = await db.sequelize.query('SHOW INDEX FROM flights;');
-    const flightNumberIndexes = indexes.filter(idx => idx.Column_name === 'flightNumber' && idx.Key_name !== 'PRIMARY');
-    let kept = false;
-    for (const idx of flightNumberIndexes) {
-      if (idx.Non_unique === 0 && !kept) {
-        kept = true;
-        continue;
-      }
-      await db.sequelize.query(`DROP INDEX \`${idx.Key_name}\` ON flights;`);
-    }
-    console.log('Duplicate indexes on flights.flightNumber cleaned up.');
-  } catch (err) {
-    console.error('Flight index cleanup failed:', err.message);
-  }
-};
-
-// Call flight index cleanup on server start
-cleanupFlightIndexes();
-
-// --- AUTO DB ADMIN USER CREATION ---
-const ensureAdminUser = async () => {
-  try {
-    const adminEmail = 'admin@airline.com';
-    const existingAdmin = await db.Admin.findOne({ where: { email: adminEmail } });
-    if (!existingAdmin) {
-      const bcrypt = require('bcrypt');
-      const hashedPassword = await bcrypt.hash('admin123', 10);
-      await db.Admin.create({
-        name: 'System Administrator',
-        email: adminEmail,
-        password: hashedPassword,
-        role: 'super_admin',
-        companyName: 'Shuraim Air Travel & Tours',
-        phone: '+92-300-1234567',
-        address: 'Karachi, Pakistan',
-        city: 'Karachi',
-        country: 'Pakistan'
-      });
-      console.log('Admin user created (admin@airline.com / admin123)');
-    } else {
-      console.log('Admin user already exists');
-    }
-  } catch (err) {
-    console.error('Admin user creation failed:', err.message);
-  }
-};
-
-// Call admin user creation on server start
-ensureAdminUser();
-
-// Make db available globally
-global.db = db;
-
-// Routes
-app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/admin/flights', require('./routes/flightRoutes'));
-app.use('/api/admin/agencies', require('./routes/agencyRoutes'));
-app.use('/api/bookings', require('./routes/bookingRoutes'));
-app.use('/api/tickets', require('./routes/ticketRoutes'));
 app.use('/api/dashboard', require('./routes/dashboardRoutes'));
 app.use('/api/banks', require('./routes/bankRoutes'));
 app.use('/api/payments', require('./routes/paymentRoutes'));
