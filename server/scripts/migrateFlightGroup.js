@@ -25,7 +25,7 @@ const { sequelize } = require('../config/database');
     console.error('Full error:', error);
     process.exit(1);
   }
-}
+
 
 // Run migration
 // migrateFlightGroupColumn();
