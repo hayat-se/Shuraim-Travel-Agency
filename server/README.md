@@ -1,148 +1,94 @@
-# Airline Agency Management System - Backend
+# Shuraim Travel Agency — Backend (v2: Express + Prisma)
 
-Professional B2B Airline Agency Management Platform for Pakistan
+A single, persistent Express API backed by Prisma on Supabase Postgres. This replaces
+the previous mix of dead Sequelize/MySQL code and scattered Vercel serverless functions.
 
-## Features
+## Architecture
 
-- **Admin Dashboard**: Complete analytics and flight management
-- **Flight Management**: Add, edit, and cancel flights
-- **Agency Management**: Approve/reject agency registration requests
-- **Booking System**: Quantity-based flight booking with seat management
-- **PDF E-Tickets**: Auto-generated professional e-tickets with QR codes
-- **Email Notifications**: HTML email templates for confirmations
-- **SMS Notifications**: Pakistan-ready SMS integration
-- **Security**: JWT-based authentication with role-based access control
-
-## Installation
-
-1. Install dependencies:
-```bash
-npm install
+```
+src/
+├── app.js                 # builds the Express app (helmet, cors, compression, rate-limit, routes, error handler)
+├── server.js              # app.listen() + starts the booking scheduler + graceful shutdown
+├── config/                # env (fail-fast validation) + prisma client singleton
+├── middleware/            # auth (JWT), validate, upload (multer), asyncHandler, ApiError, errorHandler
+├── modules/               # one folder per domain: routes → controller → service (→ Prisma)
+│   ├── auth/  agency/  flight/  airline/  group/  bank/
+│   ├── feedback/  payment/  ledger/  booking/  ticket/  dashboard/  image/
+├── services/              # emailService, pdfService, smsService, auditService
+└── jobs/                  # bookingScheduler (node-cron)
+prisma/
+├── schema.prisma          # data model (verify with `prisma db pull` against the live DB)
+└── seed.js                # seeds a super-admin
+tests/                     # Jest + Supertest
 ```
 
-2. Create `.env` file with configuration:
-```bash
-cp .env.example .env
-```
+Each module keeps its `*.routes.js` (HTTP wiring), `*.controller.js` (thin req/res), and
+`*.service.js` (business logic + Prisma). Money/seat operations run inside `prisma.$transaction`.
 
-3. Update `.env` with your settings:
-- MongoDB connection URL
-- JWT secret key
-- Email configuration (Gmail or any SMTP)
-- SMS API credentials
+## Setup
 
-4. Start the server:
-```bash
-npm start
-```
+1. `npm install`
+2. Copy `.env.example` → `.env` and fill in:
+   - `DATABASE_URL` — Supabase → Settings → Database → Connection string (pooled, port 6543, `?pgbouncer=true`)
+   - `DIRECT_URL` — the direct connection (port 5432), used by `prisma db pull`/`migrate`
+   - `JWT_SECRET` — **required**, long random string (`openssl rand -base64 48`)
+   - `CORS_ORIGINS` — your frontend origin(s), comma-separated
+   - `RESEND_API_KEY`, `EMAIL_FROM` — for transactional email (optional; degrades gracefully)
+3. Reconcile Prisma with the live schema (the schema was authored from the legacy models):
+   ```
+   npx prisma db pull --print   # inspect diffs vs prisma/schema.prisma
+   npx prisma generate
+   ```
+4. (First time) seed a super-admin:
+   ```
+   SEED_ADMIN_EMAIL=you@example.com SEED_ADMIN_PASSWORD='StrongPass!' npm run seed
+   ```
+5. Run: `npm run dev` (nodemon) or `npm start`. Health check: `GET /api/health`.
 
-For development with auto-restart:
-```bash
-npm run dev
-```
+## Scripts
 
-## API Endpoints
+| Script | Purpose |
+|---|---|
+| `npm run dev` | Start with nodemon |
+| `npm start` | Start (production) |
+| `npm test` | Jest + Supertest (no live DB needed) |
+| `npm run prisma:generate` | Generate the Prisma client |
+| `npm run prisma:pull` | Introspect the live DB into `schema.prisma` |
+| `npm run prisma:studio` | Browse data |
+| `npm run seed` | Seed super-admin |
 
-### Authentication
-- `POST /api/auth/admin/login` - Admin login
-- `POST /api/auth/agency/register` - Agency registration request
-- `POST /api/auth/agency/login` - Agency login
+## API surface (paths unchanged — the frontend needs no route changes)
 
-### Flights (Admin)
-- `POST /api/admin/flights` - Create flight
-- `GET /api/admin/flights` - Get all flights
-- `GET /api/admin/flights/:flightId` - Get flight details
-- `GET /api/admin/flights/search` - Search flights
-- `PUT /api/admin/flights/:flightId` - Update flight
-- `DELETE /api/admin/flights/:flightId/cancel` - Cancel flight
+- Auth: `POST /api/auth/admin/login`, `/agency/register`, `/agency/login`, `/agency/password/otp`, `/agency/password/reset`
+- Agencies (admin): `GET /api/admin/agencies`, `/pending`; `PUT /api/admin/agencies/:id/{approve,reject,block,unblock}`
+- Flights: `GET /api/admin/flights`, `/search`, `/:id`, `/:id/availability`; admin `POST/PUT/DELETE`
+- Airlines: `GET /api/airlines/active`, `/admin`; admin `POST/PUT/DELETE /api/airlines/admin[/:id]`
+- Groups: `GET /api/groups`, `/admin`; admin `POST/PUT /api/groups/admin[/:id]`
+- Banks: `GET /api/banks`, `/admin`; admin `POST/PUT/DELETE /api/banks/admin[/:id]`
+- Feedback: agency `POST /api/feedback`, `GET /my`; admin `GET /admin`, `PUT /admin/:id`
+- Payments: agency `POST /api/payments`, `GET /my`; admin `GET /admin`, `PUT /admin/:id/status`
+- Ledger: `GET /api/ledger/my`
+- Bookings: `POST /api/bookings`, `/guest`; `GET /my-bookings`, `/` (admin), `/:id`; `PUT /:id/{update,confirm,cancel}`
+- Tickets: `GET /api/tickets/download/:bookingId`, `/:bookingId`
+- Dashboard: `GET /api/dashboard/admin/stats`, `/agency/stats`
+- Images: `GET /api/images/{airlines,groups,banks}/:id`
 
-### Agencies (Admin)
-- `GET /api/admin/agencies` - Get all agencies
-- `GET /api/admin/agencies/pending` - Get pending approvals
-- `PUT /api/admin/agencies/:agencyId/approve` - Approve agency
-- `PUT /api/admin/agencies/:agencyId/reject` - Reject agency
-- `PUT /api/admin/agencies/:agencyId/block` - Block agency
+## Deployment (Railway / Render / Fly)
 
-### Bookings
-- `POST /api/bookings` - Create booking (Agency)
-- `GET /api/bookings` - Get all bookings (Admin)
-- `GET /api/bookings/my-bookings` - Get agency bookings
-- `GET /api/bookings/:bookingId` - Get booking details
-- `PUT /api/bookings/:bookingId/cancel` - Cancel booking (Admin)
+- Start command: `npm start` (runs `node src/server.js`).
+- Ensure `prisma generate` runs on install (add `"postinstall": "prisma generate"` if your host doesn't).
+- Set all env vars from `.env.example` in the host dashboard.
+- The booking scheduler runs in-process (node-cron) — no external cron needed.
 
-### E-Tickets
-- `GET /api/tickets/download/:bookingId` - Download e-ticket PDF
-- `GET /api/tickets/:bookingId` - Get ticket details
+## Security notes
 
-### Dashboard
-- `GET /api/dashboard/admin/stats` - Admin statistics
-- `GET /api/dashboard/agency/stats` - Agency statistics
+- App refuses to boot without `JWT_SECRET` / `DATABASE_URL` (no insecure fallbacks).
+- CORS is an allowlist (`CORS_ORIGINS`); fails closed in production.
+- Global rate limit + stricter limiter on `/api/auth/*`.
+- `helmet`, `compression`, request-size limits enabled.
+- Agency endpoints scope by `req.user.id`; password hashes are never returned.
 
-## Database Models
+## Known fast-follows
 
-- **Admin**: Super Admin users
-- **Agency**: Partner agencies with approval status
-- **Flight**: Flight information with availability
-- **Booking**: Flight bookings with passenger details
-- **AuditLog**: Activity logging for compliance
-
-## Services
-
-- **Email Service**: Nodemailer integration for confirmations
-- **SMS Service**: API-ready SMS integration for Pakistan
-- **PDF Service**: PDFKit-based e-ticket generation with QR codes
-
-## Security Features
-
-- Bcrypt password hashing
-- JWT token-based authentication
-- Role-based access control (Admin/Agency)
-- Email verification system
-- Overbooking prevention
-- Audit logging
-
-## Configuration
-
-### Email Setup
-1. Create a Gmail app password
-2. Add to `.env`:
-```
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your_email@gmail.com
-SMTP_PASSWORD=your_app_password
-EMAIL_FROM=noreply@airlineagency.com
-```
-
-### SMS Setup
-Compatible with Pakistan SMS providers:
-- Jazz SMS API
-- Zong SMS API
-- Telenor SMS API
-
-Add to `.env`:
-```
-SMS_API_KEY=your_api_key
-SMS_PROVIDER=your_provider_name
-```
-
-## Error Handling
-
-The system includes comprehensive error handling:
-- Input validation
-- Database error management
-- Transaction rollback for booking failures
-- Detailed error messages for debugging
-
-## Production Deployment
-
-1. Set `NODE_ENV=production`
-2. Use environment-specific `.env` file
-3. Enable HTTPS
-4. Configure CORS for frontend domain
-5. Set strong JWT secret
-6. Use production email/SMS credentials
-
-## Support
-
-For issues or questions, contact: support@airlineagency.com
+- Move airline/bank/group images and ticket PDFs from DB BLOB / local disk to **Supabase Storage**.
+- See `../MIGRATION_V2.md` for the cutover + legacy-deletion checklist.

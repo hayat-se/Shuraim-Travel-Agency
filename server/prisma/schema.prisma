@@ -1,0 +1,225 @@
+// Prisma schema for Shuraim Travel Agency (B2B)
+//
+// NOTE: This schema was authored from the legacy Sequelize models, which are the
+// definitions that originally created these tables in the (now Supabase) Postgres DB.
+// The columns are camelCase because Sequelize created them with quoted identifiers.
+//
+// >>> Before first run, VERIFY against the live database:
+//       npx prisma db pull --print   # prints what the DB actually has; diff it against this file
+//       npx prisma generate          # generates the client used by src/config/prisma.js
+//     Status/category/action fields are modelled as String (not native enums) so the
+//     client tolerates whatever representation the migrated columns ended up using.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Admin {
+  id          Int      @id @default(autoincrement())
+  name        String?
+  email       String   @unique
+  password    String
+  role        String   @default("admin") // admin | super_admin
+  companyName String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("admins")
+}
+
+model Agency {
+  id                Int       @id @default(autoincrement())
+  agencyName        String
+  email             String    @unique
+  password          String
+  contactPerson     String?
+  phone             String?
+  phone2            String?
+  address           String?
+  city              String?
+  registrationNumber String?
+  taxId             String?
+  role              String    @default("agency")
+  status            String    @default("pending") // pending | approved | rejected | blocked
+  rejectionReason   String?
+  approvedBy        Int?
+  approvedAt        DateTime?
+  resetOtpHash      String?
+  resetOtpExpiresAt DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  bookings Booking[]
+  payments Payment[]
+  feedback Feedback[]
+
+  @@map("agencies")
+}
+
+model Flight {
+  id                  Int      @id @default(autoincrement())
+  airlineName         String
+  flightNumber        String   @unique
+  departureCity       String
+  destinationCity     String
+  departureDate       DateTime
+  departureTime       String
+  arrivalDate         DateTime
+  arrivalTime         String
+  flightClass         String   // economy | business
+  totalSeatsAvailable Int
+  seatsBooked         Int      @default(0)
+  seatsRemaining      Int
+  pricePerSeat        Decimal  @db.Decimal(10, 2)
+  currency            String   @default("PKR")
+  status              String   @default("active") // active | cancelled | completed
+  group               String   @default("ALL")
+  meal                String   @default("No Meal")
+  baggage             String   @default("20kg")
+  createdBy           Int?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  bookings Booking[]
+
+  @@map("flights")
+}
+
+model Booking {
+  id                 Int       @id @default(autoincrement())
+  bookingId          String    @unique
+  flightId           Int
+  agencyId           Int?
+  seatsBooked        Int
+  totalPrice         Decimal   @db.Decimal(15, 2)
+  currency           String    @default("PKR")
+  passengers         Json      @default("[]")
+  status             String    @default("pending") // pending | hold | cancel_requested | cancelled | sold
+  paymentStatus      String    @default("pending") // pending | completed
+  ticketGenerated    Boolean   @default(false)
+  ticketUrl          String?
+  notificationSent   Boolean   @default(false)
+  cancellationReason String?
+  cancelledBy        String?
+  cancelledAt        DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  flight Flight  @relation(fields: [flightId], references: [id])
+  agency Agency? @relation(fields: [agencyId], references: [id])
+
+  @@map("bookings")
+}
+
+model Airline {
+  id           Int      @id @default(autoincrement())
+  name         String   @unique
+  code         String?
+  logoUrl      String?
+  logoData     Bytes?
+  logoMimeType String?
+  isActive     Boolean  @default(true)
+  createdBy    Int?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("airlines")
+}
+
+model Bank {
+  id            Int      @id @default(autoincrement())
+  bankName      String
+  accountTitle  String
+  accountNumber String
+  iban          String?
+  branchName    String?
+  branchCode    String?
+  branchAddress String?
+  city          String?
+  imageUrl      String?
+  imageData     Bytes?
+  imageMimeType String?
+  isActive      Boolean  @default(true)
+  createdBy     Int?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  payments Payment[]
+
+  @@map("banks")
+}
+
+model Group {
+  id            Int      @id @default(autoincrement())
+  name          String   @unique
+  imageUrl      String?
+  imageData     Bytes?
+  imageMimeType String?
+  isActive      Boolean  @default(true)
+  createdBy     Int?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("groups")
+}
+
+model Payment {
+  id              Int       @id @default(autoincrement())
+  agencyId        Int
+  bankId          Int
+  amount          Decimal   @db.Decimal(15, 2)
+  currency        String    @default("PKR")
+  paymentDate     DateTime  @default(now())
+  referenceNumber String
+  method          String    @default("bank_transfer")
+  proofUrl        String?
+  notes           String?
+  status          String    @default("pending") // pending | approved | rejected
+  approvedBy      Int?
+  approvedAt      DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  agency Agency @relation(fields: [agencyId], references: [id])
+  bank   Bank   @relation(fields: [bankId], references: [id])
+
+  @@map("payments")
+}
+
+model Feedback {
+  id         Int      @id @default(autoincrement())
+  agencyId   Int
+  rating     Int
+  subject    String?
+  message    String
+  category   String   @default("general") // general | payment | booking | technical | other
+  status     String   @default("new")     // new | reviewed
+  adminReply String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  agency Agency @relation(fields: [agencyId], references: [id])
+
+  @@map("feedback")
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  action    String
+  userId    Int?
+  userRole  String?
+  userEmail String?
+  bookingId Int?
+  flightId  Int?
+  agencyId  Int?
+  details   Json     @default("{}")
+  createdAt DateTime @default(now()) @map("timestamp")
+
+  @@map("audit_logs")
+}
