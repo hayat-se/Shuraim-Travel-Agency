@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 
-// Common Components
 import ErrorBoundary from './components/ErrorBoundary';
+import PrivateRoute from './components/PrivateRoute';
+import AppShell from './components/AppShell';
+import { ToastProvider } from './components/ui';
 
-// Landing Page
+// Landing + Auth
 import LandingPage from './pages/LandingPage';
-
-// Auth Pages
 import AdminLogin from './pages/auth/AdminLogin';
 import AgencyRegister from './pages/auth/AgencyRegister';
 import AgencyLogin from './pages/auth/AgencyLogin';
 import AgencyForgotPassword from './pages/auth/AgencyForgotPassword';
 
-// Admin Pages
+// Admin
 import AdminDashboard from './pages/admin/AdminDashboard';
 import FlightManagement from './pages/admin/FlightManagement';
 import AgencyManagement from './pages/admin/AgencyManagement';
@@ -25,7 +25,7 @@ import FeedbackManagement from './pages/admin/FeedbackManagement';
 import GroupManagement from './pages/admin/GroupManagement';
 import AirlineManagement from './pages/admin/AirlineManagement';
 
-// Agency Pages
+// Agency
 import AgencyDashboard from './pages/agency/AgencyDashboard';
 import SearchFlights from './pages/agency/SearchFlights';
 import BookingForm from './pages/agency/BookingForm';
@@ -35,139 +35,17 @@ import Payments from './pages/agency/Payments';
 import Banks from './pages/agency/Banks';
 import GiveFeedback from './pages/agency/GiveFeedback';
 
-// Common Components
-import PrivateRoute from './components/PrivateRoute';
-import Navigation from './components/Navigation';
-
-function AppContent({ user, setUser }) {
-  const location = useLocation();
-  const hideNavigationRoutes = new Set([
-    '/',
-    '/admin/login',
-    '/agency/login',
-    '/agency/register',
-    '/agency/forgot-password'
-  ]);
-  const showNavigation = Boolean(user) && !hideNavigationRoutes.has(location.pathname);
-
-  return (
-    <>
-      {showNavigation && <Navigation user={user} setUser={setUser} />}
-      <div className="main-content">
-        <Routes>
-          {/* Auth Routes */}
-          <Route path="/admin/login" element={<AdminLogin setUser={setUser} />} />
-          <Route path="/agency/register" element={<AgencyRegister />} />
-          <Route path="/agency/login" element={<AgencyLogin setUser={setUser} />} />
-          <Route path="/agency/forgot-password" element={<AgencyForgotPassword />} />
-
-            {/* Admin Routes */}
-            <Route path="/admin/dashboard" element={
-              <PrivateRoute user={user} role="admin">
-                <AdminDashboard />
-              </PrivateRoute>
-            } />
-            <Route path="/admin/flights" element={
-              <PrivateRoute user={user} role="admin">
-                <FlightManagement />
-              </PrivateRoute>
-            } />
-            <Route path="/admin/agencies" element={
-              <PrivateRoute user={user} role="admin">
-                <AgencyManagement />
-              </PrivateRoute>
-            } />
-            <Route path="/admin/bookings" element={
-              <PrivateRoute user={user} role="admin">
-                <AllBookings />
-              </PrivateRoute>
-            } />
-            <Route path="/admin/banks" element={
-              <PrivateRoute user={user} role="admin">
-                <BankManagement />
-              </PrivateRoute>
-            } />
-            <Route path="/admin/groups" element={
-              <PrivateRoute user={user} role="admin">
-                <GroupManagement />
-              </PrivateRoute>
-            } />
-            <Route path="/admin/airlines" element={
-              <PrivateRoute user={user} role="admin">
-                <AirlineManagement />
-              </PrivateRoute>
-            } />
-            <Route path="/admin/payments" element={
-              <PrivateRoute user={user} role="admin">
-                <PaymentManagement />
-              </PrivateRoute>
-            } />
-            <Route path="/admin/feedback" element={
-              <PrivateRoute user={user} role="admin">
-                <FeedbackManagement />
-              </PrivateRoute>
-            } />
-
-            {/* Agency Routes */}
-            <Route path="/agency/dashboard" element={
-              <PrivateRoute user={user} role="agency">
-                <AgencyDashboard />
-              </PrivateRoute>
-            } />
-            <Route path="/agency/search-flights" element={
-              <SearchFlights />
-            } />
-            <Route path="/agency/book/:flightId" element={
-              <BookingForm />
-            } />
-            <Route path="/agency/my-bookings" element={
-              <PrivateRoute user={user} role="agency">
-                <MyBookings />
-              </PrivateRoute>
-            } />
-            <Route path="/agency/ledger" element={
-              <PrivateRoute user={user} role="agency">
-                <MyLedger />
-              </PrivateRoute>
-            } />
-            <Route path="/agency/payments" element={
-              <PrivateRoute user={user} role="agency">
-                <Payments />
-              </PrivateRoute>
-            } />
-            <Route path="/agency/banks" element={
-              <PrivateRoute user={user} role="agency">
-                <Banks />
-              </PrivateRoute>
-            } />
-            <Route path="/agency/feedback" element={
-              <PrivateRoute user={user} role="agency">
-                <GiveFeedback />
-              </PrivateRoute>
-            } />
-
-            {/* Landing Page - Always show landing page at root */}
-            <Route path="/" element={<LandingPage setUser={setUser} />} />
-          </Routes>
-        </div>
-      </>
-  );
-}
-
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is already logged in (restore auth state on page reload)
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
-    
     if (token && userData) {
       try {
         setUser(JSON.parse(userData));
-      } catch (error) {
-        console.error('Error parsing user data:', error);
+      } catch {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
       }
@@ -175,15 +53,52 @@ function App() {
     setLoading(false);
   }, []);
 
-  if (loading) {
-    return <div className="loading">Loading...</div>;
-  }
+  // A page that requires auth + a role, wrapped in the app shell (sidebar/topbar).
+  const Protected = ({ role, children }) => (
+    <PrivateRoute user={user} role={role}>
+      <AppShell user={user} setUser={setUser}>
+        {children}
+      </AppShell>
+    </PrivateRoute>
+  );
+
+  if (loading) return <div className="loading">Loading...</div>;
 
   return (
     <ErrorBoundary>
-      <Router>
-        <AppContent user={user} setUser={setUser} />
-      </Router>
+      <ToastProvider>
+        <Router>
+          <Routes>
+            {/* Public */}
+            <Route path="/" element={<LandingPage setUser={setUser} />} />
+            <Route path="/admin/login" element={<AdminLogin setUser={setUser} />} />
+            <Route path="/agency/register" element={<AgencyRegister />} />
+            <Route path="/agency/login" element={<AgencyLogin setUser={setUser} />} />
+            <Route path="/agency/forgot-password" element={<AgencyForgotPassword />} />
+
+            {/* Admin */}
+            <Route path="/admin/dashboard" element={<Protected role="admin"><AdminDashboard /></Protected>} />
+            <Route path="/admin/flights" element={<Protected role="admin"><FlightManagement /></Protected>} />
+            <Route path="/admin/agencies" element={<Protected role="admin"><AgencyManagement /></Protected>} />
+            <Route path="/admin/bookings" element={<Protected role="admin"><AllBookings /></Protected>} />
+            <Route path="/admin/banks" element={<Protected role="admin"><BankManagement /></Protected>} />
+            <Route path="/admin/groups" element={<Protected role="admin"><GroupManagement /></Protected>} />
+            <Route path="/admin/airlines" element={<Protected role="admin"><AirlineManagement /></Protected>} />
+            <Route path="/admin/payments" element={<Protected role="admin"><PaymentManagement /></Protected>} />
+            <Route path="/admin/feedback" element={<Protected role="admin"><FeedbackManagement /></Protected>} />
+
+            {/* Agency (search + booking are now protected — was a security gap) */}
+            <Route path="/agency/dashboard" element={<Protected role="agency"><AgencyDashboard /></Protected>} />
+            <Route path="/agency/search-flights" element={<Protected role="agency"><SearchFlights /></Protected>} />
+            <Route path="/agency/book/:flightId" element={<Protected role="agency"><BookingForm /></Protected>} />
+            <Route path="/agency/my-bookings" element={<Protected role="agency"><MyBookings /></Protected>} />
+            <Route path="/agency/ledger" element={<Protected role="agency"><MyLedger /></Protected>} />
+            <Route path="/agency/payments" element={<Protected role="agency"><Payments /></Protected>} />
+            <Route path="/agency/banks" element={<Protected role="agency"><Banks /></Protected>} />
+            <Route path="/agency/feedback" element={<Protected role="agency"><GiveFeedback /></Protected>} />
+          </Routes>
+        </Router>
+      </ToastProvider>
     </ErrorBoundary>
   );
 }

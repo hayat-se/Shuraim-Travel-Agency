@@ -1,82 +1,49 @@
 import React, { useState, useEffect } from 'react';
+import { FiSend, FiList, FiDollarSign, FiUsers, FiClock, FiCheckCircle, FiPauseCircle, FiXCircle } from 'react-icons/fi';
 import apiClient from '../../config/axiosConfig';
-import '../../styles/Dashboard.css';
+import { PageHeader, StatCard, Skeleton } from '../../components/ui';
 
 const AdminDashboard = () => {
-  const [stats, setStats] = useState({
-    totalFlights: 0,
-    totalBookings: 0,
-    totalRevenue: 0,
-    totalAgencies: 0,
-    pendingAgencies: 0,
-    soldTickets: 0,
-    holdTickets: 0,
-    canceledTickets: 0
-  });
+  const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchStats();
+    (async () => {
+      try {
+        const res = await apiClient.get('/api/dashboard/admin/stats');
+        setStats(res.data);
+      } catch (e) {
+        console.error('Error fetching stats:', e);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
 
-  const fetchStats = async () => {
-    try {
-      const response = await apiClient.get('/api/dashboard/admin/stats');
-      setStats(response.data);
-    } catch (error) {
-      console.error('Error fetching stats:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) return <div className="loading">Loading...</div>;
+  const s = stats || {};
+  const tiles = [
+    { label: 'Active Flights', value: s.totalFlights ?? 0, icon: <FiSend size={20} />, tone: 'primary' },
+    { label: 'Total Bookings', value: s.totalBookings ?? 0, icon: <FiList size={20} />, tone: 'primary' },
+    { label: 'Total Revenue', value: `PKR ${Number(s.totalRevenue || 0).toLocaleString()}`, icon: <FiDollarSign size={20} />, tone: 'success' },
+    { label: 'Approved Agencies', value: s.totalAgencies ?? 0, icon: <FiUsers size={20} />, tone: 'primary' },
+    { label: 'Pending Approvals', value: s.pendingAgencies ?? 0, icon: <FiClock size={20} />, tone: 'warning' },
+    { label: 'Sold Tickets', value: s.soldTickets ?? 0, icon: <FiCheckCircle size={20} />, tone: 'success' },
+    { label: 'Hold Tickets', value: s.holdTickets ?? 0, icon: <FiPauseCircle size={20} />, tone: 'warning' },
+    { label: 'Cancelled Tickets', value: s.canceledTickets ?? 0, icon: <FiXCircle size={20} />, tone: 'danger' },
+  ];
 
   return (
-    <div className="dashboard-container">
-      <h1>Admin Dashboard</h1>
-      
-      <div className="stats-grid">
-        <div className="stat-card">
-          <h3>Active Flights</h3>
-          <p className="stat-number">{stats.totalFlights}</p>
+    <div>
+      <PageHeader title="Admin Dashboard" subtitle="Overview of flights, bookings and agencies." />
+      {loading ? (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-28" />)}
         </div>
-
-        <div className="stat-card">
-          <h3>Total Bookings</h3>
-          <p className="stat-number">{stats.totalBookings}</p>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {tiles.map((t) => <StatCard key={t.label} {...t} />)}
         </div>
-
-        <div className="stat-card">
-          <h3>Total Revenue</h3>
-          <p className="stat-number">PKR {stats.totalRevenue.toLocaleString()}</p>
-        </div>
-
-        <div className="stat-card">
-          <h3>Approved Agencies</h3>
-          <p className="stat-number">{stats.totalAgencies}</p>
-        </div>
-
-        <div className="stat-card warning">
-          <h3><i className="fa-solid fa-exclamation-triangle"></i> Pending Approvals</h3>
-          <p className="stat-number">{stats.pendingAgencies}</p>
-        </div>
-
-        <div className="stat-card sold">
-          <h3><i className="fa-solid fa-check-circle"></i> Sold Tickets</h3>
-          <p className="stat-number">{stats.soldTickets}</p>
-        </div>
-
-        <div className="stat-card hold">
-          <h3><i className="fa-solid fa-pause-circle"></i> Hold Tickets</h3>
-          <p className="stat-number">{stats.holdTickets}</p>
-        </div>
-
-        <div className="stat-card canceled">
-          <h3><i className="fa-solid fa-times-circle"></i> Cancelled Tickets</h3>
-          <p className="stat-number">{stats.canceledTickets}</p>
-        </div>
-      </div>
+      )}
     </div>
   );
 };
