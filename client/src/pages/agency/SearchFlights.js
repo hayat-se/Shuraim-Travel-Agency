@@ -1,15 +1,31 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import {
+  FiSearch,
+  FiCalendar,
+  FiX,
+  FiLayers,
+  FiGlobe,
+  FiMapPin,
+  FiPackage,
+  FiAlertTriangle,
+  FiSend,
+} from 'react-icons/fi';
 import apiClient from '../../config/axiosConfig';
 import AIRLINE_PRESETS from '../../config/airlinePresets';
-import '../../styles/Search.css';
+import { Button, Badge, EmptyState, Skeleton, cn } from '../../components/ui';
 
 // Helper to get airline preset by name
 const getAirlinePreset = (airlineName) => {
   return AIRLINE_PRESETS.find(a => a.name.toLowerCase() === (airlineName || '').toLowerCase());
 };
 
+const ease = [0.16, 1, 0.3, 1];
+
 const SearchFlights = () => {
+  const reduce = useReducedMotion();
+
   // Helper to get airline logo by name
   const getAirlineLogo = (airlineName) => {
     const preset = getAirlinePreset(airlineName);
@@ -46,7 +62,7 @@ const SearchFlights = () => {
 
     // Sort airlines alphabetically
     const sortedAirlines = Object.keys(grouped).sort((a, b) => a.localeCompare(b));
-    
+
     // Sort flights within each airline by date
     sortedAirlines.forEach(airline => {
       grouped[airline].sort((a, b) => new Date(a.departureDate) - new Date(b.departureDate));
@@ -95,74 +111,146 @@ const SearchFlights = () => {
     navigate(`/agency/book/${flightId}`);
   };
 
+  /* Motion presets — mirrors the redesigned LandingPage */
+  const fadeUp = {
+    hidden: { opacity: 0, y: reduce ? 0 : 16 },
+    show: { opacity: 1, y: 0, transition: { duration: reduce ? 0 : 0.5, ease } },
+  };
+  const stagger = {
+    hidden: {},
+    show: { transition: { staggerChildren: reduce ? 0 : 0.08 } },
+  };
+
   return (
-    <div className="search-container">
-      <div className="search-header">
-        <h1><i className="fa-solid fa-magnifying-glass"></i> Search & Book Flights</h1>
-        <div className="header-actions">
-          <label className="date-filter-label">
-            <i className="fa-solid fa-calendar-days"></i> Filter by Date:
-          </label>
-          <input
-            type="date"
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
-            className="date-input"
-          />
-          {dateFilter && (
-            <button
-              className="clear-date-btn"
-              onClick={() => setDateFilter('')}
-            >
-              <i className="fa-solid fa-xmark"></i> Clear
-            </button>
-          )}
+    <div>
+      {/* ── Page header ── */}
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3.5">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-primary-200 bg-gradient-chip text-primary-700 shadow-inner-soft">
+            <FiSearch size={20} />
+          </span>
+          <div>
+            <h1 className="text-xl font-semibold text-ink sm:text-2xl">Search &amp; Book Flights</h1>
+            <p className="mt-1 text-sm text-neutral-500">
+              Browse live inventory across every partner airline and hold a seat in seconds.
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* Airline Group Buttons */}
-      <div className="group-filter">
-        <h3><i className="fa-solid fa-layer-group"></i> Select Flight Group</h3>
-        <div className="group-buttons">
+      {/* ── Filters ── */}
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="show"
+        className="mb-6 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-card"
+      >
+        <div className="flex flex-col gap-4 border-b border-neutral-200/80 bg-gradient-header px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2 text-sm font-semibold text-ink">
+            <FiLayers className="text-primary" size={16} />
+            Select Flight Group
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <label htmlFor="date-filter" className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-600">
+              <FiCalendar className="text-primary" size={14} /> Date
+            </label>
+            <input
+              id="date-filter"
+              type="date"
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
+              className="field !w-auto"
+            />
+            <AnimatePresence>
+              {dateFilter && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.15 }}
+                  onClick={() => setDateFilter('')}
+                  className="inline-flex items-center gap-1 rounded-sm border border-red-200 bg-red-50 px-2.5 py-1.5 text-xs font-semibold text-danger transition-colors hover:bg-red-100"
+                >
+                  <FiX size={13} /> Clear
+                </motion.button>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-2 px-5 py-4">
           <button
-            className={`group-btn ${selectedGroup === 'ALL' ? 'active' : ''}`}
             onClick={() => setSelectedGroup('ALL')}
+            className={cn(
+              'inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200 ease-premium',
+              selectedGroup === 'ALL'
+                ? 'border-primary-700/40 bg-gradient-brand text-white shadow-card'
+                : 'border-neutral-200 bg-white text-neutral-600 hover:border-primary-200 hover:bg-primary-50 hover:text-primary-700'
+            )}
           >
-            <i className="fa-solid fa-globe"></i> All Flights
+            <FiGlobe size={14} /> All Flights
           </button>
           {groups.map(group => (
             <button
               key={group.id}
-              className={`group-btn ${selectedGroup === group.name ? 'active' : ''}`}
               onClick={() => setSelectedGroup(group.name)}
+              className={cn(
+                'rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200 ease-premium',
+                selectedGroup === group.name
+                  ? 'border-primary-700/40 bg-gradient-brand text-white shadow-card'
+                  : 'border-neutral-200 bg-white text-neutral-600 hover:border-primary-200 hover:bg-primary-50 hover:text-primary-700'
+              )}
             >
               {group.name}
             </button>
           ))}
         </div>
-      </div>
+      </motion.div>
 
+      {/* ── Loading ── */}
       {loading && (
-        <div className="loading">
-          <i className="fa-solid fa-spinner fa-spin"></i> Loading flights...
-        </div>
-      )}
-      
-      {error && (
-        <div className="error-message">
-          <i className="fa-solid fa-triangle-exclamation"></i> {error}
+        <div className="space-y-5">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-card">
+              <div className="flex items-center gap-4 border-b border-neutral-200/80 bg-gradient-header px-5 py-4">
+                <Skeleton className="h-11 w-28 shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-40" />
+                  <Skeleton className="h-3 w-28" />
+                </div>
+              </div>
+              <div className="space-y-2 p-5">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
+      {/* ── Error ── */}
+      {error && !loading && (
+        <div className="mb-6 flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-danger">
+          <FiAlertTriangle size={18} className="shrink-0" />
+          {error}
+        </div>
+      )}
+
+      {/* ── Empty ── */}
       {!loading && !error && flights.length === 0 && (
-        <div className="no-flights">
-          <i className="fa-solid fa-plane-slash"></i>
-          <p>No flights found for the selected criteria.</p>
+        <div className="rounded-xl border border-neutral-200 bg-white shadow-card">
+          <EmptyState
+            icon={<FiSend size={22} />}
+            title="No flights found"
+            message="Try a different flight group or clear the date filter to see more results."
+          />
         </div>
       )}
 
+      {/* ── Results ── */}
       {!loading && !error && flights.length > 0 && (
-        <div className="flights-display">
+        <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-6">
           {flightsByAirline.sortedAirlines.map(airlineName => {
             const airlineFlights = flightsByAirline.grouped[airlineName];
             const airlineLogo = getAirlineLogo(airlineName);
@@ -170,167 +258,179 @@ const SearchFlights = () => {
             const route = getAirlineRoute(firstFlight);
 
             return (
-              <div key={airlineName} className="airline-section">
-                {/* Airline Header with Logo and Route */}
-                <div className="airline-header">
-                  <div className="airline-info">
+              <motion.div
+                key={airlineName}
+                variants={fadeUp}
+                className="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-card transition-all duration-300 ease-premium hover:-translate-y-0.5 hover:shadow-premium"
+              >
+                {/* Airline header */}
+                <div className="flex flex-wrap items-center justify-between gap-4 border-b border-neutral-200/80 bg-gradient-header px-5 py-4">
+                  <div className="flex min-w-0 items-center gap-4">
                     {airlineLogo ? (
-                      <img 
-                        src={airlineLogo} 
-                        alt={airlineName} 
-                        className="airline-logo-header"
+                      <img
+                        src={airlineLogo}
+                        alt={airlineName}
+                        className="h-11 w-28 shrink-0 rounded-lg border border-neutral-200 bg-white object-contain p-1.5"
                       />
                     ) : (
-                      <div className="airline-logo-placeholder">
-                        <i className="fa-solid fa-plane"></i>
+                      <div className="flex h-11 w-28 shrink-0 items-center justify-center rounded-lg border border-primary-200 bg-gradient-chip text-primary-700">
+                        <FiSend size={20} />
                       </div>
                     )}
-                    <div className="airline-details">
-                      <h2 className="airline-name">{airlineName}</h2>
-                      <p className="airline-route">
-                        <i className="fa-solid fa-route"></i> {route}
+                    <div className="min-w-0">
+                      <h2 className="truncate text-base font-semibold text-ink">{airlineName}</h2>
+                      <p className="mt-0.5 flex items-center gap-1.5 truncate text-xs font-medium text-neutral-500">
+                        <FiMapPin size={12} className="shrink-0 text-primary" /> {route}
                       </p>
                     </div>
                   </div>
-                  <div className="airline-count">
-                    <span className="flight-count-badge">
-                      {airlineFlights.length} {airlineFlights.length === 1 ? 'Flight' : 'Flights'}
-                    </span>
-                  </div>
+                  <Badge tone="primary" dot={false} className="shrink-0">
+                    {airlineFlights.length} {airlineFlights.length === 1 ? 'Flight' : 'Flights'}
+                  </Badge>
                 </div>
 
-                {/* Desktop Table View */}
-                <div className="airline-table-wrapper desktop-view">
-                  <table className="airline-flights-table">
+                {/* Desktop table */}
+                <div className="hidden overflow-x-auto sm:block">
+                  <table className="w-full border-collapse text-sm">
                     <thead>
-                      <tr>
-                        <th>DATE</th>
-                        <th>TIME</th>
-                        <th>BAG</th>
-                        <th>MEAL</th>
-                        <th>FARE</th>
-                        <th></th>
+                      <tr className="border-b border-neutral-200 bg-neutral-50/60">
+                        <th className="whitespace-nowrap px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-primary-800">Date</th>
+                        <th className="whitespace-nowrap px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-primary-800">Time</th>
+                        <th className="whitespace-nowrap px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-primary-800">Baggage</th>
+                        <th className="whitespace-nowrap px-5 py-3 text-center text-xs font-semibold uppercase tracking-wide text-primary-800">Meal</th>
+                        <th className="whitespace-nowrap px-5 py-3 text-center text-xs font-semibold uppercase tracking-wide text-primary-800">Seats</th>
+                        <th className="whitespace-nowrap px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-primary-800">Fare</th>
+                        <th className="px-5 py-3" />
                       </tr>
                     </thead>
                     <tbody>
-                      {airlineFlights.map(flight => (
-                        <tr key={flight.id}>
-                          <td className="date-cell">
-                            {new Date(flight.departureDate).toLocaleDateString('en-GB', { 
-                              day: '2-digit', 
-                              month: '2-digit', 
-                              year: 'numeric' 
-                            })}
-                          </td>
-                          <td className="time-cell">
-                            {flight.departureTime} - {flight.arrivalTime}
-                          </td>
-                          <td className="baggage-cell">
-                            {flight.baggage || '20+7 KG'}
-                          </td>
-                          <td className="meal-cell">
-                            <span className={`meal-badge ${(flight.meal === 'Yes' || flight.meal === 'yes') ? 'meal-yes' : 'meal-no'}`}>
-                              {(flight.meal === 'Yes' || flight.meal === 'yes') ? 'YES' : 'NO'}
-                            </span>
-                          </td>
-                          <td className="fare-cell">
-                            {parseInt(flight.pricePerSeat).toLocaleString()} PKR/-
-                          </td>
-                          <td className="action-cell">
-                            <button 
-                              className="book-now-btn"
-                              onClick={() => handleBook(flight.id)}
-                              disabled={flight.seatsRemaining === 0}
-                            >
-                              {flight.seatsRemaining === 0 ? 'Full' : 'Book Now'}
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
+                      {airlineFlights.map(flight => {
+                        const hasMeal = flight.meal === 'Yes' || flight.meal === 'yes';
+                        const full = flight.seatsRemaining === 0;
+                        const seatsLow = !full && flight.seatsRemaining < 10;
+                        return (
+                          <tr
+                            key={flight.id}
+                            className={cn(
+                              'border-b border-neutral-100 transition-colors duration-150 ease-premium last:border-0 hover:bg-primary-50/60',
+                              seatsLow && 'bg-amber-50/40'
+                            )}
+                          >
+                            <td className="whitespace-nowrap px-5 py-3.5 font-medium text-neutral-800">
+                              {new Date(flight.departureDate).toLocaleDateString('en-GB', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
+                              })}
+                            </td>
+                            <td className="whitespace-nowrap px-5 py-3.5 text-neutral-600">
+                              <span className="font-semibold text-primary-700">{flight.departureTime}</span>
+                              <span className="mx-1 text-neutral-400">–</span>
+                              {flight.arrivalTime}
+                            </td>
+                            <td className="whitespace-nowrap px-5 py-3.5 text-neutral-600">
+                              <span className="inline-flex items-center gap-1.5">
+                                <FiPackage size={13} className="text-neutral-400" />
+                                {flight.baggage || '20+7 KG'}
+                              </span>
+                            </td>
+                            <td className="px-5 py-3.5 text-center">
+                              <Badge tone={hasMeal ? 'success' : 'neutral'}>{hasMeal ? 'Yes' : 'No'}</Badge>
+                            </td>
+                            <td className="px-5 py-3.5 text-center">
+                              <span
+                                className={cn(
+                                  'font-semibold',
+                                  full ? 'text-neutral-400' : seatsLow ? 'text-danger' : 'text-success'
+                                )}
+                              >
+                                {flight.seatsRemaining}
+                              </span>
+                            </td>
+                            <td className="whitespace-nowrap px-5 py-3.5 text-right font-semibold text-ink">
+                              {parseInt(flight.pricePerSeat).toLocaleString()} PKR
+                            </td>
+                            <td className="whitespace-nowrap px-5 py-3.5 text-right">
+                              <Button size="sm" disabled={full} onClick={() => handleBook(flight.id)}>
+                                {full ? 'Full' : 'Book Now'}
+                              </Button>
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
 
-                {/* Mobile Card View */}
-                <div className="mobile-view">
-                  {airlineFlights.map(flight => (
-                    <div key={flight.id} className="flight-mobile-card">
-                      <div className="mobile-card-header">
-                        <span className="mobile-date">
-                          <i className="fa-solid fa-calendar"></i>{' '}
-                          {new Date(flight.departureDate).toLocaleDateString('en-GB', { 
-                            day: '2-digit', 
-                            month: 'short',
-                            year: 'numeric'
-                          })}
-                        </span>
-                        <span className="mobile-flight-number">
-                          {flight.flightNumber}
-                        </span>
-                      </div>
-                      
-                      <div className="mobile-card-body">
-                        <div className="mobile-info-row">
-                          <div className="mobile-info-item">
-                            <span className="mobile-label">
-                              <i className="fa-solid fa-clock"></i> Time
-                            </span>
-                            <span className="mobile-value">
-                              {flight.departureTime} - {flight.arrivalTime}
-                            </span>
-                          </div>
-                          <div className="mobile-info-item">
-                            <span className="mobile-label">
-                              <i className="fa-solid fa-suitcase"></i> Baggage
-                            </span>
-                            <span className="mobile-value">
-                              {flight.baggage || '20+7 KG'}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="mobile-info-row">
-                          <div className="mobile-info-item">
-                            <span className="mobile-label">
-                              <i className="fa-solid fa-utensils"></i> Meal
-                            </span>
-                            <span className={`mobile-value meal-badge-mobile ${(flight.meal === 'Yes' || flight.meal === 'yes') ? 'meal-yes' : 'meal-no'}`}>
-                              {(flight.meal === 'Yes' || flight.meal === 'yes') ? 'YES' : 'NO'}
-                            </span>
-                          </div>
-                          <div className="mobile-info-item">
-                            <span className="mobile-label">
-                              <i className="fa-solid fa-chair"></i> Seats
-                            </span>
-                            <span className={`mobile-value ${flight.seatsRemaining < 10 ? 'seats-low' : ''}`}>
-                              {flight.seatsRemaining}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="mobile-card-footer">
-                        <div className="mobile-fare">
-                          <span className="fare-label">Fare</span>
-                          <span className="fare-amount">
-                            {parseInt(flight.pricePerSeat).toLocaleString()} PKR/-
+                {/* Mobile cards */}
+                <div className="space-y-3 p-4 sm:hidden">
+                  {airlineFlights.map(flight => {
+                    const hasMeal = flight.meal === 'Yes' || flight.meal === 'yes';
+                    const full = flight.seatsRemaining === 0;
+                    const seatsLow = !full && flight.seatsRemaining < 10;
+                    return (
+                      <div key={flight.id} className="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-card">
+                        <div className="flex items-center justify-between bg-neutral-50 px-4 py-2.5">
+                          <span className="flex items-center gap-1.5 text-xs font-semibold text-neutral-600">
+                            <FiCalendar size={12} className="text-primary" />
+                            {new Date(flight.departureDate).toLocaleDateString('en-GB', {
+                              day: '2-digit',
+                              month: 'short',
+                              year: 'numeric',
+                            })}
                           </span>
+                          <span className="font-mono text-xs font-semibold text-neutral-500">{flight.flightNumber}</span>
                         </div>
-                        <button 
-                          className="book-now-btn-mobile"
-                          onClick={() => handleBook(flight.id)}
-                          disabled={flight.seatsRemaining === 0}
-                        >
-                          {flight.seatsRemaining === 0 ? 'Full' : 'Book Now'}
-                        </button>
+
+                        <div className="grid grid-cols-2 gap-3 px-4 py-3">
+                          <div>
+                            <p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">Time</p>
+                            <p className="mt-0.5 text-sm font-medium text-neutral-800">
+                              {flight.departureTime} – {flight.arrivalTime}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">Baggage</p>
+                            <p className="mt-0.5 text-sm font-medium text-neutral-800">{flight.baggage || '20+7 KG'}</p>
+                          </div>
+                          <div>
+                            <p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">Meal</p>
+                            <div className="mt-1">
+                              <Badge tone={hasMeal ? 'success' : 'neutral'}>{hasMeal ? 'Yes' : 'No'}</Badge>
+                            </div>
+                          </div>
+                          <div>
+                            <p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">Seats</p>
+                            <p
+                              className={cn(
+                                'mt-0.5 text-sm font-semibold',
+                                full ? 'text-neutral-400' : seatsLow ? 'text-danger' : 'text-success'
+                              )}
+                            >
+                              {flight.seatsRemaining}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between border-t border-neutral-100 bg-neutral-50/60 px-4 py-3">
+                          <div>
+                            <p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">Fare</p>
+                            <p className="text-base font-bold text-ink">
+                              {parseInt(flight.pricePerSeat).toLocaleString()} PKR
+                            </p>
+                          </div>
+                          <Button size="sm" disabled={full} onClick={() => handleBook(flight.id)}>
+                            {full ? 'Full' : 'Book Now'}
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
-              </div>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       )}
     </div>
   );
