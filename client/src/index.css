@@ -12,16 +12,53 @@
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
   }
+
   body {
     @apply bg-neutral-100 text-neutral-800 font-sans antialiased;
+    /* Very quiet mint wash so large surfaces don't read as flat gray */
+    background-image:
+      radial-gradient(1200px 600px at 100% -10%, rgba(52, 212, 152, 0.07), transparent 60%),
+      radial-gradient(900px 500px at -10% 0%, rgba(16, 96, 67, 0.05), transparent 55%);
+    background-attachment: fixed;
   }
+
   h1, h2, h3, h4 {
-    @apply text-ink font-semibold;
+    @apply text-ink font-semibold tracking-tightish;
   }
+
+  /* Numbers in tables and KPIs line up */
+  th, td {
+    font-variant-numeric: tabular-nums;
+  }
+
   /* Consistent, visible focus ring for accessibility */
   :focus-visible {
     @apply outline-none ring-2 ring-primary ring-offset-1 ring-offset-white;
+  }
+
+  ::selection {
+    @apply bg-mint-200 text-forest;
+  }
+
+  /* Slim, brand-tinted scrollbars */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.neutral.300') transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-sm border-2 border-solid border-transparent bg-neutral-300 bg-clip-content;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-neutral-400;
   }
 }
 
@@ -29,9 +66,30 @@
   /* Reusable input base so all form controls match (used by ui/Input etc.) */
   .field {
     @apply block w-full rounded-sm border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900
-           placeholder:text-neutral-400 shadow-sm transition
-           focus:border-primary focus:ring-2 focus:ring-primary/30 focus:outline-none
-           disabled:cursor-not-allowed disabled:bg-neutral-100;
+           placeholder:text-neutral-400 shadow-inner-soft transition-all duration-200 ease-premium
+           hover:border-neutral-400
+           focus:border-primary focus:ring-2 focus:ring-primary/25 focus:outline-none
+           disabled:cursor-not-allowed disabled:border-neutral-200 disabled:bg-neutral-100 disabled:text-neutral-400;
+  }
+
+  /* Frosted panel — use on overlays and floating surfaces, not on dense data */
+  .glass {
+    @apply border border-white/60 bg-gradient-glass shadow-card backdrop-blur-md;
+  }
+
+  /* Frosted panel for use on dark/forest surfaces (hero, dusk sections) */
+  .glass-dark {
+    @apply border border-white/15 bg-gradient-glass-dark shadow-premium backdrop-blur-xl;
+  }
+
+  /* 1px mint hairline used as a section/card accent */
+  .hairline {
+    @apply h-px w-full bg-gradient-hairline;
+  }
+
+  /* 1px gold hairline — pairs with .hairline for warm-section dividers */
+  .hairline-gold {
+    @apply h-px w-full bg-gradient-hairline-gold;
   }
 }
 
@@ -41,6 +99,20 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  font-size: 16px;
-  color: #0b5cff;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: #106043;
+}
+
+/* Quality floor: respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
