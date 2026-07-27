@@ -7,7 +7,7 @@ export default function AuthLayout({ badge, title, subtitle, children, footer })
   return (
     <div className="flex min-h-screen bg-neutral-100">
       {/* Brand panel (hidden on small screens) */}
-      <div className="relative hidden w-1/2 flex-col justify-between bg-gradient-to-br from-ink to-primary-700 p-10 text-white lg:flex">
+      <div className="relative hidden w-1/2 flex-col justify-between bg-gradient-to-br from-ink-deep via-ink to-primary p-10 text-white lg:flex">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-sm bg-white/15 text-lg font-bold">SA</div>
           <div className="leading-tight">

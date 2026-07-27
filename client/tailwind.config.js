@@ -1,68 +1,85 @@
 /** @type {import('tailwindcss').Config} */
-// Design system for Shuraim Travel Agency.
-// Trustworthy, professional look: single deep-blue brand, one gray family, SHARP 2px corners.
+// Design system for Shuraim Air Travel & Tours.
+// Green + white brand (from the approved Stitch design), sharp 2px corners.
 module.exports = {
   content: ['./src/**/*.{js,jsx,ts,tsx}', './public/index.html'],
   theme: {
     extend: {
       colors: {
-        // Brand blue (actions, links)
+        // Brand green — `primary` drives buttons, links and active states.
         primary: {
-          DEFAULT: '#0B5CFF',
-          50: '#EAF1FF',
-          100: '#D6E4FF',
-          200: '#ADC8FF',
-          300: '#7FA6FF',
-          400: '#4D80FF',
-          500: '#0B5CFF',
-          600: '#0A4FDB',
-          700: '#0A3D91',
-          800: '#0A2E6B',
-          900: '#0A2540',
+          DEFAULT: '#106043', // mid green
+          50: '#E8F5EE',
+          100: '#C0EDD3',
+          200: '#A5D0B7',
+          300: '#8DD6B1',
+          400: '#34D498', // bright mint
+          500: '#106043',
+          600: '#0C4A33',
+          700: '#0A3D2A',
+          800: '#073322',
+          900: '#04301F',
         },
-        // Deep navy for headings / sidebar
-        ink: '#0A2540',
-        // Teal accent (positive / highlights)
+        // Deep forest green — sidebar, hero, footers.
+        ink: '#04301F',
+        'ink-deep': '#00190E',
+        // Mint accent — highlights, success fills, chart areas, active indicators.
         accent: {
-          DEFAULT: '#00B8A9',
-          600: '#0E9E92',
+          DEFAULT: '#34D498',
+          light: '#67FCBD',
+          dim: '#44DFA2',
         },
         success: '#16A34A',
         warning: '#D97706',
-        danger: '#DC2626',
-        // Single neutral family (replaces the #333/#666/mixed grays)
+        danger: '#BA1A1A',
+        // Green-tinted neutral family (matches the design's surface tokens).
         neutral: {
-          50: '#F8FAFC',
-          100: '#F1F5F9',
-          200: '#E2E8F0',
-          300: '#CBD5E1',
-          400: '#94A3B8',
-          500: '#64748B',
-          600: '#475569',
-          700: '#334155',
-          800: '#1E293B',
-          900: '#0F172A',
+          50: '#F7FAF8',
+          100: '#F1F4F2',
+          200: '#E0E3E1',
+          300: '#C1C8C2',
+          400: '#A0A8A3',
+          500: '#717973',
+          600: '#5A625C',
+          700: '#414943',
+          800: '#2D3130',
+          900: '#181C1C',
         },
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
       },
       fontSize: {
-        xs: ['12px', '16px'],
+        xs: ['12px', { lineHeight: '16px', letterSpacing: '0.01em' }],
         sm: ['14px', '20px'],
         base: ['16px', '24px'],
         lg: ['18px', '28px'],
-        xl: ['24px', '32px'],
-        '2xl': ['30px', '38px'],
-        '3xl': ['36px', '44px'],
+        xl: ['24px', { lineHeight: '32px', letterSpacing: '-0.01em' }],
+        '2xl': ['30px', { lineHeight: '40px', letterSpacing: '-0.02em' }],
+        '3xl': ['40px', { lineHeight: '48px', letterSpacing: '-0.02em' }],
+        '4xl': ['52px', { lineHeight: '58px', letterSpacing: '-0.03em' }],
       },
       boxShadow: {
-        // Only two levels — keep it clean
-        card: '0 1px 2px 0 rgba(10, 37, 64, 0.06), 0 1px 3px 0 rgba(10, 37, 64, 0.08)',
-        pop: '0 8px 24px -6px rgba(10, 37, 64, 0.18)',
+        card: '0 1px 2px 0 rgba(4, 48, 31, 0.06), 0 1px 3px 0 rgba(4, 48, 31, 0.08)',
+        lift: '0 8px 20px -6px rgba(4, 48, 31, 0.14)',
+        pop: '0 12px 32px -8px rgba(4, 48, 31, 0.22)',
+      },
+      keyframes: {
+        slideUpFade: {
+          '0%': { opacity: '0', transform: 'translateY(12px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        floatSlow: {
+          '0%,100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
+      },
+      animation: {
+        enter: 'slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        float: 'floatSlow 6s ease-in-out infinite',
       },
     },
-    // SHARP corners: override the whole radius scale so nothing is pill-shaped by default.
+    // Sharp corners everywhere (kept from the approved design).
     borderRadius: {
       none: '0px',
       sm: '2px',
@@ -70,7 +87,7 @@ module.exports = {
       md: '4px',
       lg: '4px',
       xl: '6px',
-      full: '9999px', // reserved for avatars / dot badges only
+      full: '9999px', // avatars / dot badges only
     },
   },
   plugins: [],
