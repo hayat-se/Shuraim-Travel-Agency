@@ -28,6 +28,8 @@ import {
   FiChevronRight,
   FiArrowUpRight,
   FiArrowRight,
+  FiUserCheck,
+  FiSearch,
 } from 'react-icons/fi';
 import { cn } from '../components/ui/cn';
 
@@ -74,6 +76,13 @@ const DESTINATIONS = [
   { city: 'Paris', country: 'France', code: 'CDG', img: '/images/destinations/paris.jpg', alt: 'Paris, France' },
 ];
 
+const HOW_STEPS = [
+  { icon: FiUserCheck, no: '01', title: 'Register your agency', body: 'Submit your agency details. We verify and approve licensed partners so the network stays trusted.' },
+  { icon: FiSearch, no: '02', title: 'Search live inventory', body: 'Browse group, Umrah and international fares with real-time seat availability and pricing.' },
+  { icon: FiClipboard, no: '03', title: 'Book & hold seats', body: 'Reserve seats atomically with no overbooking, add passenger details, and hold or confirm.' },
+  { icon: FiTag, no: '04', title: 'Issue e-tickets', body: 'Get a PDF e-ticket with QR the moment a booking is confirmed, and settle on your ledger.' },
+];
+
 const FEATURES = [
   { icon: FiShield, title: 'Licensed & Trusted', body: 'Officially licensed travel agency with proven track record' },
   { icon: FiGlobe, title: 'Global Network', body: 'Connected with airlines worldwide for best deals' },
@@ -88,6 +97,7 @@ const LEADERSHIP = [
 
 const NAV_LINKS = [
   { id: 'services', label: 'Services' },
+  { id: 'how-it-works', label: 'How it works' },
   { id: 'about', label: 'About' },
   { id: 'contact', label: 'Contact' },
 ];
@@ -609,6 +619,71 @@ const LandingPage = () => {
                 </motion.article>
               );
             })}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ============================== HOW IT WORKS ============================== */}
+      <section id="how-it-works" className="relative overflow-hidden bg-white py-24 lg:py-32">
+        <div aria-hidden className="pointer-events-none absolute -right-24 top-16 h-72 w-72 rounded-full bg-mint/[0.06] blur-[120px]" />
+        <div className="relative mx-auto max-w-[1240px] px-5 sm:px-8">
+          <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={viewport} className="max-w-2xl">
+            <motion.div variants={fadeUp}>
+              <Eyebrow tone="dark">Getting started</Eyebrow>
+            </motion.div>
+            <motion.h2
+              variants={fadeUp}
+              className="mt-5 text-[clamp(1.875rem,3.8vw,2.75rem)] font-semibold leading-tight tracking-tightish text-ink"
+            >
+              From sign-up to issued ticket in four steps
+            </motion.h2>
+            <motion.p variants={fadeUp} className="mt-5 text-base leading-relaxed text-neutral-600">
+              No integrations, no waiting on the phone. Get approved once, then book and issue tickets on your own time.
+            </motion.p>
+          </motion.div>
+
+          <motion.ol
+            variants={stagger}
+            initial="hidden"
+            whileInView="show"
+            viewport={viewport}
+            className="relative mt-16 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
+          >
+            {/* Connecting rail (desktop) */}
+            <span aria-hidden className="absolute left-0 right-0 top-7 hidden h-px bg-gradient-to-r from-transparent via-primary-200 to-transparent lg:block" />
+
+            {HOW_STEPS.map((s, i) => {
+              const Icon = s.icon;
+              const tone = SERVICE_TONES[i % SERVICE_TONES.length];
+              return (
+                <motion.li key={s.no} variants={fadeUp} className="relative">
+                  <div className="flex items-center gap-4">
+                    <div className={cn('relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border bg-white shadow-card transition-transform duration-300 ease-premium group-hover:scale-105', tone.chip)}>
+                      <Icon size={22} />
+                    </div>
+                    <span className="font-mono text-4xl font-semibold text-neutral-200">{s.no}</span>
+                  </div>
+                  <h3 className="mt-6 text-lg font-semibold text-ink">{s.title}</h3>
+                  <p className="mt-2.5 text-sm leading-relaxed text-neutral-600">{s.body}</p>
+                </motion.li>
+              );
+            })}
+          </motion.ol>
+
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="show"
+            viewport={viewport}
+            className="mt-14"
+          >
+            <button
+              onClick={() => navigate('/agency/register')}
+              className="group inline-flex items-center gap-2 rounded-sm bg-gradient-brand px-7 py-3.5 text-sm font-semibold text-white shadow-glow transition-all duration-300 ease-premium hover:shadow-premium"
+            >
+              Register your agency
+              <FiArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-1" />
+            </button>
           </motion.div>
         </div>
       </section>
