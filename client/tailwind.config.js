@@ -118,7 +118,10 @@ module.exports = {
       },
 
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+        // Body / UI / small text — warmer and more legible at small sizes.
+        sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+        // Headings / hero — kept on Inter (the look you liked).
+        display: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
       },
 
       fontSize: {

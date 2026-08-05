@@ -6,6 +6,8 @@ import {
   useReducedMotion,
   useInView,
   useMotionValue,
+  useScroll,
+  useTransform,
   animate,
 } from 'framer-motion';
 import {
@@ -44,13 +46,6 @@ const STATS = [
   { value: 24, suffix: '/6', label: 'Partner support', hint: 'Mon-Sat business hours' },
 ];
 
-const BOARD_ROWS = [
-  { code: 'SV 728', from: 'BKT', to: 'JED', gate: 'Umrah', status: 'On sale' },
-  { code: 'EK 613', from: 'ISB', to: 'DXB', gate: 'Group', status: 'Holding' },
-  { code: 'TK 711', from: 'ISB', to: 'IST', gate: 'Economy', status: 'On sale' },
-  { code: 'PK 309', from: 'ISB', to: 'LHR', gate: 'Business', status: 'On sale' },
-];
-
 const SERVICES = [
   { icon: FiSend, no: '01', title: 'Flight Bookings', body: 'Easy and reliable flight booking system for travel agencies with competitive pricing' },
   { icon: FiCreditCard, no: '02', title: 'Payment Solutions', body: 'Secure and flexible payment methods with multiple bank options' },
@@ -63,7 +58,7 @@ const SERVICES = [
 // Rotates through the three brand accents so the services grid isn't mint-on-mint.
 const SERVICE_TONES = [
   { chip: 'border-primary-200 bg-gradient-chip text-primary-700', bar: 'bg-gradient-brand', border: 'border-neutral-200 hover:border-primary-200' },
-  { chip: 'border-gold-200 bg-gold-50 text-gold-700', bar: 'bg-gradient-gold', border: 'border-neutral-200 hover:border-gold-200' },
+  { chip: 'border-primary-300 bg-primary-100 text-ink', bar: 'bg-gradient-forest', border: 'border-neutral-200 hover:border-primary-300' },
   { chip: 'border-mint-200 bg-mint-50 text-primary-700', bar: 'bg-gradient-mint', border: 'border-neutral-200 hover:border-mint-300' },
 ];
 
@@ -98,6 +93,7 @@ const LEADERSHIP = [
 const NAV_LINKS = [
   { id: 'services', label: 'Services' },
   { id: 'how-it-works', label: 'How it works' },
+  { id: 'destinations', label: 'Destinations' },
   { id: 'about', label: 'About' },
   { id: 'contact', label: 'Contact' },
 ];
@@ -158,10 +154,19 @@ const LandingPage = () => {
   const navigate = useNavigate();
   const reduce = useReducedMotion();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [active, setActive] = useState('home');
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
+    const ids = ['services', 'how-it-works', 'destinations', 'about', 'contact'];
+    const onScroll = () => {
+      const probe = window.scrollY + 140;
+      let current = 'home';
+      for (const id of ids) {
+        const el = document.getElementById(id);
+        if (el && el.offsetTop <= probe) current = id;
+      }
+      setActive(current);
+    };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
@@ -202,6 +207,31 @@ const LandingPage = () => {
   };
   const viewport = { once: true, amount: 0.2 };
 
+  /* Stronger, clearly-visible hero entrance (staggered) */
+  const heroContainer = {
+    hidden: {},
+    show: { transition: { staggerChildren: reduce ? 0 : 0.14, delayChildren: reduce ? 0 : 0.15 } },
+  };
+  const heroItem = {
+    hidden: { opacity: 0, y: reduce ? 0 : 42, filter: reduce ? 'none' : 'blur(6px)' },
+    show: {
+      opacity: 1,
+      y: 0,
+      filter: 'blur(0px)',
+      transition: { duration: reduce ? 0 : 0.85, ease },
+    },
+  };
+
+  /* Hero plane — scroll-linked diagonal drift (bottom-left → top-right) */
+  const { scrollY } = useScroll();
+  const planeX = useTransform(scrollY, [0, 900], [0, 560]);
+  const planeY = useTransform(scrollY, [0, 900], [0, -660]);
+  const planeRotate = useTransform(scrollY, [0, 900], [0, -7]);
+  const planeScale = useTransform(scrollY, [0, 900], [1, 0.78]);
+  const planeOpacity = useTransform(scrollY, [0, 650, 950], [1, 1, 0]);
+  // Behind the hero text on load (readable); rises above it once scrolling starts.
+  const planeZ = useTransform(scrollY, [0, 30, 31], [0, 0, 40]);
+
   /* Reusable atoms */
   const PrimaryBtn = ({ children, onClick, className = '' }) => (
     <button
@@ -230,75 +260,73 @@ const LandingPage = () => {
         initial={{ y: reduce ? 0 : -80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: reduce ? 0 : 0.7, ease }}
-        className={[
-          'fixed inset-x-0 top-0 z-50 transition-all duration-500 ease-premium',
-          scrolled
-            ? 'border-b border-white/10 bg-forest/80 shadow-pop backdrop-blur-xl'
-            : 'border-b border-transparent bg-transparent',
-        ].join(' ')}
+        className="fixed inset-x-0 top-0 z-50"
       >
-        <div className="mx-auto flex h-16 max-w-[1240px] items-center justify-between gap-4 px-5 sm:px-8 lg:h-[76px]">
+        <div className="mx-auto flex max-w-[1340px] items-center justify-between gap-5 px-5 pt-5 sm:px-8">
+          {/* Brand */}
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="flex shrink-0 items-center gap-3 text-left"
+            className="flex shrink-0 items-center gap-2.5 text-left"
           >
-            <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-sm border border-white/15 bg-white/[0.06] backdrop-blur-sm">
-              <img src="/assets/logo2.png" alt="" className="h-6 w-6 object-contain" />
+            <span className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border border-neutral-200 bg-white shadow-card">
+              <img src="/assets/logo2.png" alt="" className="h-7 w-7 object-contain" />
             </span>
-            <span className="leading-tight">
-              <span className="block text-sm font-semibold tracking-tightish text-white sm:text-[15px]">
-                Shuraim Air Travel &amp; Tours
-              </span>
-              <span className="block text-[10px] uppercase tracking-[0.24em] text-mint/80">B2B Flight Desk</span>
+            <span className="hidden leading-tight sm:block">
+              <span className="block text-base font-bold tracking-tight text-ink">Shuraim Air</span>
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">Travel &amp; Tours</span>
             </span>
           </button>
 
-          <ul className="hidden items-center gap-1 lg:flex">
-            {NAV_LINKS.map((l) => (
-              <li key={l.id}>
-                <a
-                  href={`#${l.id}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    goTo(l.id);
-                  }}
-                  className="relative rounded-sm px-4 py-2 text-sm font-medium text-white/70 transition-colors duration-200 after:absolute after:inset-x-4 after:bottom-1 after:h-px after:origin-left after:scale-x-0 after:bg-mint after:transition-transform after:duration-300 hover:text-white hover:after:scale-x-100"
-                >
-                  {l.label}
-                </a>
-              </li>
-            ))}
-          </ul>
+          {/* Center pill capsule */}
+          <div className="hidden lg:block">
+            <div className="flex items-center gap-1 rounded-full border border-white/20 bg-ink/60 p-1.5 shadow-lift ring-1 ring-black/5 backdrop-blur-2xl">
+              {[{ id: 'home', label: 'Home' }, ...NAV_LINKS].map((l) => {
+                const isActive = active === l.id;
+                return (
+                  <button
+                    key={l.id}
+                    onClick={() => (l.id === 'home' ? window.scrollTo({ top: 0, behavior: 'smooth' }) : goTo(l.id))}
+                    className="relative whitespace-nowrap rounded-full px-4 py-2 text-[12.5px] font-semibold uppercase tracking-[0.06em] transition-colors duration-200"
+                  >
+                    {isActive && (
+                      <motion.span
+                        layoutId="navPill"
+                        transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                        className="absolute inset-0 rounded-full bg-white shadow-sm"
+                      />
+                    )}
+                    <span className={cn('relative', isActive ? 'text-ink' : 'text-white/55 hover:text-white')}>{l.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
+          {/* Right actions */}
           <div className="hidden items-center gap-2.5 lg:flex">
             <button
-              onClick={() => {
-                navigate('/agency/login');
-                closeMenu();
-              }}
-              className="rounded-sm border border-white/20 px-4 py-2 text-sm font-medium text-white/90 transition-all duration-300 hover:border-mint/50 hover:text-white"
+              onClick={() => navigate('/agency/login')}
+              className="whitespace-nowrap rounded-full px-4 py-2.5 text-sm font-semibold text-ink transition-colors duration-200 hover:text-primary"
             >
               Agency Login
             </button>
             <button
-              onClick={() => {
-                navigate('/agency/register');
-                closeMenu();
-              }}
-              className="group relative overflow-hidden rounded-sm bg-mint px-5 py-2 text-sm font-semibold text-forest transition-all duration-300 hover:shadow-glow-mint"
+              onClick={() => navigate('/agency/register')}
+              className="group relative overflow-hidden whitespace-nowrap rounded-full bg-gradient-brand px-6 py-2.5 text-sm font-semibold text-white shadow-glow transition-all duration-300 ease-premium hover:shadow-premium"
             >
               <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-sheen transition-transform duration-700 ease-premium group-hover:translate-x-full" />
               <span className="relative">Register Agency</span>
             </button>
           </div>
 
+          {/* Mobile toggle */}
           <button
             onClick={toggleMenu}
             aria-label="Open menu"
             aria-expanded={menuOpen}
-            className="rounded-sm border border-white/20 p-2 text-white transition-colors duration-200 hover:bg-white/10 lg:hidden"
+            className="rounded-full border border-neutral-200 bg-white p-3 text-ink shadow-card transition-colors duration-200 hover:bg-neutral-100 lg:hidden"
           >
-            <FiMenu size={20} />
+            <FiMenu size={24} />
           </button>
         </div>
       </motion.nav>
@@ -377,192 +405,117 @@ const LandingPage = () => {
       </AnimatePresence>
 
       {/* ============================== HERO ============================== */}
-      <section className="relative isolate overflow-hidden bg-gradient-hero-glow">
-        <div aria-hidden className="pointer-events-none absolute -right-40 -top-40 -z-10 h-[620px] w-[620px] rounded-full bg-primary/30 blur-[150px]" />
-        <div aria-hidden className="pointer-events-none absolute -left-40 top-1/3 -z-10 h-[460px] w-[460px] rounded-full bg-gold/10 blur-[150px]" />
+      <section className="relative isolate overflow-hidden bg-white">
+        {/* Minimal ambient wash */}
+        <div aria-hidden className="pointer-events-none absolute -right-40 -top-40 -z-10 h-[560px] w-[560px] rounded-full bg-mint/[0.10] blur-[150px]" />
+        <div aria-hidden className="pointer-events-none absolute -left-40 top-1/4 -z-10 h-[440px] w-[440px] rounded-full bg-primary/[0.06] blur-[150px]" />
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 -z-10 opacity-[0.06]"
+          className="pointer-events-none absolute inset-0 -z-10 opacity-70"
           style={{
             backgroundImage:
-              'linear-gradient(to right, #34D498 1px, transparent 1px), linear-gradient(to bottom, #34D498 1px, transparent 1px)',
-            backgroundSize: '64px 64px',
-            maskImage: 'radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%)',
-            WebkitMaskImage: 'radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%)',
+              'linear-gradient(to right, rgba(16,96,67,0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(16,96,67,0.06) 1px, transparent 1px)',
+            backgroundSize: '56px 56px',
+            maskImage: 'radial-gradient(ellipse 70% 55% at 50% 0%, #000 25%, transparent 100%)',
+            WebkitMaskImage: 'radial-gradient(ellipse 70% 55% at 50% 0%, #000 25%, transparent 100%)',
           }}
         />
 
-        <div className="mx-auto max-w-[1240px] px-5 pb-24 pt-32 sm:px-8 lg:pb-32 lg:pt-44">
-          <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
-            {/* Left: copy */}
-            <motion.div variants={stagger} initial="hidden" animate="show">
-              <motion.div variants={fadeUp}>
-                <span className="inline-flex items-center gap-2 rounded-sm border border-mint/25 bg-mint/[0.07] px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-mint backdrop-blur-sm">
-                  <span className="relative flex h-1.5 w-1.5">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-mint opacity-60" />
-                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-mint" />
-                  </span>
-                  Licensed consolidator - No. 1224
+        {/* Signature branded plane: flies in from the left on load, then drifts
+            diagonally up-right as you scroll. Rests ~20% off the left edge.
+            Drop the PNG at /public/images/shuraim-plane.png (falls back to hidden). */}
+        <motion.div
+          aria-hidden
+          style={reduce ? undefined : { x: planeX, y: planeY, rotate: planeRotate, scale: planeScale, opacity: planeOpacity, zIndex: planeZ }}
+          className="pointer-events-none absolute left-[-8%] top-[54vh] z-0 w-[clamp(300px,38vw,600px)]"
+        >
+          {/* Soft cast shadow that travels with the plane (behind it) */}
+          <span
+            aria-hidden
+            className="absolute left-[10%] top-[58%] h-[16%] w-[66%] -rotate-6 rounded-[50%] bg-forest/35 blur-2xl"
+          />
+          <motion.img
+            src="/images/shuraim-plane.png"
+            alt=""
+            initial={{ x: reduce ? 0 : -380, y: reduce ? 0 : 40, opacity: 0 }}
+            animate={{ x: 0, y: 0, opacity: 1 }}
+            transition={{ duration: reduce ? 0 : 1.6, ease, delay: 0.2 }}
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+            }}
+            className="relative w-full drop-shadow-[0_26px_40px_rgba(4,48,31,0.30)]"
+          />
+        </motion.div>
+
+        <div className="relative z-10 mx-auto max-w-[1080px] px-5 pb-20 pt-32 text-center sm:px-8 lg:pb-24 lg:pt-40">
+          <motion.div variants={heroContainer} initial="hidden" animate="show">
+            {/* Badge */}
+            <motion.div variants={heroItem} className="flex justify-center">
+              <span className="inline-flex items-center gap-2 rounded-full border border-primary-200 bg-primary-50 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-700">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-mint opacity-70" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-mint" />
                 </span>
-              </motion.div>
-
-              <motion.h1
-                variants={fadeUp}
-                className="mt-7 text-[clamp(2.5rem,5.5vw,4.25rem)] font-semibold leading-[1.02] tracking-tightish text-white"
-              >
-                The booking desk
-                <br />
-                built for{' '}
-                <span className="relative whitespace-nowrap">
-                  <span className="bg-gradient-to-r from-mint via-mint-300 to-white bg-clip-text text-transparent">
-                    travel agencies
-                  </span>
-                  <svg
-                    aria-hidden
-                    viewBox="0 0 300 12"
-                    preserveAspectRatio="none"
-                    className="absolute -bottom-2 left-0 h-2.5 w-full"
-                  >
-                    <motion.path
-                      d="M2 8 C 80 2, 220 2, 298 6"
-                      fill="none"
-                      stroke="#34D498"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      initial={{ pathLength: 0 }}
-                      animate={{ pathLength: 1 }}
-                      transition={{ duration: reduce ? 0 : 1.1, ease, delay: 0.6 }}
-                    />
-                  </svg>
-                </span>
-              </motion.h1>
-
-              <motion.p variants={fadeUp} className="mt-7 max-w-lg text-base leading-relaxed text-white/60 sm:text-lg">
-                Search live inventory, hold seats without overbooking, issue PDF e-tickets on confirmation, and settle
-                every agency ledger - all in one professional portal.
-              </motion.p>
-
-              <motion.div variants={fadeUp} className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
-                <PrimaryBtn onClick={() => navigate('/agency/register')}>Register as Agency</PrimaryBtn>
-                <GhostBtn onClick={() => navigate('/agency/login')}>Agency Login</GhostBtn>
-                <button
-                  onClick={() => navigate('/admin/login')}
-                  className="inline-flex items-center justify-center px-3 py-3.5 text-sm font-medium text-white/50 underline-offset-4 transition-colors duration-200 hover:text-mint hover:underline"
-                >
-                  Admin Login
-                </button>
-              </motion.div>
+                Licensed consolidator - No. 1224
+              </span>
             </motion.div>
 
-            {/* Right: glass departure board (signature) */}
-            <motion.div
-              initial={{ opacity: 0, y: reduce ? 0 : 40, rotateX: reduce ? 0 : 6 }}
-              animate={{ opacity: 1, y: 0, rotateX: 0 }}
-              transition={{ duration: reduce ? 0 : 0.9, ease, delay: 0.25 }}
-              className="relative"
-              style={{ perspective: 1200 }}
+            {/* Big gradient headline */}
+            <motion.h1
+              variants={heroItem}
+              className="mx-auto mt-8 max-w-[16ch] text-[clamp(2.75rem,8vw,5.75rem)] font-bold leading-[0.98] tracking-[-0.03em]"
             >
-              <div className="relative overflow-hidden rounded-md border border-white/10 bg-white/[0.04] shadow-pop backdrop-blur-xl">
-                <span className="absolute inset-x-0 top-0 h-px bg-gradient-hairline" />
-                <div className="flex items-center justify-between border-b border-white/10 px-6 py-4">
-                  <div className="flex items-center gap-2.5">
-                    <FiSend className="text-mint" size={16} />
-                    <span className="text-xs font-semibold uppercase tracking-[0.18em] text-white/80">
-                      Live inventory
-                    </span>
-                  </div>
-                  <span className="flex items-center gap-1.5 text-[11px] font-medium text-mint">
-                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-mint" />
-                    Updating
-                  </span>
-                </div>
+              <span className="bg-gradient-to-br from-ink via-primary to-mint bg-clip-text text-transparent">
+                The booking desk built for travel agencies
+              </span>
+            </motion.h1>
 
-                <div className="grid grid-cols-[1.1fr_1.4fr_0.9fr_0.9fr] gap-2 px-6 pb-2 pt-4 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/35">
-                  <span>Flight</span>
-                  <span>Route</span>
-                  <span>Class</span>
-                  <span className="text-right">Status</span>
-                </div>
+            <motion.p variants={heroItem} className="mx-auto mt-7 max-w-2xl text-base leading-relaxed text-neutral-600 sm:text-lg">
+              Search live inventory, hold seats without overbooking, issue PDF e-tickets on confirmation, and settle
+              every agency ledger — all in one professional portal.
+            </motion.p>
 
-                <motion.ul
-                  variants={{ show: { transition: { staggerChildren: reduce ? 0 : 0.12, delayChildren: 0.5 } } }}
-                  initial="hidden"
-                  animate="show"
-                  className="px-3 pb-3"
-                >
-                  {BOARD_ROWS.map((r) => (
-                    <motion.li
-                      key={r.code}
-                      variants={{
-                        hidden: { opacity: 0, x: reduce ? 0 : 20 },
-                        show: { opacity: 1, x: 0, transition: { duration: reduce ? 0 : 0.5, ease } },
-                      }}
-                      className="group grid grid-cols-[1.1fr_1.4fr_0.9fr_0.9fr] items-center gap-2 rounded-sm px-3 py-3.5 transition-colors duration-200 hover:bg-white/[0.04]"
-                    >
-                      <span className="font-mono text-sm font-medium text-white">{r.code}</span>
-                      <span className="flex items-center gap-2 text-sm text-white/70">
-                        <span className="font-mono font-semibold text-white">{r.from}</span>
-                        <FiArrowRight size={12} className="text-mint" />
-                        <span className="font-mono font-semibold text-white">{r.to}</span>
-                      </span>
-                      <span className="text-xs text-white/50">{r.gate}</span>
-                      <span className="text-right">
-                        <span
-                          className={[
-                            'inline-flex items-center gap-1.5 rounded-sm border px-2 py-0.5 text-[11px] font-medium',
-                            r.status === 'Holding'
-                              ? 'border-amber-400/30 bg-amber-400/10 text-amber-300'
-                              : 'border-mint/30 bg-mint/10 text-mint',
-                          ].join(' ')}
-                        >
-                          <span
-                            className={`h-1 w-1 rounded-full ${r.status === 'Holding' ? 'bg-amber-300' : 'bg-mint'}`}
-                          />
-                          {r.status}
-                        </span>
-                      </span>
-                    </motion.li>
-                  ))}
-                </motion.ul>
-
-                <div className="flex items-center justify-between border-t border-white/10 bg-white/[0.02] px-6 py-3.5">
-                  <span className="text-[11px] text-white/40">Seats reserved atomically - no overbooking</span>
-                  <FiShield size={14} className="text-mint/70" />
-                </div>
-              </div>
-
-              <motion.div
-                initial={{ opacity: 0, y: reduce ? 0 : 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: reduce ? 0 : 0.7, ease, delay: 1.1 }}
-                className="absolute -bottom-5 -left-5 hidden items-center gap-3 rounded-sm border border-white/10 bg-forest/90 px-4 py-3 shadow-pop backdrop-blur-xl sm:flex"
+            <motion.div variants={heroItem} className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <button
+                onClick={() => navigate('/agency/register')}
+                className="group relative inline-flex items-center gap-2 overflow-hidden rounded-sm bg-gradient-brand px-8 py-4 text-sm font-semibold text-white shadow-glow transition-all duration-300 ease-premium hover:shadow-premium"
               >
-                <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-mint/15 text-mint">
-                  <FiTag size={16} />
-                </div>
-                <div className="leading-tight">
-                  <p className="font-mono text-sm font-semibold text-white">E-TICKET - QR</p>
-                  <p className="text-[11px] text-white/50">Issued on confirmation</p>
-                </div>
-              </motion.div>
+                <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-sheen transition-transform duration-700 ease-premium group-hover:translate-x-full" />
+                <span className="relative">Register as Agency</span>
+                <FiArrowRight className="relative transition-transform duration-300 group-hover:translate-x-1" size={16} />
+              </button>
+              <button
+                onClick={() => navigate('/agency/login')}
+                className="inline-flex items-center justify-center rounded-sm border border-neutral-300 bg-white px-8 py-4 text-sm font-semibold text-ink transition-colors duration-300 hover:border-primary-300 hover:bg-primary-50"
+              >
+                Agency Login
+              </button>
+              <button
+                onClick={() => navigate('/admin/login')}
+                className="inline-flex items-center justify-center px-3 py-4 text-sm font-medium text-neutral-400 underline-offset-4 transition-colors duration-200 hover:text-primary hover:underline"
+              >
+                Admin Login
+              </button>
             </motion.div>
-          </div>
+          </motion.div>
 
-          {/* Animated statistics strip */}
+          {/* Animated statistics strip (light) */}
           <motion.div
             variants={stagger}
             initial="hidden"
             whileInView="show"
             viewport={viewport}
-            className="mt-20 grid grid-cols-2 gap-px overflow-hidden rounded-md border border-white/10 bg-white/[0.04] backdrop-blur-md lg:grid-cols-4"
+            className="mt-14 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-neutral-200 bg-neutral-200 lg:grid-cols-4"
           >
             {STATS.map((s) => (
-              <motion.div key={s.label} variants={fadeUp} className="bg-forest/30 px-6 py-7 sm:px-8">
-                <p className="text-[clamp(1.75rem,3vw,2.5rem)] font-semibold tracking-tightish text-white">
-                  <Counter value={s.value} prefix={s.prefix} suffix={s.suffix} reduce={reduce} />
+              <motion.div key={s.label} variants={fadeUp} className="bg-white px-6 py-7 text-left sm:px-8">
+                <p className="text-[clamp(1.75rem,3vw,2.5rem)] font-bold tracking-tightish">
+                  <span className="bg-gradient-to-br from-ink via-primary to-mint bg-clip-text text-transparent">
+                    <Counter value={s.value} prefix={s.prefix} suffix={s.suffix} reduce={reduce} />
+                  </span>
                 </p>
-                <p className="mt-2 text-sm font-medium text-white/80">{s.label}</p>
-                <p className="mt-0.5 text-xs text-white/40">{s.hint}</p>
+                <p className="mt-2 text-sm font-medium text-ink">{s.label}</p>
+                <p className="mt-0.5 text-xs text-neutral-500">{s.hint}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -570,9 +523,9 @@ const LandingPage = () => {
       </section>
 
       {/* ============================== SERVICES ============================== */}
-      <section id="services" className="relative overflow-hidden bg-gradient-sand py-24 lg:py-32">
-        <div aria-hidden className="pointer-events-none absolute -left-32 top-10 h-72 w-72 rounded-full bg-primary/[0.06] blur-[120px]" />
-        <div aria-hidden className="pointer-events-none absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-gold/[0.10] blur-[130px]" />
+      <section id="services" className="relative overflow-hidden bg-white py-24 lg:py-32">
+        <div aria-hidden className="pointer-events-none absolute -left-32 top-10 h-72 w-72 rounded-full bg-primary/[0.05] blur-[120px]" />
+        <div aria-hidden className="pointer-events-none absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-mint/[0.08] blur-[130px]" />
         <div className="relative mx-auto max-w-[1240px] px-5 sm:px-8">
           <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={viewport} className="max-w-2xl">
             <motion.div variants={fadeUp}>
@@ -624,8 +577,8 @@ const LandingPage = () => {
       </section>
 
       {/* ============================== HOW IT WORKS ============================== */}
-      <section id="how-it-works" className="relative overflow-hidden bg-white py-24 lg:py-32">
-        <div aria-hidden className="pointer-events-none absolute -right-24 top-16 h-72 w-72 rounded-full bg-mint/[0.06] blur-[120px]" />
+      <section id="how-it-works" className="relative overflow-hidden bg-neutral-50 py-24 lg:py-32">
+        <div aria-hidden className="pointer-events-none absolute -right-24 top-16 h-72 w-72 rounded-full bg-mint/[0.08] blur-[120px]" />
         <div className="relative mx-auto max-w-[1240px] px-5 sm:px-8">
           <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={viewport} className="max-w-2xl">
             <motion.div variants={fadeUp}>
@@ -649,8 +602,19 @@ const LandingPage = () => {
             viewport={viewport}
             className="relative mt-16 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
           >
-            {/* Connecting rail (desktop) */}
-            <span aria-hidden className="absolute left-0 right-0 top-7 hidden h-px bg-gradient-to-r from-transparent via-primary-200 to-transparent lg:block" />
+            {/* Connecting rail (desktop) with a plane flying the route */}
+            <span aria-hidden className="absolute left-0 right-0 top-7 hidden h-px bg-[repeating-linear-gradient(to_right,theme(colors.primary.200)_0_10px,transparent_10px_18px)] lg:block" />
+            {!reduce && (
+              <motion.span
+                aria-hidden
+                className="absolute top-7 hidden -translate-x-1/2 -translate-y-1/2 text-primary lg:block"
+                initial={{ left: '2%' }}
+                animate={{ left: '98%' }}
+                transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1.2 }}
+              >
+                <FiSend size={20} className="drop-shadow-[0_2px_6px_rgba(52,212,152,0.5)]" />
+              </motion.span>
+            )}
 
             {HOW_STEPS.map((s, i) => {
               const Icon = s.icon;
@@ -689,9 +653,9 @@ const LandingPage = () => {
       </section>
 
       {/* ============================== DESTINATIONS ============================== */}
-      <section id="destinations" className="relative overflow-hidden bg-gradient-dusk py-24 lg:py-32">
-        <div aria-hidden className="pointer-events-none absolute right-0 top-0 h-96 w-96 rounded-full bg-mint/5 blur-[130px]" />
-        <div aria-hidden className="pointer-events-none absolute -left-20 bottom-0 h-72 w-72 rounded-full bg-gold/[0.07] blur-[130px]" />
+      <section id="destinations" className="relative overflow-hidden bg-white py-24 lg:py-32">
+        <div aria-hidden className="pointer-events-none absolute right-0 top-0 h-96 w-96 rounded-full bg-primary/[0.05] blur-[130px]" />
+        <div aria-hidden className="pointer-events-none absolute -left-20 bottom-0 h-72 w-72 rounded-full bg-mint/[0.07] blur-[130px]" />
         <div className="mx-auto max-w-[1240px] px-5 sm:px-8">
           <motion.div
             variants={stagger}
@@ -702,11 +666,11 @@ const LandingPage = () => {
           >
             <div className="max-w-2xl">
               <motion.div variants={fadeUp}>
-                <Eyebrow tone="light">Where we fly</Eyebrow>
+                <Eyebrow tone="dark">Where we fly</Eyebrow>
               </motion.div>
               <motion.h2
                 variants={fadeUp}
-                className="mt-5 text-[clamp(1.875rem,3.8vw,2.75rem)] font-semibold leading-tight tracking-tightish text-white"
+                className="mt-5 text-[clamp(1.875rem,3.8vw,2.75rem)] font-semibold leading-tight tracking-tightish text-ink"
               >
                 Featured destinations we serve
               </motion.h2>
@@ -714,7 +678,7 @@ const LandingPage = () => {
             <motion.button
               variants={fadeUp}
               onClick={() => navigate('/agency/register')}
-              className="group inline-flex shrink-0 items-center gap-2 text-sm font-semibold text-mint transition-colors hover:text-mint-300"
+              className="group inline-flex shrink-0 items-center gap-2 text-sm font-semibold text-primary transition-colors hover:text-primary-700"
             >
               Book through the portal
               <FiArrowUpRight size={16} className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -760,8 +724,8 @@ const LandingPage = () => {
       </section>
 
       {/* ============================== ABOUT ============================== */}
-      <section id="about" className="relative overflow-hidden bg-gradient-sand py-24 lg:py-32">
-        <div aria-hidden className="pointer-events-none absolute right-0 top-1/4 h-80 w-80 rounded-full bg-primary/[0.06] blur-[130px]" />
+      <section id="about" className="relative overflow-hidden bg-white py-24 lg:py-32">
+        <div aria-hidden className="pointer-events-none absolute right-0 top-1/4 h-80 w-80 rounded-full bg-primary/[0.05] blur-[130px]" />
         <div className="relative mx-auto max-w-[1240px] px-5 sm:px-8">
           <div className="grid grid-cols-1 gap-16 lg:grid-cols-[1fr_1fr] lg:gap-20">
             <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={viewport}>
@@ -780,7 +744,7 @@ const LandingPage = () => {
                 service to our partner agencies.
               </motion.p>
 
-              <motion.dl variants={fadeUp} className="mt-10 divide-y divide-sand-200 border-y border-sand-200">
+              <motion.dl variants={fadeUp} className="mt-10 divide-y divide-neutral-200 border-y border-neutral-200">
                 {[
                   ['Company', 'Shuraim Air Travel & Tours'],
                   ['License No.', '1224'],
@@ -855,9 +819,9 @@ const LandingPage = () => {
                 <motion.div
                   key={p.name}
                   variants={fadeUp}
-                  className="group overflow-hidden rounded-xl border border-sand-200 bg-white shadow-card transition-all duration-300 ease-premium hover:-translate-y-1 hover:shadow-premium"
+                  className="group overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-card transition-all duration-300 ease-premium hover:-translate-y-1 hover:shadow-premium"
                 >
-                  <div className="relative aspect-[16/10] overflow-hidden">
+                  <div className="relative aspect-[4/5] overflow-hidden bg-neutral-100">
                     <img
                       src={p.img}
                       alt={p.alt}
@@ -865,10 +829,10 @@ const LandingPage = () => {
                       onError={(e) => {
                         e.currentTarget.src = '/images/placeholder-profile.svg';
                       }}
-                      className="h-full w-full object-cover transition-transform duration-[900ms] ease-premium group-hover:scale-105"
+                      className="h-full w-full object-cover object-top transition-transform duration-[900ms] ease-premium group-hover:scale-[1.04]"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-forest-900/80 via-transparent to-transparent" />
-                    <span className="absolute bottom-4 left-5 rounded-full border border-mint/30 bg-forest/80 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-mint backdrop-blur-md">
+                    <div className="absolute inset-0 bg-gradient-to-t from-forest-900/85 via-forest-900/10 to-transparent" />
+                    <span className="absolute bottom-4 left-5 rounded-full border border-mint/40 bg-forest/85 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-mint backdrop-blur-md">
                       {p.role}
                     </span>
                   </div>
@@ -884,8 +848,10 @@ const LandingPage = () => {
       </section>
 
       {/* ============================== CONTACT ============================== */}
-      <section id="contact" className="relative bg-gradient-dusk py-24 lg:py-32">
-        <div className="mx-auto max-w-[1240px] px-5 sm:px-8">
+      <section id="contact" className="relative overflow-hidden bg-neutral-50 py-24 lg:py-32">
+        <div aria-hidden className="pointer-events-none absolute -left-24 top-1/4 h-80 w-80 rounded-full bg-primary/[0.05] blur-[130px]" />
+        <div aria-hidden className="pointer-events-none absolute -right-24 bottom-0 h-72 w-72 rounded-full bg-mint/[0.07] blur-[130px]" />
+        <div className="relative mx-auto max-w-[1240px] px-5 sm:px-8">
           <motion.div
             variants={stagger}
             initial="hidden"
@@ -894,15 +860,15 @@ const LandingPage = () => {
             className="mx-auto max-w-2xl text-center"
           >
             <motion.div variants={fadeUp} className="flex justify-center">
-              <Eyebrow tone="light">Contact us</Eyebrow>
+              <Eyebrow tone="dark">Contact us</Eyebrow>
             </motion.div>
             <motion.h2
               variants={fadeUp}
-              className="mt-5 text-[clamp(1.875rem,3.8vw,2.75rem)] font-semibold leading-tight tracking-tightish text-white"
+              className="mt-5 text-[clamp(1.875rem,3.8vw,2.75rem)] font-semibold leading-tight tracking-tightish text-ink"
             >
               Get in touch
             </motion.h2>
-            <motion.p variants={fadeUp} className="mt-4 text-base leading-relaxed text-white/55">
+            <motion.p variants={fadeUp} className="mt-4 text-base leading-relaxed text-neutral-600">
               Ready to partner with us? Our team is here to assist you with all your travel booking needs. Reach out
               through any channel below.
             </motion.p>
@@ -918,14 +884,14 @@ const LandingPage = () => {
             {/* Phone card */}
             <motion.div
               variants={fadeUp}
-              className="relative overflow-hidden rounded-md border border-white/10 bg-white/[0.04] p-8 backdrop-blur-xl sm:p-10"
+              className="relative overflow-hidden rounded-xl border border-neutral-200 bg-white p-8 shadow-card transition-shadow duration-300 hover:shadow-premium sm:p-10"
             >
-              <span className="absolute inset-x-0 top-0 h-px bg-gradient-hairline" />
-              <div className="flex h-12 w-12 items-center justify-center rounded-sm border border-mint/25 bg-mint/[0.08] text-mint">
+              <span className="absolute inset-x-0 top-0 h-0.5 bg-gradient-brand" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-primary-200 bg-gradient-chip text-primary-700">
                 <FiPhone size={22} />
               </div>
-              <h3 className="mt-6 text-lg font-semibold text-white">Call us directly</h3>
-              <p className="mt-1.5 text-sm text-white/50">Speak with our team for immediate assistance</p>
+              <h3 className="mt-6 text-lg font-semibold text-ink">Call us directly</h3>
+              <p className="mt-1.5 text-sm text-neutral-500">Speak with our team for immediate assistance</p>
 
               <div className="mt-8 space-y-7">
                 {[
@@ -933,15 +899,15 @@ const LandingPage = () => {
                   { role: 'MD - Sudais Ahmad', numbers: [['0343-3173386', 'tel:03433173386'], ['0312-1673386', 'tel:03121673386']] },
                 ].map((person) => (
                   <div key={person.role}>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/40">{person.role}</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-500">{person.role}</p>
                     <div className="mt-3 flex flex-wrap gap-2.5">
                       {person.numbers.map(([label, href]) => (
                         <a
                           key={href}
                           href={href}
-                          className="group inline-flex items-center gap-2 rounded-sm border border-white/10 bg-white/[0.03] px-3.5 py-2 font-mono text-sm text-white transition-all duration-300 ease-premium hover:border-mint/40 hover:bg-mint/[0.08]"
+                          className="group inline-flex items-center gap-2 rounded-sm border border-neutral-200 bg-neutral-50 px-3.5 py-2 font-mono text-sm text-ink transition-all duration-300 ease-premium hover:border-primary-300 hover:bg-primary-50"
                         >
-                          <FiPhone size={13} className="text-mint" />
+                          <FiPhone size={13} className="text-primary" />
                           {label}
                         </a>
                       ))}
@@ -949,10 +915,10 @@ const LandingPage = () => {
                   </div>
                 ))}
 
-                <div className="h-px w-full bg-white/10" />
+                <div className="h-px w-full bg-neutral-200" />
                 <div className="flex items-center justify-between gap-4">
-                  <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/40">Landline</span>
-                  <a href="tel:09324115061" className="font-mono text-sm text-mint transition-colors hover:text-mint-300">
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-500">Landline</span>
+                  <a href="tel:09324115061" className="font-mono text-sm font-medium text-primary transition-colors hover:text-primary-700">
                     (0932) 411506
                   </a>
                 </div>
@@ -962,45 +928,42 @@ const LandingPage = () => {
             {/* Email & location card */}
             <motion.div
               variants={fadeUp}
-              className="relative overflow-hidden rounded-md border border-gold/20 bg-white/[0.04] p-8 backdrop-blur-xl sm:p-10"
+              className="relative overflow-hidden rounded-xl border border-neutral-200 bg-white p-8 shadow-card transition-shadow duration-300 hover:shadow-premium sm:p-10"
             >
-              <span className="absolute inset-x-0 top-0 h-px bg-gradient-hairline-gold" />
-              <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-gold/10 blur-[80px]" />
-              <div className="relative">
-                <div className="flex h-12 w-12 items-center justify-center rounded-sm border border-gold/25 bg-gold/[0.10] text-gold-200">
-                  <FiMail size={22} />
-                </div>
-                <h3 className="mt-6 text-lg font-semibold text-white">Email &amp; location</h3>
-                <p className="mt-1.5 text-sm text-white/50">Send us a message or visit our office</p>
+              <span className="absolute inset-x-0 top-0 h-0.5 bg-gradient-mint" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-mint-200 bg-mint-50 text-primary-700">
+                <FiMail size={22} />
+              </div>
+              <h3 className="mt-6 text-lg font-semibold text-ink">Email &amp; location</h3>
+              <p className="mt-1.5 text-sm text-neutral-500">Send us a message or visit our office</p>
 
-                <div className="mt-8 space-y-4">
-                  <a
-                    href="mailto:shuraimintl@gmail.com"
-                    className="flex items-start gap-4 rounded-sm border border-white/10 bg-white/[0.02] p-4 transition-colors duration-300 hover:border-gold/30 hover:bg-gold/[0.05]"
-                  >
-                    <FiMail size={18} className="mt-0.5 shrink-0 text-gold-200" />
-                    <div className="min-w-0">
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/40">Email address</p>
-                      <p className="mt-0.5 truncate text-sm font-medium text-white">shuraimintl@gmail.com</p>
-                    </div>
-                  </a>
-
-                  <div className="flex items-start gap-4 rounded-sm border border-white/10 bg-white/[0.02] p-4">
-                    <FiMapPin size={18} className="mt-0.5 shrink-0 text-gold-200" />
-                    <div>
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/40">Office address</p>
-                      <p className="mt-0.5 text-sm font-medium text-white">1st Floor, Hayat Khan Plaza</p>
-                      <p className="text-sm font-medium text-white">Batkhela, Pakistan</p>
-                    </div>
+              <div className="mt-8 space-y-4">
+                <a
+                  href="mailto:shuraimintl@gmail.com"
+                  className="flex items-start gap-4 rounded-lg border border-neutral-200 bg-neutral-50 p-4 transition-colors duration-300 hover:border-mint-300 hover:bg-mint-50"
+                >
+                  <FiMail size={18} className="mt-0.5 shrink-0 text-primary" />
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-neutral-500">Email address</p>
+                    <p className="mt-0.5 truncate text-sm font-medium text-ink">shuraimintl@gmail.com</p>
                   </div>
+                </a>
 
-                  <div className="flex items-start gap-4 rounded-sm border border-white/10 bg-white/[0.02] p-4">
-                    <FiClock size={18} className="mt-0.5 shrink-0 text-gold-200" />
-                    <div>
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/40">Business hours</p>
-                      <p className="mt-0.5 text-sm font-medium text-white">Mon - Sat: 9:00 AM - 6:00 PM</p>
-                      <p className="text-sm font-medium text-white/45">Sunday: Closed</p>
-                    </div>
+                <div className="flex items-start gap-4 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
+                  <FiMapPin size={18} className="mt-0.5 shrink-0 text-primary" />
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-neutral-500">Office address</p>
+                    <p className="mt-0.5 text-sm font-medium text-ink">1st Floor, Hayat Khan Plaza</p>
+                    <p className="text-sm font-medium text-neutral-600">Batkhela, Pakistan</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
+                  <FiClock size={18} className="mt-0.5 shrink-0 text-primary" />
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-neutral-500">Business hours</p>
+                    <p className="mt-0.5 text-sm font-medium text-ink">Mon - Sat: 9:00 AM - 6:00 PM</p>
+                    <p className="text-sm font-medium text-neutral-400">Sunday: Closed</p>
                   </div>
                 </div>
               </div>
@@ -1013,11 +976,11 @@ const LandingPage = () => {
             initial="hidden"
             whileInView="show"
             viewport={viewport}
-            className="mt-6 flex flex-col items-start justify-between gap-5 overflow-hidden rounded-md border border-white/10 bg-white/[0.04] px-8 py-7 backdrop-blur-xl sm:flex-row sm:items-center"
+            className="relative mt-6 flex flex-col items-start justify-between gap-5 overflow-hidden rounded-xl border border-primary-200 bg-gradient-brand px-8 py-7 sm:flex-row sm:items-center"
           >
-            <div>
+            <div className="relative">
               <h4 className="text-lg font-semibold text-white">Need immediate assistance?</h4>
-              <p className="mt-1.5 text-sm text-white/55">Our support team is available during business hours to help you</p>
+              <p className="mt-1.5 text-sm text-white/70">Our support team is available during business hours to help you</p>
             </div>
             <a
               href="mailto:shuraimintl@gmail.com"
@@ -1034,7 +997,7 @@ const LandingPage = () => {
       {/* ============================== CTA ============================== */}
       <section className="relative isolate overflow-hidden bg-[#02150D] py-24 lg:py-28">
         <div aria-hidden className="pointer-events-none absolute left-1/2 top-0 h-[400px] w-[700px] -translate-x-1/2 rounded-full bg-primary/30 blur-[140px]" />
-        <div aria-hidden className="pointer-events-none absolute bottom-0 right-1/4 h-64 w-64 rounded-full bg-gold/10 blur-[130px]" />
+        <div aria-hidden className="pointer-events-none absolute bottom-0 right-1/4 h-64 w-64 rounded-full bg-mint/10 blur-[130px]" />
         <motion.div
           variants={stagger}
           initial="hidden"

@@ -1,8 +1,13 @@
-/* Self-hosted Inter (no CDN — avoids the FontAwesome-style 403s) */
-@import '@fontsource/inter/400.css';
+/* Self-hosted fonts (no CDN — avoids the FontAwesome-style 403s) */
+/* Inter — display / headings (kept for the hero + section titles) */
 @import '@fontsource/inter/500.css';
 @import '@fontsource/inter/600.css';
 @import '@fontsource/inter/700.css';
+/* Plus Jakarta Sans — body, UI and all the small text (nicer at small sizes) */
+@import '@fontsource/plus-jakarta-sans/400.css';
+@import '@fontsource/plus-jakarta-sans/500.css';
+@import '@fontsource/plus-jakarta-sans/600.css';
+@import '@fontsource/plus-jakarta-sans/700.css';
 
 @tailwind base;
 @tailwind components;
@@ -25,7 +30,7 @@
   }
 
   h1, h2, h3, h4 {
-    @apply text-ink font-semibold tracking-tightish;
+    @apply font-display text-ink font-semibold tracking-tightish;
   }
 
   /* Numbers in tables and KPIs line up */
