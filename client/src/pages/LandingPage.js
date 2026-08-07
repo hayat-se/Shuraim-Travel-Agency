@@ -13,16 +13,7 @@ import {
 import {
   FiMenu,
   FiX,
-  FiSend,
-  FiCreditCard,
-  FiClipboard,
-  FiBarChart2,
-  FiTag,
-  FiMessageSquare,
   FiShield,
-  FiGlobe,
-  FiZap,
-  FiUsers,
   FiPhone,
   FiMail,
   FiMapPin,
@@ -30,9 +21,22 @@ import {
   FiChevronRight,
   FiArrowUpRight,
   FiArrowRight,
-  FiUserCheck,
-  FiSearch,
 } from 'react-icons/fi';
+import {
+  HiPaperAirplane,
+  HiCreditCard,
+  HiClipboardDocumentList,
+  HiChartBarSquare,
+  HiTicket,
+  HiChatBubbleLeftRight,
+  HiUserPlus,
+  HiMagnifyingGlass,
+  HiClipboardDocumentCheck,
+  HiShieldCheck,
+  HiGlobeAlt,
+  HiBolt,
+  HiUsers,
+} from 'react-icons/hi2';
 import { cn } from '../components/ui/cn';
 
 /* ------------------------------------------------------------------ */
@@ -47,19 +51,19 @@ const STATS = [
 ];
 
 const SERVICES = [
-  { icon: FiSend, no: '01', title: 'Flight Bookings', body: 'Easy and reliable flight booking system for travel agencies with competitive pricing' },
-  { icon: FiCreditCard, no: '02', title: 'Payment Solutions', body: 'Secure and flexible payment methods with multiple bank options' },
-  { icon: FiClipboard, no: '03', title: 'Booking Management', body: 'Complete booking management system with real-time status updates' },
-  { icon: FiBarChart2, no: '04', title: 'Analytics & Reports', body: 'Detailed ledger and financial reports for better business insights' },
-  { icon: FiTag, no: '05', title: 'E-Tickets', body: 'Professional PDF e-tickets with QR codes for passenger convenience' },
-  { icon: FiMessageSquare, no: '06', title: 'Support & Feedback', body: '24/7 customer support and feedback system for continuous improvement' },
+  { icon: HiPaperAirplane, no: '01', title: 'Flight Bookings', body: 'Easy and reliable flight booking system for travel agencies with competitive pricing' },
+  { icon: HiCreditCard, no: '02', title: 'Payment Solutions', body: 'Secure and flexible payment methods with multiple bank options' },
+  { icon: HiClipboardDocumentList, no: '03', title: 'Booking Management', body: 'Complete booking management system with real-time status updates' },
+  { icon: HiChartBarSquare, no: '04', title: 'Analytics & Reports', body: 'Detailed ledger and financial reports for better business insights' },
+  { icon: HiTicket, no: '05', title: 'E-Tickets', body: 'Professional PDF e-tickets with QR codes for passenger convenience' },
+  { icon: HiChatBubbleLeftRight, no: '06', title: 'Support & Feedback', body: '24/7 customer support and feedback system for continuous improvement' },
 ];
 
-// Rotates through the three brand accents so the services grid isn't mint-on-mint.
+// Icon tiles all use the same brand blue; cards keep a subtle hover accent.
 const SERVICE_TONES = [
-  { chip: 'border-primary-200 bg-gradient-chip text-primary-700', bar: 'bg-gradient-brand', border: 'border-neutral-200 hover:border-primary-200' },
-  { chip: 'border-primary-300 bg-primary-100 text-ink', bar: 'bg-gradient-forest', border: 'border-neutral-200 hover:border-primary-300' },
-  { chip: 'border-mint-200 bg-mint-50 text-primary-700', bar: 'bg-gradient-mint', border: 'border-neutral-200 hover:border-mint-300' },
+  { tile: 'bg-gradient-brand shadow-glow', bar: 'bg-gradient-brand', border: 'hover:border-primary-200', ghost: 'group-hover:text-primary-100' },
+  { tile: 'bg-gradient-brand shadow-glow', bar: 'bg-gradient-brand', border: 'hover:border-primary-200', ghost: 'group-hover:text-primary-100' },
+  { tile: 'bg-gradient-brand shadow-glow', bar: 'bg-gradient-brand', border: 'hover:border-primary-200', ghost: 'group-hover:text-primary-100' },
 ];
 
 const DESTINATIONS = [
@@ -72,17 +76,17 @@ const DESTINATIONS = [
 ];
 
 const HOW_STEPS = [
-  { icon: FiUserCheck, no: '01', title: 'Register your agency', body: 'Submit your agency details. We verify and approve licensed partners so the network stays trusted.' },
-  { icon: FiSearch, no: '02', title: 'Search live inventory', body: 'Browse group, Umrah and international fares with real-time seat availability and pricing.' },
-  { icon: FiClipboard, no: '03', title: 'Book & hold seats', body: 'Reserve seats atomically with no overbooking, add passenger details, and hold or confirm.' },
-  { icon: FiTag, no: '04', title: 'Issue e-tickets', body: 'Get a PDF e-ticket with QR the moment a booking is confirmed, and settle on your ledger.' },
+  { icon: HiUserPlus, no: '01', title: 'Register your agency', body: 'Submit your agency details. We verify and approve licensed partners so the network stays trusted.' },
+  { icon: HiMagnifyingGlass, no: '02', title: 'Search live inventory', body: 'Browse group, Umrah and international fares with real-time seat availability and pricing.' },
+  { icon: HiClipboardDocumentCheck, no: '03', title: 'Book & hold seats', body: 'Reserve seats atomically with no overbooking, add passenger details, and hold or confirm.' },
+  { icon: HiTicket, no: '04', title: 'Issue e-tickets', body: 'Get a PDF e-ticket with QR the moment a booking is confirmed, and settle on your ledger.' },
 ];
 
 const FEATURES = [
-  { icon: FiShield, title: 'Licensed & Trusted', body: 'Officially licensed travel agency with proven track record' },
-  { icon: FiGlobe, title: 'Global Network', body: 'Connected with airlines worldwide for best deals' },
-  { icon: FiZap, title: 'Fast Processing', body: 'Quick booking confirmations and instant e-ticket generation' },
-  { icon: FiUsers, title: 'Partner Support', body: 'Dedicated support team for all partner agencies' },
+  { icon: HiShieldCheck, title: 'Licensed & Trusted', body: 'Officially licensed travel agency with proven track record' },
+  { icon: HiGlobeAlt, title: 'Global Network', body: 'Connected with airlines worldwide for best deals' },
+  { icon: HiBolt, title: 'Fast Processing', body: 'Quick booking confirmations and instant e-ticket generation' },
+  { icon: HiUsers, title: 'Partner Support', body: 'Dedicated support team for all partner agencies' },
 ];
 
 const LEADERSHIP = [
@@ -254,7 +258,7 @@ const LandingPage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#02150D] text-neutral-700 antialiased">
+    <div className="min-h-screen bg-[#071A36] text-neutral-700 antialiased">
       {/* ============================== NAV ============================== */}
       <motion.nav
         initial={{ y: reduce ? 0 : -80, opacity: 0 }}
@@ -268,34 +272,35 @@ const LandingPage = () => {
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className="flex shrink-0 items-center gap-2.5 text-left"
           >
-            <span className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border border-neutral-200 bg-white shadow-card">
-              <img src="/assets/logo2.png" alt="" className="h-7 w-7 object-contain" />
-            </span>
+            <img src="/assets/shuraim-favicon.png" alt="Shuraim Air" className="h-12 w-12 shrink-0 object-contain" />
             <span className="hidden leading-tight sm:block">
               <span className="block text-base font-bold tracking-tight text-ink">Shuraim Air</span>
               <span className="block text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">Travel &amp; Tours</span>
             </span>
           </button>
 
-          {/* Center pill capsule */}
+          {/* Center menu — transparent, with a minimal underline hover */}
           <div className="hidden lg:block">
-            <div className="flex items-center gap-1 rounded-full border border-white/20 bg-ink/60 p-1.5 shadow-lift ring-1 ring-black/5 backdrop-blur-2xl">
+            <div className="flex items-center gap-1">
               {[{ id: 'home', label: 'Home' }, ...NAV_LINKS].map((l) => {
                 const isActive = active === l.id;
                 return (
                   <button
                     key={l.id}
                     onClick={() => (l.id === 'home' ? window.scrollTo({ top: 0, behavior: 'smooth' }) : goTo(l.id))}
-                    className="relative whitespace-nowrap rounded-full px-4 py-2 text-[12.5px] font-semibold uppercase tracking-[0.06em] transition-colors duration-200"
-                  >
-                    {isActive && (
-                      <motion.span
-                        layoutId="navPill"
-                        transition={{ type: 'spring', stiffness: 420, damping: 34 }}
-                        className="absolute inset-0 rounded-full bg-white shadow-sm"
-                      />
+                    className={cn(
+                      'group relative whitespace-nowrap px-3.5 py-2 text-[13px] font-semibold uppercase tracking-[0.08em] transition-colors duration-300',
+                      isActive ? 'text-primary' : 'text-ink/60 hover:text-ink'
                     )}
-                    <span className={cn('relative', isActive ? 'text-ink' : 'text-white/55 hover:text-white')}>{l.label}</span>
+                  >
+                    {l.label}
+                    {/* Minimal underline: grows from the center on hover, persists when active */}
+                    <span
+                      className={cn(
+                        'pointer-events-none absolute -bottom-0.5 left-1/2 h-0.5 -translate-x-1/2 rounded-full bg-primary transition-all duration-300 ease-premium',
+                        isActive ? 'w-6 opacity-100' : 'w-0 opacity-0 group-hover:w-6 group-hover:opacity-100'
+                      )}
+                    />
                   </button>
                 );
               })}
@@ -405,21 +410,50 @@ const LandingPage = () => {
       </AnimatePresence>
 
       {/* ============================== HERO ============================== */}
-      <section className="relative isolate overflow-hidden bg-white">
-        {/* Minimal ambient wash */}
-        <div aria-hidden className="pointer-events-none absolute -right-40 -top-40 -z-10 h-[560px] w-[560px] rounded-full bg-mint/[0.10] blur-[150px]" />
-        <div aria-hidden className="pointer-events-none absolute -left-40 top-1/4 -z-10 h-[440px] w-[440px] rounded-full bg-primary/[0.06] blur-[150px]" />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 -z-10 opacity-70"
-          style={{
-            backgroundImage:
-              'linear-gradient(to right, rgba(16,96,67,0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(16,96,67,0.06) 1px, transparent 1px)',
-            backgroundSize: '56px 56px',
-            maskImage: 'radial-gradient(ellipse 70% 55% at 50% 0%, #000 25%, transparent 100%)',
-            WebkitMaskImage: 'radial-gradient(ellipse 70% 55% at 50% 0%, #000 25%, transparent 100%)',
-          }}
-        />
+      <section className="relative isolate overflow-hidden bg-gradient-to-b from-[#8CC6F5] via-[#B7DEFB] to-[#EAF4FE]">
+        {/* Soft sun glow */}
+        <div aria-hidden className="pointer-events-none absolute -top-24 right-[10%] -z-10 h-[440px] w-[440px] rounded-full bg-white/70 blur-[130px]" />
+        <div aria-hidden className="pointer-events-none absolute -left-32 top-1/3 -z-10 h-[380px] w-[380px] rounded-full bg-mint/15 blur-[150px]" />
+
+        {/* Clouds stuck to the TOP edge — pushed up so only their lower ~30-35%
+            peeks down (like the underside of clouds overhead). Overlapping mix of
+            both images, kept at natural aspect, with a soft lower edge. */}
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[70%] overflow-hidden">
+          {[
+            { left: '-16%', w: 56, op: 0.6, dur: 88, dx: 14, ty: -42 },
+            { left: '-5%', w: 50, op: 0.5, dur: 118, dx: -10, ty: -48 },
+            { left: '6%', w: 58, op: 0.62, dur: 96, dx: 18, ty: -40 },
+            { left: '18%', w: 52, op: 0.52, dur: 108, dx: -14, ty: -47 },
+            { left: '30%', w: 58, op: 0.62, dur: 92, dx: 16, ty: -41 },
+            { left: '42%', w: 52, op: 0.5, dur: 122, dx: -12, ty: -49 },
+            { left: '54%', w: 56, op: 0.6, dur: 98, dx: 18, ty: -42 },
+            { left: '65%', w: 52, op: 0.52, dur: 112, dx: -14, ty: -47 },
+            { left: '76%', w: 58, op: 0.62, dur: 90, dx: 16, ty: -40 },
+            { left: '87%', w: 52, op: 0.5, dur: 116, dx: -12, ty: -48 },
+            { left: '96%', w: 56, op: 0.6, dur: 100, dx: 14, ty: -43 },
+          ].map((c, i) => (
+            <motion.img
+              key={i}
+              src="/images/cloud-img.png"
+              alt=""
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
+              className="absolute max-w-none select-none"
+              style={{
+                left: c.left,
+                top: 0,
+                width: `${c.w}%`,
+                opacity: c.op,
+                y: `${c.ty}%`,
+                maskImage: 'linear-gradient(to bottom, #000 0%, #000 82%, transparent 100%)',
+                WebkitMaskImage: 'linear-gradient(to bottom, #000 0%, #000 82%, transparent 100%)',
+              }}
+              animate={reduce ? undefined : { x: [0, c.dx, 0] }}
+              transition={{ duration: c.dur, repeat: Infinity, ease: 'easeInOut' }}
+            />
+          ))}
+        </div>
 
         {/* Signature branded plane: flies in from the left on load, then drifts
             diagonally up-right as you scroll. Rests ~20% off the left edge.
@@ -443,7 +477,7 @@ const LandingPage = () => {
             onError={(e) => {
               e.currentTarget.style.display = 'none';
             }}
-            className="relative w-full drop-shadow-[0_26px_40px_rgba(4,48,31,0.30)]"
+            className="relative w-full drop-shadow-[0_26px_40px_rgba(11,36,71,0.30)]"
           />
         </motion.div>
 
@@ -463,7 +497,7 @@ const LandingPage = () => {
             {/* Big gradient headline */}
             <motion.h1
               variants={heroItem}
-              className="mx-auto mt-8 max-w-[16ch] text-[clamp(2.75rem,8vw,5.75rem)] font-bold leading-[0.98] tracking-[-0.03em]"
+              className="mx-auto mt-8 max-w-[16ch] text-[clamp(2.75rem,8vw,5.75rem)] font-extrabold leading-[0.98] tracking-[-0.03em]"
             >
               <span className="bg-gradient-to-br from-ink via-primary to-mint bg-clip-text text-transparent">
                 The booking desk built for travel agencies
@@ -554,21 +588,23 @@ const LandingPage = () => {
                   key={s.title}
                   variants={fadeUp}
                   className={cn(
-                    'group relative overflow-hidden rounded-xl border bg-white p-8 shadow-card transition-all duration-300 ease-premium hover:-translate-y-1 hover:shadow-premium',
+                    'group relative overflow-hidden rounded-2xl border border-neutral-200 bg-white p-7 shadow-card transition-all duration-300 ease-premium hover:-translate-y-1.5 hover:shadow-premium',
                     tone.border
                   )}
                 >
-                  <span className={cn('absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 transition-transform duration-300 ease-premium group-hover:scale-x-100', tone.bar)} />
-                  <div className="flex items-start justify-between">
-                    <div className={cn('flex h-12 w-12 items-center justify-center rounded-lg border transition-all duration-300 ease-premium group-hover:scale-105', tone.chip)}>
-                      <Icon size={22} />
+                  {/* Hover wash */}
+                  <span className="pointer-events-none absolute inset-0 bg-gradient-to-br from-transparent to-primary-50/70 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                  {/* Big ghost number */}
+                  <span className={cn('pointer-events-none absolute right-5 top-5 font-display text-[54px] font-extrabold leading-none tracking-tight text-neutral-100 transition-colors duration-300', tone.ghost)}>
+                    {s.no}
+                  </span>
+                  <div className="relative">
+                    <div className={cn('flex h-14 w-14 items-center justify-center rounded-2xl text-white transition-all duration-300 ease-premium group-hover:-translate-y-0.5 group-hover:scale-105', tone.tile)}>
+                      <Icon size={26} />
                     </div>
-                    <span className="font-mono text-xs font-medium text-neutral-300 transition-colors duration-300 group-hover:text-neutral-400">
-                      {s.no}
-                    </span>
+                    <h3 className="mt-6 text-lg font-semibold text-ink">{s.title}</h3>
+                    <p className="mt-2.5 text-sm leading-relaxed text-neutral-600">{s.body}</p>
                   </div>
-                  <h3 className="mt-6 text-lg font-semibold text-ink">{s.title}</h3>
-                  <p className="mt-2.5 text-sm leading-relaxed text-neutral-600">{s.body}</p>
                 </motion.article>
               );
             })}
@@ -607,12 +643,12 @@ const LandingPage = () => {
             {!reduce && (
               <motion.span
                 aria-hidden
-                className="absolute top-7 hidden -translate-x-1/2 -translate-y-1/2 text-primary lg:block"
+                className="absolute top-7 hidden -translate-x-1/2 -translate-y-1/2 lg:block"
                 initial={{ left: '2%' }}
                 animate={{ left: '98%' }}
                 transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1.2 }}
               >
-                <FiSend size={20} className="drop-shadow-[0_2px_6px_rgba(52,212,152,0.5)]" />
+                <span className="block h-4 w-4 rounded-full bg-gradient-brand shadow-glow ring-4 ring-primary/20" />
               </motion.span>
             )}
 
@@ -620,12 +656,12 @@ const LandingPage = () => {
               const Icon = s.icon;
               const tone = SERVICE_TONES[i % SERVICE_TONES.length];
               return (
-                <motion.li key={s.no} variants={fadeUp} className="relative">
+                <motion.li key={s.no} variants={fadeUp} className="group relative">
                   <div className="flex items-center gap-4">
-                    <div className={cn('relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border bg-white shadow-card transition-transform duration-300 ease-premium group-hover:scale-105', tone.chip)}>
-                      <Icon size={22} />
+                    <div className={cn('relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-white transition-transform duration-300 ease-premium group-hover:-translate-y-0.5 group-hover:scale-105', tone.tile)}>
+                      <Icon size={24} />
                     </div>
-                    <span className="font-mono text-4xl font-semibold text-neutral-200">{s.no}</span>
+                    <span className="font-display text-4xl font-extrabold text-neutral-200">{s.no}</span>
                   </div>
                   <h3 className="mt-6 text-lg font-semibold text-ink">{s.title}</h3>
                   <p className="mt-2.5 text-sm leading-relaxed text-neutral-600">{s.body}</p>
@@ -685,41 +721,35 @@ const LandingPage = () => {
             </motion.button>
           </motion.div>
 
-          <motion.div
-            variants={stagger}
-            initial="hidden"
-            whileInView="show"
-            viewport={viewport}
-            className="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
-          >
-            {DESTINATIONS.map((d) => (
-              <motion.div
-                key={d.city}
-                variants={fadeUp}
-                className="group relative aspect-[3/4] overflow-hidden rounded-md border border-white/10"
+        </div>
+
+        {/* Full-width auto-scrolling marquee — drifts right → left, pauses on hover */}
+        <div className="group relative mt-14 overflow-hidden">
+          <div className="flex w-max animate-marquee gap-5 px-5 [animation-direction:reverse] group-hover:[animation-play-state:paused] motion-reduce:animate-none sm:px-8">
+            {[...DESTINATIONS, ...DESTINATIONS].map((d, i) => (
+              <div
+                key={`${d.city}-${i}`}
+                className="group/card relative aspect-[3/4] w-64 shrink-0 overflow-hidden rounded-3xl border border-neutral-200 shadow-card sm:w-80"
               >
                 <img
                   src={d.img}
                   alt={d.alt}
                   loading="lazy"
                   onError={(e) => (e.currentTarget.src = '/images/placeholder-destination.svg')}
-                  className="h-full w-full object-cover transition-transform duration-[900ms] ease-premium group-hover:scale-105"
+                  className="h-full w-full object-cover transition-transform duration-700 ease-premium group-hover/card:scale-110"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#02150D] via-[#02150D]/30 to-transparent" />
-                <div className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" style={{ background: 'linear-gradient(to top, rgba(16,96,67,0.55), transparent 60%)' }} />
-
-                <span className="absolute right-4 top-4 rounded-sm border border-white/20 bg-black/30 px-2.5 py-1 font-mono text-xs font-semibold text-white backdrop-blur-md">
+                <div className="absolute inset-0 bg-gradient-to-t from-[#071A36] via-[#071A36]/25 to-transparent" />
+                <span className="absolute right-4 top-4 rounded-md border border-white/20 bg-black/30 px-2.5 py-1 font-mono text-xs font-semibold text-white backdrop-blur-md">
                   {d.code}
                 </span>
-
                 <div className="absolute inset-x-0 bottom-0 p-6">
-                  <div className="h-px w-8 bg-mint transition-all duration-500 ease-premium group-hover:w-16" />
+                  <div className="h-px w-8 bg-mint transition-all duration-500 ease-premium group-hover/card:w-16" />
                   <h3 className="mt-4 text-2xl font-semibold tracking-tightish text-white">{d.city}</h3>
                   <p className="mt-1 text-sm text-white/60">{d.country}</p>
                 </div>
-              </motion.div>
+              </div>
             ))}
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -772,10 +802,10 @@ const LandingPage = () => {
                   <motion.div
                     key={f.title}
                     variants={fadeUp}
-                    className={cn('group rounded-xl border bg-white p-7 shadow-card transition-all duration-300 ease-premium hover:-translate-y-1 hover:shadow-premium', tone.border)}
+                    className={cn('group rounded-2xl border border-neutral-200 bg-white p-7 shadow-card transition-all duration-300 ease-premium hover:-translate-y-1 hover:shadow-premium', tone.border)}
                   >
-                    <div className={cn('flex h-11 w-11 items-center justify-center rounded-lg border transition-transform duration-300 ease-premium group-hover:scale-110', tone.chip)}>
-                      <Icon size={20} />
+                    <div className={cn('flex h-12 w-12 items-center justify-center rounded-2xl text-white transition-transform duration-300 ease-premium group-hover:-translate-y-0.5 group-hover:scale-110', tone.tile)}>
+                      <Icon size={22} />
                     </div>
                     <h4 className="mt-5 text-base font-semibold text-ink">{f.title}</h4>
                     <p className="mt-2 text-sm leading-relaxed text-neutral-600">{f.body}</p>
@@ -813,33 +843,37 @@ const LandingPage = () => {
               initial="hidden"
               whileInView="show"
               viewport={viewport}
-              className="mx-auto mt-14 grid max-w-4xl grid-cols-1 gap-6 sm:grid-cols-2"
+              className="mx-auto mt-14 grid max-w-3xl grid-cols-1 gap-6 sm:grid-cols-2"
             >
               {LEADERSHIP.map((p) => (
                 <motion.div
                   key={p.name}
                   variants={fadeUp}
-                  className="group overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-card transition-all duration-300 ease-premium hover:-translate-y-1 hover:shadow-premium"
+                  className="group relative flex flex-col items-center overflow-hidden rounded-2xl border border-neutral-200 bg-white p-8 text-center shadow-card transition-all duration-300 ease-premium hover:-translate-y-1.5 hover:border-primary-200 hover:shadow-premium"
                 >
-                  <div className="relative aspect-[4/5] overflow-hidden bg-neutral-100">
-                    <img
-                      src={p.img}
-                      alt={p.alt}
-                      loading="lazy"
-                      onError={(e) => {
-                        e.currentTarget.src = '/images/placeholder-profile.svg';
-                      }}
-                      className="h-full w-full object-cover object-top transition-transform duration-[900ms] ease-premium group-hover:scale-[1.04]"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-forest-900/85 via-forest-900/10 to-transparent" />
-                    <span className="absolute bottom-4 left-5 rounded-full border border-mint/40 bg-forest/85 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-mint backdrop-blur-md">
-                      {p.role}
-                    </span>
+                  {/* Hover wash */}
+                  <span className="pointer-events-none absolute inset-0 bg-gradient-to-b from-primary-50/0 to-primary-50/50 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+
+                  {/* Circular photo with a gradient ring */}
+                  <div className="relative rounded-full bg-gradient-brand p-[3px] shadow-glow transition-transform duration-300 ease-premium group-hover:scale-105">
+                    <div className="rounded-full bg-white p-1">
+                      <img
+                        src={p.img}
+                        alt={p.alt}
+                        loading="lazy"
+                        onError={(e) => {
+                          e.currentTarget.src = '/images/placeholder-profile.svg';
+                        }}
+                        className="block h-36 w-36 rounded-full object-cover object-center sm:h-44 sm:w-44"
+                      />
+                    </div>
                   </div>
-                  <div className="p-7">
-                    <p className="text-lg font-semibold text-ink">{p.name}</p>
-                    <p className="mt-2.5 text-sm leading-relaxed text-neutral-600">{p.bio}</p>
-                  </div>
+
+                  <span className="relative mt-5 rounded-full border border-primary-200 bg-primary-50 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary-700">
+                    {p.role}
+                  </span>
+                  <p className="relative mt-3 text-lg font-semibold text-ink">{p.name}</p>
+                  <p className="relative mt-2.5 max-w-xs text-sm leading-relaxed text-neutral-600">{p.bio}</p>
                 </motion.div>
               ))}
             </motion.div>
@@ -995,7 +1029,7 @@ const LandingPage = () => {
       </section>
 
       {/* ============================== CTA ============================== */}
-      <section className="relative isolate overflow-hidden bg-[#02150D] py-24 lg:py-28">
+      <section className="relative isolate overflow-hidden bg-[#071A36] py-24 lg:py-28">
         <div aria-hidden className="pointer-events-none absolute left-1/2 top-0 h-[400px] w-[700px] -translate-x-1/2 rounded-full bg-primary/30 blur-[140px]" />
         <div aria-hidden className="pointer-events-none absolute bottom-0 right-1/4 h-64 w-64 rounded-full bg-mint/10 blur-[130px]" />
         <motion.div
@@ -1028,7 +1062,7 @@ const LandingPage = () => {
             <div>
               <div className="flex items-center gap-3">
                 <span className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-sm border border-white/15 bg-white/[0.06]">
-                  <img src="/assets/logo2.png" alt="" className="h-6 w-6 object-contain" />
+                  <img src="/assets/shuraim-favicon.png" alt="" className="h-6 w-6 object-contain" />
                 </span>
                 <span className="leading-tight">
                   <span className="block text-base font-semibold text-white">Shuraim</span>
@@ -1132,6 +1166,37 @@ const LandingPage = () => {
           </div>
         </div>
       </footer>
+
+      {/* Persistent progressive blur along the bottom of the viewport — many thin
+          layers so the blur ramps up smoothly toward the edge (content emerges from
+          the frosted fade as you scroll). Visual only, sits below the nav. */}
+      <div aria-hidden className="pointer-events-none fixed inset-x-0 bottom-0 z-40 h-[80px] sm:h-[111px]">
+        {[
+          { blur: 0.6, from: 0 },
+          { blur: 1.5, from: 16 },
+          { blur: 3, from: 30 },
+          { blur: 6, from: 44 },
+          { blur: 12, from: 58 },
+          { blur: 22, from: 72 },
+          { blur: 40, from: 86 },
+        ].map((l, i) => {
+          const mask = `linear-gradient(to bottom, transparent ${l.from}%, #000 ${Math.min(l.from + 20, 100)}%)`;
+          return (
+            <div
+              key={i}
+              className="absolute inset-0"
+              style={{
+                backdropFilter: `blur(${l.blur}px)`,
+                WebkitBackdropFilter: `blur(${l.blur}px)`,
+                maskImage: mask,
+                WebkitMaskImage: mask,
+              }}
+            />
+          );
+        })}
+        {/* Whisper-soft light lift at the very bottom for extra smoothness */}
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-white/25 to-transparent" />
+      </div>
     </div>
   );
 };

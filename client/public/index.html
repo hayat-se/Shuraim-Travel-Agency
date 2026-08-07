@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#0B5CFF" />
+    <meta name="theme-color" content="#2680EB" />
     <meta
       name="description"
       content="Shuraim Air Travel & Tours — B2B flight booking portal for travel agencies."
@@ -11,9 +11,18 @@
 
     <title>Shuraim Air Travel &amp; Tours</title>
 
-    <!-- Favicon -->
-    <link rel="icon" href="%PUBLIC_URL%/assets/favicon-32x32.png" type="image/png" />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/assets/favicon-32x32.png" />
+    <!-- Favicon (Shuraim) — served from the site root so Google/browsers find it -->
+    <link rel="icon" type="image/png" sizes="any" href="%PUBLIC_URL%/favicon.png" />
+    <link rel="shortcut icon" type="image/png" href="%PUBLIC_URL%/favicon.png" />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/favicon.png" />
+
+    <!-- Social share preview (WhatsApp, Facebook, etc.) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://shuraimtravel.com" />
+    <meta property="og:title" content="Shuraim Air Travel &amp; Tours" />
+    <meta property="og:description" content="B2B flight booking portal for travel agencies." />
+    <meta property="og:image" content="%PUBLIC_URL%/favicon.png" />
+    <meta name="twitter:card" content="summary" />
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

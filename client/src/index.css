@@ -1,13 +1,9 @@
-/* Self-hosted fonts (no CDN — avoids the FontAwesome-style 403s) */
-/* Inter — display / headings (kept for the hero + section titles) */
-@import '@fontsource/inter/500.css';
-@import '@fontsource/inter/600.css';
-@import '@fontsource/inter/700.css';
-/* Plus Jakarta Sans — body, UI and all the small text (nicer at small sizes) */
-@import '@fontsource/plus-jakarta-sans/400.css';
-@import '@fontsource/plus-jakarta-sans/500.css';
-@import '@fontsource/plus-jakarta-sans/600.css';
-@import '@fontsource/plus-jakarta-sans/700.css';
+/* Self-hosted Manrope — used across the whole site (headings + body) */
+@import '@fontsource/manrope/400.css';
+@import '@fontsource/manrope/500.css';
+@import '@fontsource/manrope/600.css';
+@import '@fontsource/manrope/700.css';
+@import '@fontsource/manrope/800.css';
 
 @tailwind base;
 @tailwind components;
@@ -24,8 +20,8 @@
     @apply bg-neutral-100 text-neutral-800 font-sans antialiased;
     /* Very quiet mint wash so large surfaces don't read as flat gray */
     background-image:
-      radial-gradient(1200px 600px at 100% -10%, rgba(52, 212, 152, 0.07), transparent 60%),
-      radial-gradient(900px 500px at -10% 0%, rgba(16, 96, 67, 0.05), transparent 55%);
+      radial-gradient(1200px 600px at 100% -10%, rgba(56, 189, 248, 0.08), transparent 60%),
+      radial-gradient(900px 500px at -10% 0%, rgba(38, 128, 235, 0.05), transparent 55%);
     background-attachment: fixed;
   }
 

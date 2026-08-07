@@ -1,55 +1,55 @@
 /** @type {import('tailwindcss').Config} */
 // Design system for Shuraim Air Travel & Tours.
-// Premium travel-tech brand: deep forest green primary, emerald/mint accent,
-// warm sand neutrals, gold highlight, soft rounded geometry, glass + gradient surfaces.
+// Sky-blue brand: azure primary, deep navy ink, sky-cyan accent — tuned to sit on
+// a sky + clouds hero. Token NAMES are unchanged so the whole app re-themes at once.
 module.exports = {
   content: ['./src/**/*.{js,jsx,ts,tsx}', './public/index.html'],
   theme: {
     extend: {
       colors: {
-        // Brand green (actions, links, active nav) — DEFAULT is the brand mark #106043
+        // Brand azure (actions, links, active nav) — DEFAULT is the brand mark
         primary: {
-          DEFAULT: '#106043',
-          50: '#EFFBF6',
-          100: '#D7F4E9',
-          200: '#B0E8D3',
-          300: '#7BD5B4',
-          400: '#34C18D',
-          500: '#106043',
-          600: '#0C5037',
-          700: '#093F2B',
-          800: '#063222',
-          900: '#04301F',
-          950: '#021C12',
+          DEFAULT: '#2680EB',
+          50: '#EAF3FE',
+          100: '#D3E6FD',
+          200: '#A9CEFB',
+          300: '#79B0F7',
+          400: '#4A92F1',
+          500: '#2680EB',
+          600: '#1A66C7',
+          700: '#154F9C',
+          800: '#123F79',
+          900: '#0F2E56',
+          950: '#0A1F3D',
         },
 
-        // Deep forest — sidebar, headings, overlays
+        // Deep navy — sidebar, headings, overlays, dark sections
         forest: {
-          DEFAULT: '#04301F',
-          700: '#06452D',
-          800: '#053825',
-          900: '#022114',
+          DEFAULT: '#0B2447',
+          700: '#12325E',
+          800: '#0D2749',
+          900: '#071A36',
         },
 
-        // Mint accent — highlights, positive deltas, glow
+        // Sky-cyan accent — highlights, positive deltas, glow (matches sky & clouds)
         mint: {
-          DEFAULT: '#34D498',
-          50: '#EAFBF3',
-          100: '#CFF6E4',
-          200: '#A2EDCB',
-          300: '#67E1AC',
-          400: '#34D498',
-          500: '#34D498',
-          600: '#1FB57D',
-          700: '#178F63',
+          DEFAULT: '#38BDF8',
+          50: '#EAF7FF',
+          100: '#D3EEFE',
+          200: '#A6DDFC',
+          300: '#6FC8FA',
+          400: '#38BDF8',
+          500: '#38BDF8',
+          600: '#1C9FE0',
+          700: '#167DB5',
         },
 
-        // Text/heading ink — forest-tinted, never pure black
+        // Text/heading ink — deep navy, never pure black
         ink: {
-          DEFAULT: '#04301F',
-          700: '#0C4A32',
-          800: '#083826',
-          900: '#021A11',
+          DEFAULT: '#0B2447',
+          700: '#14335E',
+          800: '#0E2749',
+          900: '#071A36',
         },
 
         success: {
@@ -71,23 +71,22 @@ module.exports = {
           700: '#991B1B',
         },
 
-        // Single neutral family, very slightly green-tinted so grays sit with the brand
+        // Single neutral family — cool blue-slate so grays sit with the brand
         neutral: {
-          50: '#F7FAF8',
-          100: '#EFF4F1',
-          200: '#E1E9E5',
-          300: '#C7D4CD',
-          400: '#94A79D',
-          500: '#6B7F76',
-          600: '#4F615A',
-          700: '#3A4A44',
-          800: '#26332E',
-          900: '#16211C',
-          950: '#0C1310',
+          50: '#F8FAFC',
+          100: '#F1F5F9',
+          200: '#E2E8F0',
+          300: '#CBD5E1',
+          400: '#94A3B8',
+          500: '#64748B',
+          600: '#475569',
+          700: '#334155',
+          800: '#1E293B',
+          900: '#0F172A',
+          950: '#080F1D',
         },
 
-        // Warm sand neutral — used for light section backgrounds/text on the
-        // marketing pages so they don't inherit the cool green-gray tint above.
+        // Warm sand — retained for any legacy references (unused in the blue theme)
         sand: {
           25: '#FEFCF9',
           50: '#FBF7F0',
@@ -102,8 +101,7 @@ module.exports = {
           900: '#241F17',
         },
 
-        // Gold/champagne — a second accent so the palette isn't mint-on-everything.
-        // Used sparingly: ratings, dividers, premium badges, a warm CTA option.
+        // Secondary accent — retained for legacy references (unused in the blue theme)
         gold: {
           DEFAULT: '#C9A24B',
           50: '#FBF4E3',
@@ -118,10 +116,9 @@ module.exports = {
       },
 
       fontFamily: {
-        // Body / UI / small text — warmer and more legible at small sizes.
-        sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
-        // Headings / hero — kept on Inter (the look you liked).
-        display: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+        // Manrope across the whole site (headings + body).
+        sans: ['Manrope', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+        display: ['Manrope', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
       },
 
       fontSize: {
@@ -138,42 +135,42 @@ module.exports = {
         tightish: '-0.011em',
       },
 
-      // Gradients used across buttons, cards, headers and chips
+      // Gradients used across buttons, cards, headers and chips (blue theme)
       backgroundImage: {
-        'gradient-brand': 'linear-gradient(135deg, #147953 0%, #106043 52%, #0A4630 100%)',
-        'gradient-brand-hover': 'linear-gradient(135deg, #178C60 0%, #12694A 52%, #0C5037 100%)',
-        'gradient-forest': 'linear-gradient(160deg, #06452D 0%, #04301F 60%, #022114 100%)',
-        'gradient-mint': 'linear-gradient(135deg, #4FE0A8 0%, #34D498 55%, #1FB57D 100%)',
+        'gradient-brand': 'linear-gradient(135deg, #3A8FF0 0%, #2680EB 52%, #1A66C7 100%)',
+        'gradient-brand-hover': 'linear-gradient(135deg, #4A9BF5 0%, #2E86EE 52%, #1F72D6 100%)',
+        'gradient-forest': 'linear-gradient(160deg, #12325E 0%, #0B2447 60%, #071A36 100%)',
+        'gradient-mint': 'linear-gradient(135deg, #6FD0FB 0%, #38BDF8 55%, #1C9FE0 100%)',
         'gradient-gold': 'linear-gradient(135deg, #EAD08C 0%, #C9A24B 55%, #AD873A 100%)',
         // Soft surface washes
-        'gradient-surface': 'linear-gradient(180deg, #FFFFFF 0%, #F4FBF7 100%)',
-        'gradient-header': 'linear-gradient(180deg, #F2FAF6 0%, #EAF6F0 100%)',
-        'gradient-chip': 'linear-gradient(135deg, #E4F6EC 0%, #CFF0E0 100%)',
-        // Warm marketing-page surfaces — replace flat white/gray with life
-        'gradient-sand': 'linear-gradient(180deg, #FEFCF9 0%, #FBF7F0 55%, #F5EEE1 100%)',
-        'gradient-dusk': 'linear-gradient(160deg, #093F2B 0%, #052A1C 55%, #02150D 100%)',
+        'gradient-surface': 'linear-gradient(180deg, #FFFFFF 0%, #F3F8FF 100%)',
+        'gradient-header': 'linear-gradient(180deg, #F2F8FF 0%, #E8F2FE 100%)',
+        'gradient-chip': 'linear-gradient(135deg, #E6F2FE 0%, #D0E6FD 100%)',
+        // Marketing-page surfaces
+        'gradient-sand': 'linear-gradient(180deg, #FBFDFF 0%, #F3F8FF 55%, #E9F2FE 100%)',
+        'gradient-dusk': 'linear-gradient(160deg, #12325E 0%, #0B2447 55%, #071A36 100%)',
         'gradient-hero-glow':
-          'radial-gradient(1100px 620px at 82% -8%, rgba(52,212,152,0.20), transparent 60%), radial-gradient(760px 520px at -8% 18%, rgba(201,162,75,0.14), transparent 55%), linear-gradient(165deg, #06452D 0%, #04301F 55%, #021A11 100%)',
+          'radial-gradient(1100px 620px at 82% -8%, rgba(56,189,248,0.22), transparent 60%), radial-gradient(760px 520px at -8% 18%, rgba(38,128,235,0.16), transparent 55%), linear-gradient(165deg, #12325E 0%, #0B2447 55%, #071A36 100%)',
         // Glass + sheen
-        'gradient-glass': 'linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(244,251,247,0.65) 100%)',
+        'gradient-glass': 'linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(243,248,255,0.65) 100%)',
         'gradient-glass-dark': 'linear-gradient(135deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.03) 100%)',
         'gradient-sheen': 'linear-gradient(100deg, rgba(255,255,255,0) 20%, rgba(255,255,255,0.28) 50%, rgba(255,255,255,0) 80%)',
-        'gradient-hairline': 'linear-gradient(90deg, rgba(52,212,152,0) 0%, rgba(52,212,152,0.9) 50%, rgba(52,212,152,0) 100%)',
+        'gradient-hairline': 'linear-gradient(90deg, rgba(56,189,248,0) 0%, rgba(56,189,248,0.9) 50%, rgba(56,189,248,0) 100%)',
         'gradient-hairline-gold': 'linear-gradient(90deg, rgba(201,162,75,0) 0%, rgba(201,162,75,0.85) 50%, rgba(201,162,75,0) 100%)',
       },
 
       boxShadow: {
-        // Quiet, layered, forest-tinted — never black
-        card: '0 1px 2px 0 rgba(4, 48, 31, 0.05), 0 1px 3px 0 rgba(4, 48, 31, 0.07)',
-        'card-hover': '0 6px 16px -6px rgba(4, 48, 31, 0.16), 0 2px 6px -2px rgba(4, 48, 31, 0.08)',
-        pop: '0 18px 40px -12px rgba(4, 48, 31, 0.28), 0 4px 12px -4px rgba(4, 48, 31, 0.12)',
-        premium: '0 24px 60px -16px rgba(4, 48, 31, 0.32), 0 8px 24px -8px rgba(4, 48, 31, 0.14)',
-        glow: '0 8px 20px -8px rgba(16, 96, 67, 0.55)',
-        'glow-mint': '0 8px 22px -8px rgba(52, 212, 152, 0.55)',
+        // Quiet, layered, navy-tinted — never black
+        card: '0 1px 2px 0 rgba(11, 36, 71, 0.05), 0 1px 3px 0 rgba(11, 36, 71, 0.07)',
+        'card-hover': '0 6px 16px -6px rgba(11, 36, 71, 0.16), 0 2px 6px -2px rgba(11, 36, 71, 0.08)',
+        pop: '0 18px 40px -12px rgba(11, 36, 71, 0.28), 0 4px 12px -4px rgba(11, 36, 71, 0.12)',
+        premium: '0 24px 60px -16px rgba(11, 36, 71, 0.32), 0 8px 24px -8px rgba(11, 36, 71, 0.14)',
+        glow: '0 8px 20px -8px rgba(38, 128, 235, 0.55)',
+        'glow-mint': '0 8px 22px -8px rgba(56, 189, 248, 0.55)',
         'glow-gold': '0 8px 24px -8px rgba(201, 162, 75, 0.5)',
-        'inner-soft': 'inset 0 1px 2px 0 rgba(4, 48, 31, 0.06)',
-        'row-active': 'inset 3px 0 0 0 #106043',
-        header: '0 1px 0 0 rgba(4, 48, 31, 0.06)',
+        'inner-soft': 'inset 0 1px 2px 0 rgba(11, 36, 71, 0.06)',
+        'row-active': 'inset 3px 0 0 0 #2680EB',
+        header: '0 1px 0 0 rgba(11, 36, 71, 0.06)',
       },
 
       backdropBlur: {
@@ -197,6 +194,11 @@ module.exports = {
           '0%': { transform: 'translateX(-100%)' },
           '100%': { transform: 'translateX(100%)' },
         },
+        // Marquee: content enters from the left, exits to the right (rightward drift)
+        marquee: {
+          '0%': { transform: 'translateX(-50%)' },
+          '100%': { transform: 'translateX(0)' },
+        },
       },
 
       animation: {
@@ -204,6 +206,7 @@ module.exports = {
         'fade-in-up': 'fade-in-up 0.35s cubic-bezier(0.16, 1, 0.3, 1) both',
         'scale-in': 'scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) both',
         shimmer: 'shimmer 1.8s ease-in-out infinite',
+        marquee: 'marquee 32s linear infinite',
       },
 
       transitionTimingFunction: {
@@ -211,7 +214,7 @@ module.exports = {
       },
     },
 
-    // Soft, premium radius scale — replaces the old all-sharp 2px system.
+    // Soft, premium radius scale.
     borderRadius: {
       none: '0px',
       sm: '6px',
