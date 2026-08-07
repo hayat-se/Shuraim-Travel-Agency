@@ -258,7 +258,7 @@ const LandingPage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#071A36] text-neutral-700 antialiased">
+    <div className="min-h-screen overflow-x-hidden bg-[#071A36] text-neutral-700 antialiased">
       {/* ============================== NAV ============================== */}
       <motion.nav
         initial={{ y: reduce ? 0 : -80, opacity: 0 }}
@@ -461,7 +461,7 @@ const LandingPage = () => {
         <motion.div
           aria-hidden
           style={reduce ? undefined : { x: planeX, y: planeY, rotate: planeRotate, scale: planeScale, opacity: planeOpacity, zIndex: planeZ }}
-          className="pointer-events-none absolute left-[-8%] top-[54vh] z-0 w-[clamp(300px,38vw,600px)]"
+          className="pointer-events-none absolute left-[-8%] top-[54vh] z-0 hidden w-[clamp(300px,38vw,600px)] lg:block"
         >
           {/* Soft cast shadow that travels with the plane (behind it) */}
           <span
