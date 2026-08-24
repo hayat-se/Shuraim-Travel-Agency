@@ -1,9 +1,15 @@
-/* Self-hosted Manrope — used across the whole site (headings + body) */
+/* Body text — self-hosted Manrope */
 @import '@fontsource/manrope/400.css';
 @import '@fontsource/manrope/500.css';
 @import '@fontsource/manrope/600.css';
 @import '@fontsource/manrope/700.css';
 @import '@fontsource/manrope/800.css';
+
+/* Headings / display — self-hosted Sora (premium geometric) */
+@import '@fontsource/sora/500.css';
+@import '@fontsource/sora/600.css';
+@import '@fontsource/sora/700.css';
+@import '@fontsource/sora/800.css';
 
 @tailwind base;
 @tailwind components;
@@ -81,6 +87,38 @@
   /* Frosted panel for use on dark/forest surfaces (hero, dusk sections) */
   .glass-dark {
     @apply border border-white/15 bg-gradient-glass-dark shadow-premium backdrop-blur-xl;
+  }
+
+  /* Premium glass card — translucent frosted surface for landing cards.
+     Sits over section radial-glows so brand tint shows through; a top sheen
+     line gives it the signature glass highlight. */
+  .glass-card {
+    @apply relative overflow-hidden rounded-2xl border border-white/70
+           bg-gradient-to-br from-white/85 via-white/70 to-white/55
+           shadow-[0_10px_36px_-14px_rgba(11,36,71,0.20)]
+           backdrop-blur-xl backdrop-saturate-150
+           transition-all duration-300 ease-premium;
+  }
+  .glass-card::before {
+    content: '';
+    @apply pointer-events-none absolute inset-x-6 top-0 h-px
+           bg-gradient-to-r from-transparent via-white to-transparent;
+  }
+  .glass-card:hover {
+    @apply border-white/90 shadow-[0_24px_60px_-16px_rgba(11,36,71,0.32)];
+  }
+
+  /* Dark variant for glass cards over the deep-navy hero/CTA sections */
+  .glass-card-dark {
+    @apply relative overflow-hidden rounded-2xl border border-white/15
+           bg-white/[0.07] shadow-[0_18px_50px_-16px_rgba(0,0,0,0.5)]
+           backdrop-blur-xl backdrop-saturate-150
+           transition-all duration-300 ease-premium;
+  }
+  .glass-card-dark::before {
+    content: '';
+    @apply pointer-events-none absolute inset-x-6 top-0 h-px
+           bg-gradient-to-r from-transparent via-white/40 to-transparent;
   }
 
   /* 1px mint hairline used as a section/card accent */

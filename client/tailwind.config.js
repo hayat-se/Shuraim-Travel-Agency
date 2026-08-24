@@ -116,9 +116,9 @@ module.exports = {
       },
 
       fontFamily: {
-        // Manrope across the whole site (headings + body).
+        // Body: Manrope. Headings/display: Sora (premium geometric).
         sans: ['Manrope', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
-        display: ['Manrope', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+        display: ['Sora', 'Manrope', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
       },
 
       fontSize: {

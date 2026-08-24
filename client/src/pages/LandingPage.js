@@ -159,10 +159,12 @@ const LandingPage = () => {
   const reduce = useReducedMotion();
   const [menuOpen, setMenuOpen] = useState(false);
   const [active, setActive] = useState('home');
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     const ids = ['services', 'how-it-works', 'destinations', 'about', 'contact'];
     const onScroll = () => {
+      setScrolled(window.scrollY > 16);
       const probe = window.scrollY + 140;
       let current = 'home';
       for (const id of ids) {
@@ -266,7 +268,19 @@ const LandingPage = () => {
         transition={{ duration: reduce ? 0 : 0.7, ease }}
         className="fixed inset-x-0 top-0 z-50"
       >
-        <div className="mx-auto flex max-w-[1340px] items-center justify-between gap-5 px-5 pt-5 sm:px-8">
+        <div className="mx-auto max-w-[1340px] px-4 pt-3 sm:px-6 sm:pt-4">
+          <div
+            className={cn(
+              'relative flex items-center justify-between gap-5 rounded-2xl border px-4 py-2.5 transition-all duration-500 ease-premium sm:px-5',
+              // Frosted glass: translucent, blurred, saturated — deepens once scrolled
+              'bg-white/55 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-white/45',
+              scrolled
+                ? 'border-white/60 bg-white/70 shadow-[0_10px_40px_-12px_rgba(11,36,71,0.28)] supports-[backdrop-filter]:bg-white/60'
+                : 'border-white/40 shadow-[0_6px_28px_-14px_rgba(11,36,71,0.22)]'
+            )}
+          >
+            {/* Top edge highlight — the signature glass sheen */}
+            <span aria-hidden className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
           {/* Brand */}
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -329,10 +343,11 @@ const LandingPage = () => {
             onClick={toggleMenu}
             aria-label="Open menu"
             aria-expanded={menuOpen}
-            className="rounded-full border border-neutral-200 bg-white p-3 text-ink shadow-card transition-colors duration-200 hover:bg-neutral-100 lg:hidden"
+            className="rounded-xl border border-white/50 bg-white/40 p-2.5 text-ink backdrop-blur-md transition-colors duration-200 hover:bg-white/70 lg:hidden"
           >
-            <FiMenu size={24} />
+            <FiMenu size={22} />
           </button>
+          </div>
         </div>
       </motion.nav>
 
@@ -539,10 +554,10 @@ const LandingPage = () => {
             initial="hidden"
             whileInView="show"
             viewport={viewport}
-            className="mt-14 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-neutral-200 bg-neutral-200 lg:grid-cols-4"
+            className="mt-14 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/60 bg-white/40 shadow-[0_18px_50px_-18px_rgba(11,36,71,0.35)] backdrop-blur-xl backdrop-saturate-150 lg:grid-cols-4"
           >
             {STATS.map((s) => (
-              <motion.div key={s.label} variants={fadeUp} className="bg-white px-6 py-7 text-left sm:px-8">
+              <motion.div key={s.label} variants={fadeUp} className="bg-white/70 px-6 py-7 text-left backdrop-blur-md transition-colors duration-300 hover:bg-white/90 sm:px-8">
                 <p className="text-[clamp(1.75rem,3vw,2.5rem)] font-bold tracking-tightish">
                   <span className="bg-gradient-to-br from-ink via-primary to-mint bg-clip-text text-transparent">
                     <Counter value={s.value} prefix={s.prefix} suffix={s.suffix} reduce={reduce} />
@@ -588,7 +603,7 @@ const LandingPage = () => {
                   key={s.title}
                   variants={fadeUp}
                   className={cn(
-                    'group relative overflow-hidden rounded-2xl border border-neutral-200 bg-white p-7 shadow-card transition-all duration-300 ease-premium hover:-translate-y-1.5 hover:shadow-premium',
+                    'group glass-card p-7 hover:-translate-y-1.5',
                     tone.border
                   )}
                 >
@@ -802,7 +817,7 @@ const LandingPage = () => {
                   <motion.div
                     key={f.title}
                     variants={fadeUp}
-                    className={cn('group rounded-2xl border border-neutral-200 bg-white p-7 shadow-card transition-all duration-300 ease-premium hover:-translate-y-1 hover:shadow-premium', tone.border)}
+                    className={cn('group glass-card p-7 hover:-translate-y-1', tone.border)}
                   >
                     <div className={cn('flex h-12 w-12 items-center justify-center rounded-2xl text-white transition-transform duration-300 ease-premium group-hover:-translate-y-0.5 group-hover:scale-110', tone.tile)}>
                       <Icon size={22} />
@@ -849,7 +864,7 @@ const LandingPage = () => {
                 <motion.div
                   key={p.name}
                   variants={fadeUp}
-                  className="group relative flex flex-col items-center overflow-hidden rounded-2xl border border-neutral-200 bg-white p-8 text-center shadow-card transition-all duration-300 ease-premium hover:-translate-y-1.5 hover:border-primary-200 hover:shadow-premium"
+                  className="group glass-card flex flex-col items-center p-8 text-center hover:-translate-y-1.5"
                 >
                   {/* Hover wash */}
                   <span className="pointer-events-none absolute inset-0 bg-gradient-to-b from-primary-50/0 to-primary-50/50 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
@@ -918,9 +933,9 @@ const LandingPage = () => {
             {/* Phone card */}
             <motion.div
               variants={fadeUp}
-              className="relative overflow-hidden rounded-xl border border-neutral-200 bg-white p-8 shadow-card transition-shadow duration-300 hover:shadow-premium sm:p-10"
+              className="glass-card p-8 sm:p-10"
             >
-              <span className="absolute inset-x-0 top-0 h-0.5 bg-gradient-brand" />
+              <span className="absolute inset-x-0 top-0 z-10 h-0.5 bg-gradient-brand" />
               <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-primary-200 bg-gradient-chip text-primary-700">
                 <FiPhone size={22} />
               </div>
@@ -962,9 +977,9 @@ const LandingPage = () => {
             {/* Email & location card */}
             <motion.div
               variants={fadeUp}
-              className="relative overflow-hidden rounded-xl border border-neutral-200 bg-white p-8 shadow-card transition-shadow duration-300 hover:shadow-premium sm:p-10"
+              className="glass-card p-8 sm:p-10"
             >
-              <span className="absolute inset-x-0 top-0 h-0.5 bg-gradient-mint" />
+              <span className="absolute inset-x-0 top-0 z-10 h-0.5 bg-gradient-mint" />
               <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-mint-200 bg-mint-50 text-primary-700">
                 <FiMail size={22} />
               </div>
