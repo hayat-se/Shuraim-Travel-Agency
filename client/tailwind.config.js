@@ -199,6 +199,15 @@ module.exports = {
           '0%': { transform: 'translateX(-50%)' },
           '100%': { transform: 'translateX(0)' },
         },
+        // Auth brand panel: slow horizontal cloud drift + gentle plane bob
+        'cloud-drift': {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(48px)' },
+        },
+        'plane-float': {
+          '0%, 100%': { transform: 'translateY(0) rotate(-4deg)' },
+          '50%': { transform: 'translateY(-12px) rotate(-4deg)' },
+        },
       },
 
       animation: {
@@ -207,6 +216,9 @@ module.exports = {
         'scale-in': 'scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) both',
         shimmer: 'shimmer 1.8s ease-in-out infinite',
         marquee: 'marquee 32s linear infinite',
+        'cloud-drift': 'cloud-drift 20s ease-in-out infinite alternate',
+        'cloud-drift-slow': 'cloud-drift 30s ease-in-out infinite alternate',
+        'plane-float': 'plane-float 7s ease-in-out infinite',
       },
 
       transitionTimingFunction: {
