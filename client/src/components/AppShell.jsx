@@ -4,7 +4,11 @@ import {
   FiGrid, FiUsers, FiSend, FiLayers, FiBriefcase, FiCreditCard, FiMessageSquare,
   FiBook, FiSearch, FiMenu, FiLogOut, FiList, FiPlus, FiHelpCircle, FiBell, FiClock, FiX,
 } from 'react-icons/fi';
+import { FaWhatsapp } from 'react-icons/fa';
 import { cn } from './ui/cn';
+
+// WhatsApp support (agencies only) — +92 343 3173386
+const WHATSAPP_SUPPORT = 'https://wa.me/923433173386?text=Hello%2C%20I%20need%20support%20with%20the%20Shuraim%20Air%20agency%20portal.';
 
 // Menu definitions — correct labels + destinations.
 const ADMIN_MENU = [
@@ -32,36 +36,34 @@ const AGENCY_MENU = [
 
 function SidebarContent({ menu, user, cta, onLogout, onNavigate }) {
   return (
-    <div className="flex h-full flex-col bg-ink py-6">
+    <div className="flex h-full flex-col bg-white py-5">
       {/* Brand */}
-      <div className="mb-8 px-6">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm bg-accent text-ink">
-            <FiSend size={20} />
-          </div>
+      <div className="mb-6 px-5">
+        <div className="flex items-center gap-2.5">
+          <img src="/assets/shuraim-favicon.png" alt="Shuraim Air" className="h-9 w-9 shrink-0 object-contain" />
           <div className="leading-tight">
-            <h1 className="text-lg font-semibold text-white">Shuraim Air</h1>
-            <p className="text-xs text-primary-200/80">Travel &amp; Tours</p>
+            <h1 className="text-[15px] font-bold text-ink">Shuraim Air</h1>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-primary">Travel &amp; Tours</p>
           </div>
         </div>
       </div>
 
       {/* Primary CTA */}
-      <div className="mb-6 px-6">
+      <div className="mb-5 px-4">
         <NavLink
           to={cta.path}
           onClick={onNavigate}
-          className="flex w-full items-center justify-center gap-2 rounded-sm bg-accent py-3 text-xs font-semibold text-ink transition-all duration-200 hover:bg-accent-light active:scale-95"
+          className="flex w-full items-center justify-center gap-2 rounded-sm bg-gradient-brand py-2.5 text-[13px] font-semibold text-white shadow-glow transition-all duration-200 hover:shadow-premium active:scale-95"
         >
-          <FiPlus size={16} /> {cta.label}
+          <FiPlus size={15} /> {cta.label}
         </NavLink>
       </div>
 
       {/* Links */}
-      <nav className="flex-1 space-y-1 overflow-y-auto px-4">
+      <nav className="flex-1 space-y-0.5 overflow-y-auto px-3">
         {menu.map((item, i) =>
           item.section ? (
-            <p key={`s-${i}`} className="px-3 pb-1 pt-4 text-xs font-semibold uppercase tracking-wider text-primary-200/50">
+            <p key={`s-${i}`} className="px-3 pb-1 pt-4 text-[10px] font-semibold uppercase tracking-wider text-neutral-400">
               {item.section}
             </p>
           ) : (
@@ -71,14 +73,14 @@ function SidebarContent({ menu, user, cta, onLogout, onNavigate }) {
               onClick={onNavigate}
               className={({ isActive }) =>
                 cn(
-                  'flex items-center gap-3 rounded-sm px-3 py-2.5 text-sm transition-all duration-200',
+                  'flex items-center gap-2.5 rounded-sm px-3 py-2 text-[13px] font-medium transition-all duration-200',
                   isActive
-                    ? 'border-l-4 border-accent bg-white/5 pl-2 font-medium text-accent'
-                    : 'text-primary-200 hover:bg-white/10 hover:text-white'
+                    ? 'border-l-4 border-primary bg-primary-50 pl-2 text-primary-700'
+                    : 'text-neutral-600 hover:bg-neutral-100 hover:text-ink'
                 )
               }
             >
-              <item.icon size={18} className="shrink-0" />
+              <item.icon size={17} className="shrink-0" />
               {item.label}
             </NavLink>
           )
@@ -86,18 +88,25 @@ function SidebarContent({ menu, user, cta, onLogout, onNavigate }) {
       </nav>
 
       {/* Footer */}
-      <div className="mt-auto space-y-1 border-t border-white/10 px-4 pt-4">
-        <div className="truncate px-3 pb-1 text-xs text-primary-200/60" title={user?.email}>
+      <div className="mt-auto space-y-0.5 border-t border-neutral-200 px-3 pt-3">
+        <div className="truncate px-3 pb-1 text-[11px] text-neutral-500" title={user?.email}>
           {user?.email}
         </div>
-        <button className="flex w-full items-center gap-3 rounded-sm px-3 py-2.5 text-sm text-primary-200 transition-colors hover:bg-white/10 hover:text-white">
-          <FiHelpCircle size={18} /> Support
-        </button>
+        {user?.role === 'agency' && (
+          <a
+            href={WHATSAPP_SUPPORT}
+            target="_blank"
+            rel="noreferrer"
+            className="flex w-full items-center gap-2.5 rounded-sm px-3 py-2 text-[13px] font-medium text-neutral-600 transition-colors hover:bg-green-50 hover:text-green-700"
+          >
+            <FaWhatsapp size={17} className="text-green-600" /> WhatsApp Support
+          </a>
+        )}
         <button
           onClick={onLogout}
-          className="flex w-full items-center gap-3 rounded-sm px-3 py-2.5 text-sm text-primary-200 transition-colors hover:bg-danger hover:text-white"
+          className="flex w-full items-center gap-2.5 rounded-sm px-3 py-2 text-[13px] font-medium text-neutral-600 transition-colors hover:bg-danger hover:text-white"
         >
-          <FiLogOut size={18} /> Logout
+          <FiLogOut size={17} /> Logout
         </button>
       </div>
     </div>
@@ -123,18 +132,18 @@ export default function AppShell({ user, setUser, children }) {
   return (
     <div className="flex h-screen overflow-hidden bg-neutral-50">
       {/* Desktop sidebar */}
-      <aside className="z-50 hidden w-[260px] shrink-0 border-r border-neutral-300 lg:block">
+      <aside className="z-50 hidden w-[224px] shrink-0 border-r border-neutral-200 lg:block">
         <SidebarContent menu={menu} user={user} cta={cta} onLogout={handleLogout} />
       </aside>
 
       {/* Mobile drawer */}
       {drawerOpen && (
         <>
-          <div className="fixed inset-0 z-40 bg-ink/50 lg:hidden" onClick={() => setDrawerOpen(false)} aria-hidden />
-          <aside className="fixed inset-y-0 left-0 z-50 w-[260px] lg:hidden">
+          <div className="fixed inset-0 z-40 bg-ink/40 lg:hidden" onClick={() => setDrawerOpen(false)} aria-hidden />
+          <aside className="fixed inset-y-0 left-0 z-50 w-[240px] border-r border-neutral-200 lg:hidden">
             <button
               onClick={() => setDrawerOpen(false)}
-              className="absolute right-3 top-5 z-10 rounded-sm p-1.5 text-primary-200 hover:bg-white/10"
+              className="absolute right-3 top-4 z-10 rounded-sm p-1.5 text-neutral-500 hover:bg-neutral-100"
               aria-label="Close menu"
             >
               <FiX size={20} />
@@ -147,7 +156,7 @@ export default function AppShell({ user, setUser, children }) {
       {/* Main column */}
       <div className="flex h-screen flex-1 flex-col overflow-hidden">
         {/* Top bar */}
-        <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-3 border-b border-neutral-200 bg-white px-5 shadow-sm lg:px-8">
+        <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-3 border-b border-neutral-200 bg-white px-4 shadow-sm lg:px-6">
           <button
             onClick={() => setDrawerOpen(true)}
             className="rounded-sm p-2 text-neutral-600 hover:bg-neutral-100 lg:hidden"
@@ -170,14 +179,14 @@ export default function AppShell({ user, setUser, children }) {
             {[FiBell, FiClock, FiHelpCircle].map((Icon, i) => (
               <button
                 key={i}
-                className="hidden h-10 w-10 items-center justify-center rounded-sm text-neutral-600 transition-colors hover:bg-neutral-100 active:scale-95 sm:flex"
+                className="hidden h-9 w-9 items-center justify-center rounded-sm text-neutral-600 transition-colors hover:bg-neutral-100 active:scale-95 sm:flex"
               >
-                <Icon size={19} />
+                <Icon size={18} />
               </button>
             ))}
             <NavLink
               to={cta.path}
-              className="hidden rounded-sm bg-primary px-4 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-primary-600 active:scale-95 sm:block"
+              className="hidden rounded-sm bg-primary px-3.5 py-1.5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-primary-600 active:scale-95 sm:block"
             >
               {cta.label}
             </NavLink>
@@ -187,7 +196,7 @@ export default function AppShell({ user, setUser, children }) {
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-5 lg:p-8">{children}</main>
+        <main className="flex-1 overflow-y-auto p-4 lg:p-6">{children}</main>
       </div>
     </div>
   );

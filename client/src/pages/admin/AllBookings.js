@@ -1,87 +1,104 @@
-
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
+import { FiCheck, FiXCircle } from 'react-icons/fi';
 import apiClient from '../../config/axiosConfig';
 import { API_ENDPOINTS } from '../../config/api';
+import { PageHeader, Table, Badge, Button, ConfirmDialog, useToast } from '../../components/ui';
 
-function AllBookings() {
+const PKR = (n) => `PKR ${Number(n || 0).toLocaleString()}`;
+
+export default function AllBookings() {
+  const toast = useToast();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState({});
+  const [busy, setBusy] = useState({});
+  const [cancelTarget, setCancelTarget] = useState(null);
+  const [cancelling, setCancelling] = useState(false);
 
   useEffect(() => {
     fetchBookings();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchBookings = async () => {
     setLoading(true);
     try {
       const res = await apiClient.get(API_ENDPOINTS.GET_ALL_BOOKINGS);
-      setBookings(res.data);
+      setBookings(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
+      toast.error(err.response?.data?.error || 'Error fetching bookings');
       setBookings([]);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
-  const handleConfirm = async (bookingId) => {
-    setActionLoading((prev) => ({ ...prev, [bookingId]: true }));
+  const confirmBooking = async (b) => {
+    setBusy((p) => ({ ...p, [b.bookingId]: true }));
     try {
-      await apiClient.put(`/api/bookings/${bookingId}/confirm`);
+      await apiClient.put(`/api/bookings/${b.bookingId}/confirm`);
+      toast.success(`Booking ${b.bookingId} confirmed & sold`);
       fetchBookings();
-    } catch (err) {}
-    setActionLoading((prev) => ({ ...prev, [bookingId]: false }));
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Error confirming booking');
+    } finally {
+      setBusy((p) => ({ ...p, [b.bookingId]: false }));
+    }
   };
 
-  const handleCancel = async (bookingId) => {
-    setActionLoading((prev) => ({ ...prev, [bookingId]: true }));
+  const cancelBooking = async () => {
+    if (!cancelTarget) return;
+    setCancelling(true);
     try {
-      await apiClient.put(`/api/bookings/${bookingId}/cancel`);
+      await apiClient.put(`/api/bookings/${cancelTarget.bookingId}/cancel`);
+      toast.success(`Booking ${cancelTarget.bookingId} cancelled`);
+      setCancelTarget(null);
       fetchBookings();
-    } catch (err) {}
-    setActionLoading((prev) => ({ ...prev, [bookingId]: false }));
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Error cancelling booking');
+    } finally {
+      setCancelling(false);
+    }
   };
+
+  const columns = [
+    { key: 'bookingId', header: 'Booking ID', render: (b) => <span className="font-mono font-medium text-primary">{b.bookingId}</span> },
+    { key: 'agency', header: 'Agency', render: (b) => b.agency?.agencyName || 'Guest' },
+    { key: 'flight', header: 'Flight', render: (b) => (b.flight ? `${b.flight.flightNumber} · ${b.flight.departureCity}→${b.flight.destinationCity}` : '—') },
+    { key: 'seatsBooked', header: 'Seats', render: (b) => b.seatsBooked },
+    { key: 'totalPrice', header: 'Amount', align: 'right', render: (b) => PKR(b.totalPrice) },
+    { key: 'status', header: 'Status', render: (b) => <Badge status={b.status} /> },
+    { key: 'createdAt', header: 'Created', render: (b) => new Date(b.createdAt).toLocaleDateString('en-GB') },
+    {
+      key: 'actions',
+      header: '',
+      align: 'right',
+      render: (b) =>
+        b.status === 'pending' ? (
+          <div className="flex justify-end gap-1.5">
+            <Button size="sm" variant="success" icon={<FiCheck size={13} />} loading={busy[b.bookingId]} onClick={() => confirmBooking(b)}>Confirm</Button>
+            <Button size="sm" variant="danger" icon={<FiXCircle size={13} />} disabled={busy[b.bookingId]} onClick={() => setCancelTarget(b)}>Cancel</Button>
+          </div>
+        ) : (
+          <span className="text-xs text-neutral-400">—</span>
+        ),
+    },
+  ];
 
   return (
     <div>
-      <h2>All Bookings</h2>
-      {loading ? (
-        <div>Loading...</div>
-      ) : (
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th>Booking ID</th>
-              <th>Agency</th>
-              <th>Flight</th>
-              <th>Status</th>
-              <th>Created</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {bookings.map((b) => (
-              <tr key={b.bookingId} style={{ background: b.status === 'pending' ? '#fffbe6' : b.status === 'sold' ? '#e6fff2' : 'white' }}>
-                <td>{b.bookingId}</td>
-                <td>{b.agency?.agencyName || '-'}</td>
-                <td>{b.flight?.flightNumber || '-'}</td>
-                <td style={{ fontWeight: b.status === 'sold' ? 'bold' : 'normal', color: b.status === 'sold' ? 'green' : 'inherit' }}>{b.status}</td>
-                <td>{new Date(b.createdAt).toLocaleString()}</td>
-                <td>
-                  {b.status === 'pending' && (
-                    <>
-                      <button onClick={() => handleConfirm(b.bookingId)} disabled={actionLoading[b.bookingId]}>Confirm</button>
-                      <button onClick={() => handleCancel(b.bookingId)} disabled={actionLoading[b.bookingId]}>Cancel</button>
-                    </>
-                  )}
-                  {b.status === 'sold' && <span>Confirmed & Sold</span>}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      <PageHeader title="All Bookings" subtitle="Confirm pending bookings or cancel them." />
+      <Table columns={columns} data={bookings} loading={loading} rowKey="bookingId" emptyTitle="No bookings yet" />
+
+      <ConfirmDialog
+        open={!!cancelTarget}
+        title="Cancel booking?"
+        message={cancelTarget ? `Cancel booking ${cancelTarget.bookingId}? Seats will be released back to the flight.` : ''}
+        confirmLabel="Cancel Booking"
+        variant="danger"
+        loading={cancelling}
+        onConfirm={cancelBooking}
+        onCancel={() => setCancelTarget(null)}
+      />
     </div>
   );
 }
-
-export default AllBookings;

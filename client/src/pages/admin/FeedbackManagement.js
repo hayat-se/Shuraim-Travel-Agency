@@ -1,111 +1,90 @@
 import React, { useEffect, useState } from 'react';
+import { FiCheck } from 'react-icons/fi';
 import apiClient from '../../config/axiosConfig';
-import '../../styles/Management.css';
+import { PageHeader, Table, Badge, Button, Input, useToast } from '../../components/ui';
 
-const FeedbackManagement = () => {
+const Stars = ({ n }) => (
+  <span className="text-warning" aria-label={`${n} star${n === 1 ? '' : 's'}`}>
+    {'★'.repeat(Math.max(0, Math.min(5, n || 0)))}
+    <span className="text-neutral-300">{'★'.repeat(5 - Math.max(0, Math.min(5, n || 0)))}</span>
+  </span>
+);
+
+export default function FeedbackManagement() {
+  const toast = useToast();
   const [feedback, setFeedback] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [replyMap, setReplyMap] = useState({});
+  const [busy, setBusy] = useState({});
 
   useEffect(() => {
     loadFeedback();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadFeedback = async () => {
     try {
-      const response = await apiClient.get('/api/feedback/admin');
-      setFeedback(Array.isArray(response.data) ? response.data : []);
-      setError('');
+      const res = await apiClient.get('/api/feedback/admin');
+      setFeedback(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      const message = err.response?.data?.error || err.message || 'Error loading feedback';
-      setError(message);
+      toast.error(err.response?.data?.error || 'Error loading feedback');
     } finally {
       setLoading(false);
     }
   };
 
-  const updateFeedback = async (feedbackId, status) => {
+  const markReviewed = async (item) => {
+    setBusy((p) => ({ ...p, [item.id]: true }));
     try {
-      await apiClient.put(`/api/feedback/admin/${feedbackId}`, {
-        status,
-        adminReply: replyMap[feedbackId] || null
-      });
-      await loadFeedback();
+      await apiClient.put(`/api/feedback/admin/${item.id}`, { status: 'reviewed', adminReply: replyMap[item.id] || null });
+      toast.success('Feedback marked reviewed');
+      loadFeedback();
     } catch (err) {
-      const message = err.response?.data?.error || err.message || 'Error updating feedback';
-      setError(message);
+      toast.error(err.response?.data?.error || 'Error updating feedback');
+    } finally {
+      setBusy((p) => ({ ...p, [item.id]: false }));
     }
   };
 
-  if (loading) return <div className="loading">Loading feedback...</div>;
+  const columns = [
+    { key: 'createdAt', header: 'Date', render: (f) => new Date(f.createdAt).toLocaleDateString('en-GB') },
+    { key: 'agency', header: 'Agency', render: (f) => f.agency?.agencyName || 'Agency' },
+    { key: 'category', header: 'Category', render: (f) => <span className="capitalize">{f.category}</span> },
+    { key: 'rating', header: 'Rating', render: (f) => <Stars n={f.rating} /> },
+    { key: 'message', header: 'Message', className: 'max-w-xs whitespace-normal', render: (f) => <span className="text-neutral-600">{f.message}</span> },
+    { key: 'status', header: 'Status', render: (f) => <Badge status={f.status} /> },
+    {
+      key: 'reply',
+      header: 'Reply',
+      render: (f) =>
+        f.status !== 'reviewed' ? (
+          <Input
+            className="min-w-[160px]"
+            value={replyMap[f.id] || ''}
+            onChange={(e) => setReplyMap((prev) => ({ ...prev, [f.id]: e.target.value }))}
+            placeholder="Optional reply…"
+          />
+        ) : (
+          <span className="text-neutral-500">{f.adminReply || '—'}</span>
+        ),
+    },
+    {
+      key: 'actions',
+      header: '',
+      align: 'right',
+      render: (f) =>
+        f.status !== 'reviewed' ? (
+          <Button size="sm" variant="success" icon={<FiCheck size={13} />} loading={busy[f.id]} onClick={() => markReviewed(f)}>Reviewed</Button>
+        ) : (
+          <span className="text-xs text-neutral-400">—</span>
+        ),
+    },
+  ];
 
   return (
-    <div className="management-container">
-      <h1>Agency Feedback</h1>
-
-      {error && <div className="error-message">{error}</div>}
-
-      <div className="table-container">
-        <h2>Feedback</h2>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Agency</th>
-              <th>Category</th>
-              <th>Rating</th>
-              <th>Message</th>
-              <th>Status</th>
-              <th>Reply</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {feedback.length === 0 ? (
-              <tr>
-                <td colSpan="8">No feedback yet.</td>
-              </tr>
-            ) : (
-              feedback.map((item) => (
-                <tr key={item.id}>
-                  <td>{new Date(item.createdAt).toLocaleDateString()}</td>
-                  <td>{item.agency?.agencyName || 'Agency'}</td>
-                  <td>{item.category}</td>
-                  <td>
-                    <span className="rating-stars">
-                      {Array.from({ length: item.rating }).map((_, i) => (
-                        <i key={i} className="fa-solid fa-star"></i>
-                      ))}
-                    </span>
-                  </td>
-                  <td>{item.message}</td>
-                  <td><span className={`status ${item.status}`}>{item.status}</span></td>
-                  <td>
-                    <input
-                      type="text"
-                      value={replyMap[item.id] || ''}
-                      onChange={(e) => setReplyMap((prev) => ({ ...prev, [item.id]: e.target.value }))}
-                      placeholder="Optional reply"
-                    />
-                  </td>
-                  <td>
-                    <div className="actions">
-                      {item.status !== 'reviewed' && (
-                        <button className="btn-approve" onClick={() => updateFeedback(item.id, 'reviewed')}>
-                          Mark Reviewed
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+    <div>
+      <PageHeader title="Agency Feedback" subtitle="Review and reply to agency feedback." />
+      <Table columns={columns} data={feedback} loading={loading} rowKey="id" emptyTitle="No feedback yet" />
     </div>
   );
-};
-
-export default FeedbackManagement;
+}

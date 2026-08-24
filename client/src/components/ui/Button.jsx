@@ -26,8 +26,8 @@ const SHEEN_VARIANTS = ['primary', 'secondary', 'mint', 'gold', 'danger', 'succe
 
 const SIZES = {
   sm: 'h-8 px-3 text-xs',
-  md: 'h-10 px-4 text-sm',
-  lg: 'h-12 px-6 text-base',
+  md: 'h-9 px-3.5 text-[13px]',
+  lg: 'h-11 px-5 text-sm',
 };
 
 const GAPS = {

@@ -37,7 +37,7 @@ export function CardHeader({ title, subtitle, actions, className, children, ...p
   return (
     <div
       className={cn(
-        'flex flex-col gap-3 border-b border-neutral-200/80 bg-gradient-header px-5 py-4 sm:flex-row sm:items-center sm:justify-between',
+        'flex flex-col gap-3 border-b border-neutral-200/80 bg-gradient-header px-4 py-3 sm:flex-row sm:items-center sm:justify-between',
         className
       )}
       {...props}
@@ -57,7 +57,7 @@ export function CardHeader({ title, subtitle, actions, className, children, ...p
 
 export function CardBody({ className, children, ...props }) {
   return (
-    <div className={cn('px-5 py-4', className)} {...props}>
+    <div className={cn('px-4 py-3.5', className)} {...props}>
       {children}
     </div>
   );

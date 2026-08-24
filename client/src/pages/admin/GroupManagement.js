@@ -1,215 +1,153 @@
 import React, { useEffect, useState } from 'react';
+import { FiPlus, FiEdit2, FiImage } from 'react-icons/fi';
 import apiClient from '../../config/axiosConfig';
 import { API_BASE_URL } from '../../config/api';
-import '../../styles/Management.css';
+import { PageHeader, Table, Badge, Button, Modal, FormField, Input, useToast } from '../../components/ui';
 
-const GroupManagement = () => {
+export default function GroupManagement() {
+  const toast = useToast();
   const [groups, setGroups] = useState([]);
-  const [form, setForm] = useState({
-    name: '',
-    isActive: true
-  });
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ name: '', isActive: true });
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-  const [editingGroup, setEditingGroup] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [editing, setEditing] = useState(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     loadGroups();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadGroups = async () => {
     try {
-      const response = await apiClient.get('/api/groups/admin');
-      setGroups(Array.isArray(response.data) ? response.data : []);
-      setError('');
+      const res = await apiClient.get('/api/groups/admin');
+      setGroups(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      const message = err.response?.data?.error || err.message || 'Error loading groups';
-      setError(message);
+      toast.error(err.response?.data?.error || 'Error loading groups');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
-  };
-
   const handleImageChange = (e) => {
     const file = e.target.files?.[0] || null;
     setImageFile(file);
-    if (file) {
-      setImagePreview(URL.createObjectURL(file));
-    } else {
-      setImagePreview(null);
-    }
+    setImagePreview(file ? URL.createObjectURL(file) : null);
   };
 
-  const resetForm = () => {
+  const openCreate = () => {
+    setEditing(null);
     setForm({ name: '', isActive: true });
     setImageFile(null);
     setImagePreview(null);
-    setEditingGroup(null);
-    setError('');
+    setShowForm(true);
   };
 
-  const handleEditClick = (group) => {
-    setEditingGroup(group);
-    setForm({
-      name: group.name,
-      isActive: group.isActive
-    });
+  const openEdit = (group) => {
+    setEditing(group);
+    setForm({ name: group.name, isActive: group.isActive });
     setImageFile(null);
     setImagePreview(group.imageUrl ? `${API_BASE_URL}${group.imageUrl}` : null);
-    setError('');
-    setSuccess('');
-    // Scroll to form
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setShowForm(true);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSaving(true);
     try {
       const payload = new FormData();
       payload.append('name', form.name);
       payload.append('isActive', form.isActive);
-      if (imageFile) {
-        payload.append('image', imageFile);
-      }
-
-      if (editingGroup) {
-        await apiClient.put(`/api/groups/admin/${editingGroup.id}`, payload, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        setSuccess(`Group "${form.name}" updated successfully!`);
+      if (imageFile) payload.append('image', imageFile);
+      const cfg = { headers: { 'Content-Type': 'multipart/form-data' } };
+      if (editing) {
+        await apiClient.put(`/api/groups/admin/${editing.id}`, payload, cfg);
+        toast.success(`Group "${form.name}" updated`);
       } else {
-        await apiClient.post('/api/groups/admin', payload, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        setSuccess(`Group "${form.name}" created successfully!`);
+        await apiClient.post('/api/groups/admin', payload, cfg);
+        toast.success(`Group "${form.name}" created`);
       }
-
-      resetForm();
-      await loadGroups();
-      setTimeout(() => setSuccess(''), 3000);
+      setShowForm(false);
+      loadGroups();
     } catch (err) {
-      const message = err.response?.data?.error || err.message || 'Error saving group';
-      setError(message);
+      toast.error(err.response?.data?.error || 'Error saving group');
+    } finally {
+      setSaving(false);
     }
   };
 
-  const toggleGroupStatus = async (group) => {
+  const toggleStatus = async (group) => {
     try {
       await apiClient.put(`/api/groups/admin/${group.id}`, { isActive: !group.isActive });
-      setSuccess(`Group "${group.name}" ${group.isActive ? 'deactivated' : 'activated'} successfully!`);
-      await loadGroups();
-      setTimeout(() => setSuccess(''), 3000);
+      toast.success(`Group "${group.name}" ${group.isActive ? 'deactivated' : 'activated'}`);
+      loadGroups();
     } catch (err) {
-      const message = err.response?.data?.error || err.message || 'Error updating group';
-      setError(message);
+      toast.error(err.response?.data?.error || 'Error updating group');
     }
   };
 
-  if (loading) return <div className="loading">Loading groups...</div>;
+  const columns = [
+    {
+      key: 'image',
+      header: 'Image',
+      render: (g) =>
+        g.imageUrl ? (
+          <img src={`${API_BASE_URL}${g.imageUrl}`} alt={g.name} className="h-9 w-9 rounded-sm object-cover" />
+        ) : (
+          <span className="flex h-9 w-9 items-center justify-center rounded-sm bg-neutral-100 text-neutral-400"><FiImage size={16} /></span>
+        ),
+    },
+    { key: 'name', header: 'Group', render: (g) => <span className="font-medium text-neutral-900">{g.name}</span> },
+    { key: 'status', header: 'Status', render: (g) => <Badge tone={g.isActive ? 'success' : 'neutral'}>{g.isActive ? 'Active' : 'Inactive'}</Badge> },
+    {
+      key: 'actions',
+      header: '',
+      align: 'right',
+      render: (g) => (
+        <div className="flex justify-end gap-1.5">
+          <Button size="sm" variant="outline" icon={<FiEdit2 size={13} />} onClick={() => openEdit(g)}>Edit</Button>
+          <Button size="sm" variant="ghost" onClick={() => toggleStatus(g)}>{g.isActive ? 'Deactivate' : 'Activate'}</Button>
+        </div>
+      ),
+    },
+  ];
 
   return (
-    <div className="management-container">
-      <h1>Group Management</h1>
+    <div>
+      <PageHeader
+        title="Group Management"
+        subtitle="Destination groups shown to agencies."
+        actions={<Button icon={<FiPlus size={15} />} onClick={openCreate}>Add Group</Button>}
+      />
+      <Table columns={columns} data={groups} loading={loading} rowKey="id" emptyTitle="No groups yet" />
 
-      {error && <div className="error-message">{error}</div>}
-      {success && <div className="success-message">{success}</div>}
-
-      <div className="form-container">
-        <h2>{editingGroup ? `Edit Group: ${editingGroup.name}` : 'Add Group'}</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="form-row">
-            <input name="name" value={form.name} onChange={handleChange} placeholder="Group Name" required />
-          </div>
-          <div className="form-row">
-            <input type="file" accept="image/*" onChange={handleImageChange} />
-          </div>
-          {imagePreview && (
-            <div style={{ marginBottom: '12px' }}>
-              <img
-                src={imagePreview}
-                alt="Preview"
-                style={{ width: '80px', height: '60px', objectFit: 'cover', borderRadius: '8px', border: '2px solid #ddd' }}
-              />
-            </div>
-          )}
-          <label className="small-note">
-            <input type="checkbox" name="isActive" checked={form.isActive} onChange={handleChange} /> Active
+      <Modal
+        open={showForm}
+        onClose={() => setShowForm(false)}
+        title={editing ? `Edit Group` : 'Add Group'}
+        footer={
+          <>
+            <Button variant="outline" onClick={() => setShowForm(false)} disabled={saving}>Cancel</Button>
+            <Button type="submit" form="group-form" loading={saving}>{editing ? 'Update' : 'Create'}</Button>
+          </>
+        }
+      >
+        <form id="group-form" onSubmit={handleSubmit} className="space-y-4">
+          <FormField label="Group Name" htmlFor="name" required>
+            <Input id="name" value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} placeholder="e.g. Dubai" required />
+          </FormField>
+          <FormField label="Image" htmlFor="image" hint="Optional — shown on the agency dashboard.">
+            <input id="image" type="file" accept="image/*" onChange={handleImageChange} className="block w-full text-sm text-neutral-600 file:mr-3 file:rounded-sm file:border-0 file:bg-primary-50 file:px-3 file:py-1.5 file:text-[13px] file:font-semibold file:text-primary-700 hover:file:bg-primary-100" />
+          </FormField>
+          {imagePreview && <img src={imagePreview} alt="Preview" className="h-20 w-28 rounded-md border border-neutral-200 object-cover" />}
+          <label className="flex items-center gap-2 text-sm text-neutral-700">
+            <input type="checkbox" checked={form.isActive} onChange={(e) => setForm((p) => ({ ...p, isActive: e.target.checked }))} className="h-4 w-4 rounded-sm accent-primary" />
+            Active
           </label>
-          <div style={{ marginTop: '12px', display: 'flex', gap: '10px' }}>
-            <button className="submit-btn" type="submit">
-              <i className={`fa-solid ${editingGroup ? 'fa-save' : 'fa-plus'}`}></i>
-              {editingGroup ? ' Update Group' : ' Add Group'}
-            </button>
-            {editingGroup && (
-              <button type="button" className="btn-cancel" onClick={resetForm} style={{ padding: '10px 20px', cursor: 'pointer' }}>
-                ✖ Cancel
-              </button>
-            )}
-          </div>
         </form>
-      </div>
-
-      <div className="table-container">
-        <h2>All Groups</h2>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Group</th>
-              <th>Image</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {groups.length === 0 ? (
-              <tr>
-                <td colSpan="4">No groups added yet.</td>
-              </tr>
-            ) : (
-              groups.map((group) => (
-                <tr key={group.id}>
-                  <td>{group.name}</td>
-                  <td>
-                    {group.imageUrl ? (
-                      <img
-                        src={`${API_BASE_URL}${group.imageUrl}`}
-                        alt={group.name}
-                        style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '6px' }}
-                      />
-                    ) : (
-                      '-'
-                    )}
-                  </td>
-                  <td><span className={`status ${group.isActive ? 'approved' : 'rejected'}`}>{group.isActive ? 'Active' : 'Inactive'}</span></td>
-                  <td>
-                    <div className="actions">
-                      <button className="btn-edit" onClick={() => handleEditClick(group)}>
-                        ✎ Edit
-                      </button>
-                      <button className="btn-edit" onClick={() => toggleGroupStatus(group)}>
-                        {group.isActive ? 'Deactivate' : 'Activate'}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      </Modal>
     </div>
   );
-};
-
-export default GroupManagement;
+}

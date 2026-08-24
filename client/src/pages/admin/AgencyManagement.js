@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { FiCheck, FiX, FiSlash, FiUnlock } from 'react-icons/fi';
 import apiClient from '../../config/axiosConfig';
-import '../../styles/Management.css';
+import { PageHeader, Table, Badge, Button, Tabs, Input, Select, ConfirmDialog, useToast } from '../../components/ui';
 
-const AgencyManagement = () => {
+export default function AgencyManagement() {
+  const toast = useToast();
   const [agencies, setAgencies] = useState([]);
   const [pendingAgencies, setPendingAgencies] = useState([]);
   const [activeTab, setActiveTab] = useState('pending');
@@ -10,253 +12,176 @@ const AgencyManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [actionId, setActionId] = useState(null);
+  const [dialog, setDialog] = useState(null); // { type, agency }
+  const [working, setWorking] = useState(false);
 
   useEffect(() => {
     fetchAgencies();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchAgencies = async () => {
     try {
-      const pendingResponse = await apiClient.get('/api/admin/agencies/pending');
-      const allResponse = await apiClient.get('/api/admin/agencies');
-
-      setPendingAgencies(Array.isArray(pendingResponse.data) ? pendingResponse.data : []);
-      setAgencies(Array.isArray(allResponse.data) ? allResponse.data : []);
-    } catch (error) {
-      console.error('Error fetching agencies:', error);
+      const [pendingRes, allRes] = await Promise.all([
+        apiClient.get('/api/admin/agencies/pending'),
+        apiClient.get('/api/admin/agencies'),
+      ]);
+      setPendingAgencies(Array.isArray(pendingRes.data) ? pendingRes.data : []);
+      setAgencies(Array.isArray(allRes.data) ? allRes.data : []);
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Error fetching agencies');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleApprove = async (agencyId) => {
+  const approve = async (agency) => {
+    setActionId(agency.id);
     try {
-      setActionId(agencyId);
-      await apiClient.put(`/api/admin/agencies/${agencyId}/approve`, {});
-      alert('Agency approved successfully!');
+      await apiClient.put(`/api/admin/agencies/${agency.id}/approve`, {});
+      toast.success(`${agency.agencyName} approved`);
       fetchAgencies();
-    } catch (error) {
-      alert(error.response?.data?.error || 'Error approving agency');
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Error approving agency');
     } finally {
       setActionId(null);
     }
   };
 
-  const handleReject = async (agencyId) => {
-    const reason = prompt('Enter rejection reason:');
-    if (reason) {
-      try {
-        setActionId(agencyId);
-        await apiClient.put(`/api/admin/agencies/${agencyId}/reject`, { reason });
-        alert('Agency rejected!');
-        fetchAgencies();
-      } catch (error) {
-        alert(error.response?.data?.error || 'Error rejecting agency');
-      } finally {
-        setActionId(null);
+  // reject (with reason) / block / unblock all funnel through the dialog
+  const runDialog = async (reason) => {
+    if (!dialog) return;
+    const { type, agency } = dialog;
+    setWorking(true);
+    try {
+      if (type === 'reject') {
+        await apiClient.put(`/api/admin/agencies/${agency.id}/reject`, { reason });
+        toast.success(`${agency.agencyName} rejected`);
+      } else if (type === 'block') {
+        await apiClient.put(`/api/admin/agencies/${agency.id}/block`, {});
+        toast.success(`${agency.agencyName} blocked`);
+      } else if (type === 'unblock') {
+        await apiClient.put(`/api/admin/agencies/${agency.id}/unblock`, {});
+        toast.success(`${agency.agencyName} unblocked`);
       }
+      setDialog(null);
+      fetchAgencies();
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Action failed');
+    } finally {
+      setWorking(false);
     }
   };
 
-  const handleBlock = async (agencyId) => {
-    if (window.confirm('Are you sure you want to block this agency?')) {
-      try {
-        setActionId(agencyId);
-        await apiClient.put(`/api/admin/agencies/${agencyId}/block`, {});
-        alert('Agency blocked!');
-        fetchAgencies();
-      } catch (error) {
-        alert(error.response?.data?.error || 'Error blocking agency');
-      } finally {
-        setActionId(null);
-      }
-    }
-  };
-
-  const handleUnblock = async (agencyId) => {
-    if (window.confirm('Are you sure you want to unblock this agency?')) {
-      try {
-        setActionId(agencyId);
-        await apiClient.put(`/api/admin/agencies/${agencyId}/unblock`, {});
-        alert('Agency unblocked successfully!');
-        fetchAgencies();
-      } catch (error) {
-        alert(error.response?.data?.error || 'Error unblocking agency');
-      } finally {
-        setActionId(null);
-      }
-    }
-  };
-
-  const matchesSearch = (agency) => {
+  const matchesSearch = (a) => {
     const term = searchTerm.trim().toLowerCase();
     if (!term) return true;
-    const values = [
-      agency.agencyName,
-      agency.contactPerson,
-      agency.email,
-      agency.city
-    ];
-    return values.some((value) => value?.toLowerCase().includes(term));
+    return [a.agencyName, a.contactPerson, a.email, a.city].some((v) => v?.toLowerCase().includes(term));
   };
 
   const filteredPending = pendingAgencies.filter(matchesSearch);
-  const filteredAll = agencies.filter((agency) => {
-    const statusMatch = statusFilter === 'all' || agency.status === statusFilter;
-    return statusMatch && matchesSearch(agency);
-  });
+  const filteredAll = agencies.filter((a) => (statusFilter === 'all' || a.status === statusFilter) && matchesSearch(a));
 
-  if (loading) return <div className="loading">Loading...</div>;
+  const pendingColumns = [
+    { key: 'agencyName', header: 'Agency', render: (a) => <span className="font-medium text-neutral-900">{a.agencyName}</span> },
+    { key: 'contactPerson', header: 'Contact' },
+    { key: 'email', header: 'Email' },
+    { key: 'phone', header: 'Phone' },
+    { key: 'city', header: 'City' },
+    {
+      key: 'actions',
+      header: '',
+      align: 'right',
+      render: (a) => (
+        <div className="flex justify-end gap-1.5">
+          <Button size="sm" variant="success" icon={<FiCheck size={13} />} loading={actionId === a.id} onClick={() => approve(a)}>Approve</Button>
+          <Button size="sm" variant="danger" icon={<FiX size={13} />} disabled={actionId === a.id} onClick={() => setDialog({ type: 'reject', agency: a })}>Reject</Button>
+        </div>
+      ),
+    },
+  ];
+
+  const allColumns = [
+    { key: 'agencyName', header: 'Agency', render: (a) => <span className="font-medium text-neutral-900">{a.agencyName}</span> },
+    { key: 'contactPerson', header: 'Contact' },
+    { key: 'email', header: 'Email' },
+    { key: 'city', header: 'City' },
+    { key: 'status', header: 'Status', render: (a) => <Badge status={a.status} /> },
+    {
+      key: 'actions',
+      header: '',
+      align: 'right',
+      render: (a) => (
+        <div className="flex justify-end gap-1.5">
+          {a.status === 'approved' && (
+            <Button size="sm" variant="danger" icon={<FiSlash size={13} />} disabled={actionId === a.id} onClick={() => setDialog({ type: 'block', agency: a })}>Block</Button>
+          )}
+          {a.status === 'blocked' && (
+            <Button size="sm" variant="success" icon={<FiUnlock size={13} />} disabled={actionId === a.id} onClick={() => setDialog({ type: 'unblock', agency: a })}>Unblock</Button>
+          )}
+        </div>
+      ),
+    },
+  ];
+
+  const dialogCopy = {
+    reject: { title: 'Reject agency?', message: 'Provide a reason — the agency will be notified.', confirmLabel: 'Reject', variant: 'danger', withReason: true, reasonRequired: true },
+    block: { title: 'Block agency?', message: 'The agency will lose access until unblocked.', confirmLabel: 'Block', variant: 'danger' },
+    unblock: { title: 'Unblock agency?', message: 'The agency will regain access.', confirmLabel: 'Unblock', variant: 'primary' },
+  };
+  const dc = dialog ? dialogCopy[dialog.type] : {};
 
   return (
-    <div className="management-container">
-      <h1>Agency Management</h1>
+    <div>
+      <PageHeader title="Agency Management" subtitle="Approve, reject and manage partner agencies." />
 
-      <div className="tabs">
-        <button 
-          className={`tab-btn ${activeTab === 'pending' ? 'active' : ''}`}
-          onClick={() => setActiveTab('pending')}
-        >
-          Pending Approvals ({pendingAgencies.length})
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`}
-          onClick={() => setActiveTab('all')}
-        >
-          All Agencies ({agencies.length})
-        </button>
-      </div>
+      <Tabs
+        className="mb-4"
+        value={activeTab}
+        onChange={setActiveTab}
+        tabs={[
+          { value: 'pending', label: 'Pending', count: pendingAgencies.length },
+          { value: 'all', label: 'All Agencies', count: agencies.length },
+        ]}
+      />
 
-      <div className="filter-bar">
-        <input
-          className="filter-input"
-          type="text"
-          placeholder="Search by agency, contact, email, or city"
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row">
+        <Input
+          className="sm:max-w-xs"
+          placeholder="Search agency, contact, email, city…"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
         {activeTab === 'all' && (
-          <select
-            className="filter-select"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value="all">All Statuses</option>
+          <Select className="sm:max-w-[180px]" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+            <option value="all">All statuses</option>
             <option value="pending">Pending</option>
             <option value="approved">Approved</option>
             <option value="rejected">Rejected</option>
             <option value="blocked">Blocked</option>
-          </select>
+          </Select>
         )}
       </div>
 
-      {activeTab === 'pending' && (
-        <div className="table-container">
-          <h2>Pending Agency Requests</h2>
-          {filteredPending.length === 0 ? (
-            <p>No pending requests</p>
-          ) : (
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Agency Name</th>
-                  <th>Contact Person</th>
-                  <th>Email</th>
-                  <th>Phone</th>
-                  <th>City</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredPending.map(agency => (
-                  <tr key={agency.id}>
-                    <td>{agency.agencyName}</td>
-                    <td>{agency.contactPerson}</td>
-                    <td>{agency.email}</td>
-                    <td>{agency.phone}</td>
-                    <td>{agency.city}</td>
-                    <td className="actions">
-                      <button 
-                        className="btn-approve"
-                        onClick={() => handleApprove(agency.id)}
-                        disabled={actionId === agency.id}
-                      >
-                        <i className="fa-solid fa-check"></i>
-                        {actionId === agency.id ? ' Approving...' : ' Approve'}
-                      </button>
-                      <button 
-                        className="btn-reject"
-                        onClick={() => handleReject(agency.id)}
-                        disabled={actionId === agency.id}
-                      >
-                        <i className="fa-solid fa-times"></i>
-                        {actionId === agency.id ? ' Rejecting...' : ' Reject'}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
+      {activeTab === 'pending' ? (
+        <Table columns={pendingColumns} data={filteredPending} loading={loading} rowKey="id" emptyTitle="No pending requests" />
+      ) : (
+        <Table columns={allColumns} data={filteredAll} loading={loading} rowKey="id" emptyTitle="No agencies" />
       )}
 
-      {activeTab === 'all' && (
-        <div className="table-container">
-          <h2>All Agencies</h2>
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Agency Name</th>
-                <th>Contact</th>
-                <th>Email</th>
-                <th>City</th>
-                <th>Total Bookings</th>
-                <th>Revenue (PKR)</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredAll.map(agency => (
-                <tr key={agency.id}>
-                  <td>{agency.agencyName}</td>
-                  <td>{agency.contactPerson}</td>
-                  <td>{agency.email}</td>
-                  <td>{agency.city}</td>
-                  <td>{agency.totalBookings}</td>
-                  <td>{agency.totalRevenue.toLocaleString()}</td>
-                  <td><span className={`status ${agency.status}`}>{agency.status}</span></td>
-                  <td className="actions">
-                    {agency.status === 'approved' && (
-                      <button 
-                        className="btn-block"
-                        onClick={() => handleBlock(agency.id)}
-                        disabled={actionId === agency.id}
-                      >
-                        <i className="fa-solid fa-ban"></i>
-                        {actionId === agency.id ? ' Blocking...' : ' Block'}
-                      </button>
-                    )}
-                    {agency.status === 'blocked' && (
-                      <button 
-                        className="btn-approve"
-                        onClick={() => handleUnblock(agency.id)}
-                        disabled={actionId === agency.id}
-                      >
-                        <i className="fa-solid fa-unlock"></i>
-                        {actionId === agency.id ? ' Unblocking...' : ' Unblock'}
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <ConfirmDialog
+        open={!!dialog}
+        title={dc.title}
+        message={dc.message}
+        confirmLabel={dc.confirmLabel}
+        variant={dc.variant}
+        withReason={dc.withReason}
+        reasonRequired={dc.reasonRequired}
+        reasonLabel="Rejection reason"
+        loading={working}
+        onConfirm={runDialog}
+        onCancel={() => setDialog(null)}
+      />
     </div>
   );
-};
-
-export default AgencyManagement;
+}

@@ -1,240 +1,107 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { FiHome } from 'react-icons/fi';
 import apiClient from '../../config/axiosConfig';
-import '../../styles/Auth.css';
+import { Card, CardBody, Button, FormField, Input, Textarea, useToast } from '../../components/ui';
 
-const AgencyRegister = () => {
-  const [formData, setFormData] = useState({
-    agencyName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    contactPerson: '',
-    phone: '',
-    phone2: '',
-    address: '',
-    city: '',
-    registrationNumber: '',
-    taxId: ''
-  });
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [loading, setLoading] = useState(false);
+const EMPTY = {
+  agencyName: '', email: '', password: '', confirmPassword: '', contactPerson: '',
+  phone: '', phone2: '', address: '', city: '', registrationNumber: '', taxId: '',
+};
+
+export default function AgencyRegister() {
   const navigate = useNavigate();
+  const toast = useToast();
+  const [formData, setFormData] = useState(EMPTY);
+  const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+  const set = (k) => (e) => setFormData((p) => ({ ...p, [k]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
-
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      toast.error('Passwords do not match');
       return;
     }
-
     setLoading(true);
-
     try {
       const { confirmPassword, ...submitData } = formData;
       await apiClient.post('/api/auth/agency/register', submitData);
-
-      setSuccess('Registration successful! Your request is pending admin approval. You will be notified via email.');
-      setTimeout(() => navigate('/agency/login'), 2000);
+      toast.success('Registration submitted — pending admin approval.');
+      setTimeout(() => navigate('/agency/login'), 1500);
     } catch (err) {
-      setError(err.response?.data?.error || 'Registration failed');
+      toast.error(err.response?.data?.error || 'Registration failed');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="auth-container" style={{ position: 'relative' }}>
-      {/* Animated Home Button */}
-      <Link
-        to="/"
-        className="home-btn-animated"
-        style={{
-          position: 'absolute',
-          top: 32,
-          right: 40,
-          zIndex: 10,
-          textDecoration: 'none',
-          background: 'linear-gradient(90deg, #00c6ff 0%, #0072ff 100%)',
-          color: '#fff',
-          padding: '12px 28px',
-          borderRadius: '18px',
-          fontWeight: 700,
-          fontSize: '1.1rem',
-          boxShadow: '0 4px 16px 0 rgba(0,114,255,0.12)',
-          letterSpacing: '0.04em',
-          transition: 'transform 0.18s cubic-bezier(.4,2,.6,1), box-shadow 0.18s',
-          animation: 'homeBtnPulse 1.6s infinite',
-          border: 'none',
-          cursor: 'pointer',
-        }}
-        onMouseOver={e => {
-          e.currentTarget.style.transform = 'scale(1.08)';
-          e.currentTarget.style.boxShadow = '0 6px 24px 0 rgba(0,114,255,0.18)';
-        }}
-        onMouseOut={e => {
-          e.currentTarget.style.transform = 'scale(1)';
-          e.currentTarget.style.boxShadow = '0 4px 16px 0 rgba(0,114,255,0.12)';
-        }}
-      >
-        <svg width="20" height="20" viewBox="0 0 27 18" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-          <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V9.5z" />
-        </svg>
-        Home
-      </Link>
-      {/* End Home Button */}
-      <div className="auth-card wide">
-        <h1>Agency Registration</h1>
-        <p className="subtitle">Request an account to access the Airline Agency Management System</p>
-
-        {error && <div className="error-message">{error}</div>}
-        {success && <div className="success-message">{success}</div>}
-
-        <form onSubmit={handleSubmit}>
-          <div className="form-row">
-            <div className="form-group">
-              <label>Agency Name</label>
-              <input
-                type="text"
-                name="agencyName"
-                value={formData.agencyName}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Contact Person</label>
-              <input
-                type="text"
-                name="contactPerson"
-                value={formData.contactPerson}
-                onChange={handleChange}
-                required
-              />
-            </div>
+    <div className="min-h-screen bg-gradient-to-b from-[#8CC6F5] via-[#DCEDFB] to-white px-4 py-10">
+      <div className="mx-auto flex max-w-2xl items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <img src="/assets/shuraim-favicon.png" alt="Shuraim Air" className="h-10 w-10 object-contain" />
+          <div className="leading-tight">
+            <p className="text-sm font-bold text-ink">Shuraim Air</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">Travel &amp; Tours</p>
           </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label>Email</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>City</label>
-              <input
-                type="text"
-                name="city"
-                value={formData.city}
-                onChange={handleChange}
-              />
-            </div>
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label>Phone</label>
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Phone 2 (Optional)</label>
-              <input
-                type="tel"
-                name="phone2"
-                value={formData.phone2}
-                onChange={handleChange}
-              />
-            </div>
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label>Password</label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Confirm Password</label>
-              <input
-                type="password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label>Registration Number</label>
-              <input
-                type="text"
-                name="registrationNumber"
-                value={formData.registrationNumber}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="form-group">
-              <label>Tax ID</label>
-              <input
-                type="text"
-                name="taxId"
-                value={formData.taxId}
-                onChange={handleChange}
-              />
-            </div>
-          </div>
-
-          <div className="form-group full">
-            <label>Address</label>
-            <textarea
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              rows="2"
-            ></textarea>
-          </div>
-
-          <button type="submit" className="submit-btn" disabled={loading}>
-            {loading ? 'Registering...' : 'Submit Registration Request'}
-          </button>
-        </form>
-
-        <div className="auth-links">
-          <p>Already have an account? <a href="/agency/login">Login here</a></p>
         </div>
+        <Link to="/" className="inline-flex items-center gap-2 rounded-sm border border-neutral-300 bg-white/80 px-3 py-1.5 text-sm font-medium text-neutral-700 backdrop-blur transition-colors hover:bg-white">
+          <FiHome size={14} /> Home
+        </Link>
       </div>
+
+      <Card className="mx-auto mt-6 max-w-2xl">
+        <CardBody className="p-6 sm:p-8">
+          <h1 className="text-xl font-semibold text-ink">Register your agency</h1>
+          <p className="mt-1 text-sm text-neutral-500">Request an account — you’ll be notified once an admin approves it.</p>
+
+          <form onSubmit={handleSubmit} className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <FormField label="Agency Name" htmlFor="agencyName" required>
+              <Input id="agencyName" value={formData.agencyName} onChange={set('agencyName')} required />
+            </FormField>
+            <FormField label="Contact Person" htmlFor="contactPerson" required>
+              <Input id="contactPerson" value={formData.contactPerson} onChange={set('contactPerson')} required />
+            </FormField>
+            <FormField label="Email" htmlFor="email" required>
+              <Input id="email" type="email" value={formData.email} onChange={set('email')} required />
+            </FormField>
+            <FormField label="City" htmlFor="city">
+              <Input id="city" value={formData.city} onChange={set('city')} />
+            </FormField>
+            <FormField label="Phone" htmlFor="phone" required>
+              <Input id="phone" type="tel" value={formData.phone} onChange={set('phone')} required />
+            </FormField>
+            <FormField label="Phone 2 (optional)" htmlFor="phone2">
+              <Input id="phone2" type="tel" value={formData.phone2} onChange={set('phone2')} />
+            </FormField>
+            <FormField label="Password" htmlFor="password" required>
+              <Input id="password" type="password" value={formData.password} onChange={set('password')} required />
+            </FormField>
+            <FormField label="Confirm Password" htmlFor="confirmPassword" required>
+              <Input id="confirmPassword" type="password" value={formData.confirmPassword} onChange={set('confirmPassword')} required />
+            </FormField>
+            <FormField label="Registration Number" htmlFor="registrationNumber">
+              <Input id="registrationNumber" value={formData.registrationNumber} onChange={set('registrationNumber')} />
+            </FormField>
+            <FormField label="Tax ID" htmlFor="taxId">
+              <Input id="taxId" value={formData.taxId} onChange={set('taxId')} />
+            </FormField>
+            <FormField label="Address" htmlFor="address" className="sm:col-span-2">
+              <Textarea id="address" rows={2} value={formData.address} onChange={set('address')} />
+            </FormField>
+
+            <div className="sm:col-span-2">
+              <Button type="submit" size="lg" className="w-full" loading={loading}>Submit Registration Request</Button>
+            </div>
+          </form>
+
+          <p className="mt-5 text-center text-sm text-neutral-500">
+            Already have an account?{' '}
+            <Link to="/agency/login" className="font-medium text-primary hover:underline">Login here</Link>
+          </p>
+        </CardBody>
+      </Card>
     </div>
   );
-};
-
-export default AgencyRegister;
+}

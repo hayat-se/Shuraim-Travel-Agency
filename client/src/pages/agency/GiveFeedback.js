@@ -1,162 +1,98 @@
 import React, { useEffect, useState } from 'react';
+import { FiSend } from 'react-icons/fi';
 import apiClient from '../../config/axiosConfig';
-import '../../styles/Finance.css';
+import { PageHeader, Card, CardHeader, CardBody, Table, Badge, Button, FormField, Input, Select, Textarea, useToast } from '../../components/ui';
 
-const GiveFeedback = () => {
+const EMPTY = { rating: '5', category: 'general', subject: '', message: '' };
+const Stars = ({ n }) => <span className="text-warning">{'★'.repeat(n)}<span className="text-neutral-300">{'★'.repeat(5 - n)}</span></span>;
+
+export default function GiveFeedback() {
+  const toast = useToast();
   const [feedbackList, setFeedbackList] = useState([]);
-  const [form, setForm] = useState({
-    rating: '5',
-    category: 'general',
-    subject: '',
-    message: ''
-  });
+  const [form, setForm] = useState(EMPTY);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
 
   useEffect(() => {
     loadFeedback();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadFeedback = async () => {
     try {
-      const response = await apiClient.get('/api/feedback/my');
-      setFeedbackList(Array.isArray(response.data) ? response.data : []);
-      setError('');
+      const res = await apiClient.get('/api/feedback/my');
+      setFeedbackList(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      const message = err.response?.data?.error || err.message || 'Error loading feedback';
-      setError(message);
+      toast.error(err.response?.data?.error || 'Error loading feedback');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
+  const set = (k) => (e) => setForm((p) => ({ ...p, [k]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
-    setSuccess('');
     try {
-      await apiClient.post('/api/feedback', {
-        ...form,
-        rating: Number(form.rating)
-      });
-      setForm({ rating: '5', category: 'general', subject: '', message: '' });
-      setSuccess('Thanks for your feedback!');
-      await loadFeedback();
+      await apiClient.post('/api/feedback', { ...form, rating: Number(form.rating) });
+      setForm(EMPTY);
+      toast.success('Thanks for your feedback!');
+      loadFeedback();
     } catch (err) {
-      const message = err.response?.data?.error || err.message || 'Error submitting feedback';
-      setError(message);
+      toast.error(err.response?.data?.error || 'Error submitting feedback');
     } finally {
       setSubmitting(false);
     }
   };
 
-  if (loading) return <div className="loading">Loading feedback...</div>;
+  const columns = [
+    { key: 'createdAt', header: 'Date', render: (f) => new Date(f.createdAt).toLocaleDateString('en-GB') },
+    { key: 'category', header: 'Category', render: (f) => <span className="capitalize">{f.category}</span> },
+    { key: 'rating', header: 'Rating', render: (f) => <Stars n={f.rating} /> },
+    { key: 'subject', header: 'Subject', render: (f) => f.subject || '—' },
+    { key: 'status', header: 'Status', render: (f) => <Badge status={f.status} /> },
+  ];
 
   return (
-    <div className="finance-container">
-      <h1>Give Feedback</h1>
+    <div>
+      <PageHeader title="Give Feedback" subtitle="Tell us how we’re doing." />
 
-      {error && <div className="error-message">{error}</div>}
-      {success && <div className="notice">{success}</div>}
+      <Card className="mb-5">
+        <CardHeader title="Submit feedback" />
+        <CardBody>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <FormField label="Rating" htmlFor="rating" required>
+                <Select id="rating" value={form.rating} onChange={set('rating')} required>
+                  {[5, 4, 3, 2, 1].map((n) => (
+                    <option key={n} value={n}>{n} Star{n === 1 ? '' : 's'}</option>
+                  ))}
+                </Select>
+              </FormField>
+              <FormField label="Category" htmlFor="category">
+                <Select id="category" value={form.category} onChange={set('category')}>
+                  <option value="general">General</option>
+                  <option value="booking">Booking</option>
+                  <option value="payment">Payment</option>
+                  <option value="technical">Technical</option>
+                  <option value="other">Other</option>
+                </Select>
+              </FormField>
+              <FormField label="Subject (optional)" htmlFor="subject">
+                <Input id="subject" value={form.subject} onChange={set('subject')} />
+              </FormField>
+            </div>
+            <FormField label="Message" htmlFor="message" required>
+              <Textarea id="message" rows={4} value={form.message} onChange={set('message')} placeholder="Write your feedback…" required />
+            </FormField>
+            <Button type="submit" icon={<FiSend size={14} />} loading={submitting}>Submit Feedback</Button>
+          </form>
+        </CardBody>
+      </Card>
 
-      <div className="finance-form">
-        <h2>Submit Feedback</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="form-grid">
-            <select name="rating" value={form.rating} onChange={handleChange} required>
-              <option value="5">
-                <i className="fa-solid fa-star"></i> 5 Stars
-              </option>
-              <option value="4">
-                <i className="fa-solid fa-star"></i> 4 Stars
-              </option>
-              <option value="3">
-                <i className="fa-solid fa-star"></i> 3 Stars
-              </option>
-              <option value="2">
-                <i className="fa-solid fa-star"></i> 2 Stars
-              </option>
-              <option value="1">
-                <i className="fa-solid fa-star"></i> 1 Star
-              </option>
-            </select>
-            <select name="category" value={form.category} onChange={handleChange}>
-              <option value="general">General</option>
-              <option value="booking">Booking</option>
-              <option value="payment">Payment</option>
-              <option value="technical">Technical</option>
-              <option value="other">Other</option>
-            </select>
-            <input
-              type="text"
-              name="subject"
-              placeholder="Subject (optional)"
-              value={form.subject}
-              onChange={handleChange}
-            />
-          </div>
-          <textarea
-            name="message"
-            placeholder="Write your feedback..."
-            value={form.message}
-            onChange={handleChange}
-            rows="4"
-            required
-          />
-          <div style={{ marginTop: '12px' }}>
-            <button className="primary-btn" type="submit" disabled={submitting}>
-              {submitting ? 'Submitting...' : 'Submit Feedback'}
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <div className="table-card">
-        <h2>My Feedback</h2>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Category</th>
-              <th>Rating</th>
-              <th>Subject</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {feedbackList.length === 0 ? (
-              <tr>
-                <td colSpan="5">No feedback submitted yet.</td>
-              </tr>
-            ) : (
-              feedbackList.map((item) => (
-                <tr key={item.id}>
-                  <td>{new Date(item.createdAt).toLocaleDateString()}</td>
-                  <td>{item.category}</td>
-                  <td>
-                    <span className="rating-stars">
-                      {Array.from({ length: item.rating }).map((_, i) => (
-                        <i key={i} className="fa-solid fa-star"></i>
-                      ))}
-                    </span>
-                  </td>
-                  <td>{item.subject || '-'}</td>
-                  <td><span className={`badge ${item.status}`}>{item.status}</span></td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <h2 className="mb-3 text-base font-semibold text-ink">My Feedback</h2>
+      <Table columns={columns} data={feedbackList} loading={loading} rowKey="id" emptyTitle="No feedback yet" />
     </div>
   );
-};
-
-export default GiveFeedback;
+}

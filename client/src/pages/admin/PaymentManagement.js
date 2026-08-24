@@ -1,93 +1,72 @@
 import React, { useEffect, useState } from 'react';
+import { FiCheck, FiX } from 'react-icons/fi';
 import apiClient from '../../config/axiosConfig';
-import '../../styles/Management.css';
+import { PageHeader, Table, Badge, Button, useToast } from '../../components/ui';
 
-const PaymentManagement = () => {
+const PKR = (n) => `PKR ${Number(n || 0).toLocaleString()}`;
+
+export default function PaymentManagement() {
+  const toast = useToast();
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [busy, setBusy] = useState({});
 
   useEffect(() => {
     loadPayments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadPayments = async () => {
     try {
-      const response = await apiClient.get('/api/payments/admin');
-      setPayments(Array.isArray(response.data) ? response.data : []);
-      setError('');
+      const res = await apiClient.get('/api/payments/admin');
+      setPayments(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      const message = err.response?.data?.error || err.message || 'Error loading payments';
-      setError(message);
+      toast.error(err.response?.data?.error || 'Error loading payments');
     } finally {
       setLoading(false);
     }
   };
 
-  const updateStatus = async (paymentId, status) => {
+  const updateStatus = async (payment, status) => {
+    setBusy((p) => ({ ...p, [payment.id]: true }));
     try {
-      await apiClient.put(`/api/payments/admin/${paymentId}/status`, { status });
-      await loadPayments();
+      await apiClient.put(`/api/payments/admin/${payment.id}/status`, { status });
+      toast.success(`Payment ${status}`);
+      loadPayments();
     } catch (err) {
-      const message = err.response?.data?.error || err.message || 'Error updating payment status';
-      setError(message);
+      toast.error(err.response?.data?.error || 'Error updating payment');
+    } finally {
+      setBusy((p) => ({ ...p, [payment.id]: false }));
     }
   };
 
-  if (loading) return <div className="loading">Loading payments...</div>;
+  const columns = [
+    { key: 'date', header: 'Date', render: (p) => new Date(p.paymentDate || p.createdAt).toLocaleDateString('en-GB') },
+    { key: 'agency', header: 'Agency', render: (p) => p.agency?.agencyName || 'Agency' },
+    { key: 'bank', header: 'Bank', render: (p) => p.bank?.bankName || 'Bank' },
+    { key: 'referenceNumber', header: 'Reference', render: (p) => <span className="font-mono">{p.referenceNumber}</span> },
+    { key: 'amount', header: 'Amount', align: 'right', render: (p) => PKR(p.amount) },
+    { key: 'status', header: 'Status', render: (p) => <Badge status={p.status} /> },
+    {
+      key: 'actions',
+      header: '',
+      align: 'right',
+      render: (p) =>
+        p.status === 'pending' ? (
+          <div className="flex justify-end gap-1.5">
+            <Button size="sm" variant="success" icon={<FiCheck size={13} />} loading={busy[p.id]} onClick={() => updateStatus(p, 'approved')}>Approve</Button>
+            <Button size="sm" variant="danger" icon={<FiX size={13} />} disabled={busy[p.id]} onClick={() => updateStatus(p, 'rejected')}>Reject</Button>
+          </div>
+        ) : (
+          <span className="text-xs text-neutral-400">—</span>
+        ),
+    },
+  ];
 
   return (
-    <div className="management-container">
-      <h1>Payment Approvals</h1>
-
-      {error && <div className="error-message">{error}</div>}
-
-      <div className="table-container">
-        <h2>Payments</h2>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Agency</th>
-              <th>Bank</th>
-              <th>Reference</th>
-              <th>Amount</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {payments.length === 0 ? (
-              <tr>
-                <td colSpan="7">No payments submitted yet.</td>
-              </tr>
-            ) : (
-              payments.map((payment) => (
-                <tr key={payment.id}>
-                  <td>{new Date(payment.paymentDate || payment.createdAt).toLocaleDateString()}</td>
-                  <td>{payment.agency?.agencyName || 'Agency'}</td>
-                  <td>{payment.bank?.bankName || 'Bank'}</td>
-                  <td>{payment.referenceNumber}</td>
-                  <td>PKR {Number(payment.amount || 0).toLocaleString()}</td>
-                  <td><span className={`status ${payment.status}`}>{payment.status}</span></td>
-                  <td>
-                    <div className="actions">
-                      {payment.status === 'pending' && (
-                        <>
-                          <button className="btn-approve" onClick={() => updateStatus(payment.id, 'approved')}>Approve</button>
-                          <button className="btn-reject" onClick={() => updateStatus(payment.id, 'rejected')}>Reject</button>
-                        </>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+    <div>
+      <PageHeader title="Payment Approvals" subtitle="Verify agency payment submissions." />
+      <Table columns={columns} data={payments} loading={loading} rowKey="id" emptyTitle="No payments submitted yet" />
     </div>
   );
-};
-
-export default PaymentManagement;
+}

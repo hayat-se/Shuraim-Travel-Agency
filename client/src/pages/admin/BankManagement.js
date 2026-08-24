@@ -1,249 +1,200 @@
 import React, { useEffect, useState } from 'react';
+import { FiPlus, FiEdit2, FiTrash2, FiImage } from 'react-icons/fi';
 import apiClient from '../../config/axiosConfig';
 import { API_BASE_URL } from '../../config/api';
-import '../../styles/Management.css';
+import { PageHeader, Table, Badge, Button, Modal, ConfirmDialog, FormField, Input, useToast } from '../../components/ui';
 
-const BankManagement = () => {
+const EMPTY = {
+  bankName: '', accountTitle: '', accountNumber: '', iban: '',
+  branchName: '', branchCode: '', branchAddress: '', city: '', isActive: true,
+};
+
+export default function BankManagement() {
+  const toast = useToast();
   const [banks, setBanks] = useState([]);
-  const [form, setForm] = useState({
-    bankName: '',
-    accountTitle: '',
-    accountNumber: '',
-    iban: '',
-    branchName: '',
-    branchCode: '',
-    branchAddress: '',
-    city: '',
-    isActive: true
-  });
-  const [imageFile, setImageFile] = useState(null);
-  const [editingBank, setEditingBank] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState(EMPTY);
+  const [imageFile, setImageFile] = useState(null);
+  const [editing, setEditing] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     loadBanks();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadBanks = async () => {
     try {
-      const response = await apiClient.get('/api/banks/admin');
-      setBanks(Array.isArray(response.data) ? response.data : []);
-      setError('');
+      const res = await apiClient.get('/api/banks/admin');
+      setBanks(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      const message = err.response?.data?.error || err.message || 'Error loading banks';
-      setError(message);
+      toast.error(err.response?.data?.error || 'Error loading banks');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
-  };
+  const set = (k) => (e) => setForm((p) => ({ ...p, [k]: e.target.value }));
 
-  const handleImageChange = (e) => {
-    const file = e.target.files?.[0] || null;
-    setImageFile(file);
-  };
-
-  const startEdit = (bank) => {
-    setEditingBank(bank);
+  const openCreate = () => { setEditing(null); setForm(EMPTY); setImageFile(null); setShowForm(true); };
+  const openEdit = (bank) => {
+    setEditing(bank);
     setForm({
-      bankName: bank.bankName || '',
-      accountTitle: bank.accountTitle || '',
-      accountNumber: bank.accountNumber || '',
-      iban: bank.iban || '',
-      branchName: bank.branchName || '',
-      branchCode: bank.branchCode || '',
-      branchAddress: bank.branchAddress || '',
-      city: bank.city || '',
-      isActive: bank.isActive
+      bankName: bank.bankName || '', accountTitle: bank.accountTitle || '', accountNumber: bank.accountNumber || '',
+      iban: bank.iban || '', branchName: bank.branchName || '', branchCode: bank.branchCode || '',
+      branchAddress: bank.branchAddress || '', city: bank.city || '', isActive: bank.isActive,
     });
     setImageFile(null);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const cancelEdit = () => {
-    setEditingBank(null);
-    setForm({
-      bankName: '',
-      accountTitle: '',
-      accountNumber: '',
-      iban: '',
-      branchName: '',
-      branchCode: '',
-      branchAddress: '',
-      city: '',
-      isActive: true
-    });
-    setImageFile(null);
+    setShowForm(true);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSaving(true);
     try {
       const payload = new FormData();
-      Object.entries(form).forEach(([key, value]) => payload.append(key, value));
-      if (imageFile) {
-        payload.append('image', imageFile);
-      }
-
-      if (editingBank) {
-        await apiClient.put(`/api/banks/admin/${editingBank.id}`, payload, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
+      Object.entries(form).forEach(([k, v]) => payload.append(k, v));
+      if (imageFile) payload.append('image', imageFile);
+      const cfg = { headers: { 'Content-Type': 'multipart/form-data' } };
+      if (editing) {
+        await apiClient.put(`/api/banks/admin/${editing.id}`, payload, cfg);
+        toast.success('Bank updated');
       } else {
-        await apiClient.post('/api/banks/admin', payload, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        await apiClient.post('/api/banks/admin', payload, cfg);
+        toast.success('Bank added');
       }
-
-      setEditingBank(null);
-      setForm({
-        bankName: '',
-        accountTitle: '',
-        accountNumber: '',
-        iban: '',
-        branchName: '',
-        branchCode: '',
-        branchAddress: '',
-        city: '',
-        isActive: true
-      });
-      setImageFile(null);
-      await loadBanks();
+      setShowForm(false);
+      loadBanks();
     } catch (err) {
-      const message = err.response?.data?.error || err.message || (editingBank ? 'Error updating bank' : 'Error creating bank');
-      setError(message);
+      toast.error(err.response?.data?.error || 'Error saving bank');
+    } finally {
+      setSaving(false);
     }
   };
 
-  const toggleBankStatus = async (bank) => {
+  const toggleStatus = async (bank) => {
     try {
       await apiClient.put(`/api/banks/admin/${bank.id}`, { isActive: !bank.isActive });
-      await loadBanks();
+      loadBanks();
     } catch (err) {
-      const message = err.response?.data?.error || err.message || 'Error updating bank';
-      setError(message);
+      toast.error(err.response?.data?.error || 'Error updating bank');
     }
   };
 
-  const deleteBank = async (bank) => {
-    if (!window.confirm(`Are you sure you want to delete "${bank.bankName}"? This action cannot be undone.`)) return;
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
     try {
-      await apiClient.delete(`/api/banks/admin/${bank.id}`);
-      if (editingBank && editingBank.id === bank.id) {
-        cancelEdit();
-      }
-      await loadBanks();
+      await apiClient.delete(`/api/banks/admin/${deleteTarget.id}`);
+      toast.success('Bank deleted');
+      setDeleteTarget(null);
+      loadBanks();
     } catch (err) {
-      const message = err.response?.data?.error || err.message || 'Error deleting bank';
-      setError(message);
+      toast.error(err.response?.data?.error || 'Error deleting bank');
+    } finally {
+      setDeleting(false);
     }
   };
 
-  if (loading) return <div className="loading">Loading banks...</div>;
+  const columns = [
+    {
+      key: 'image',
+      header: 'Logo',
+      render: (b) =>
+        b.imageUrl ? (
+          <img src={`${API_BASE_URL}${b.imageUrl}`} alt={b.bankName} className="h-9 w-9 rounded-sm object-cover" />
+        ) : (
+          <span className="flex h-9 w-9 items-center justify-center rounded-sm bg-neutral-100 text-neutral-400"><FiImage size={15} /></span>
+        ),
+    },
+    { key: 'bankName', header: 'Bank', render: (b) => <span className="font-medium text-neutral-900">{b.bankName}</span> },
+    { key: 'accountTitle', header: 'Account Title' },
+    { key: 'accountNumber', header: 'Account No', render: (b) => <span className="font-mono">{b.accountNumber}</span> },
+    { key: 'branch', header: 'Branch', render: (b) => `${b.branchName || '—'}${b.branchCode ? ` (${b.branchCode})` : ''}` },
+    { key: 'status', header: 'Status', render: (b) => <Badge tone={b.isActive ? 'success' : 'neutral'}>{b.isActive ? 'Active' : 'Inactive'}</Badge> },
+    {
+      key: 'actions',
+      header: '',
+      align: 'right',
+      render: (b) => (
+        <div className="flex justify-end gap-1.5">
+          <Button size="sm" variant="outline" icon={<FiEdit2 size={13} />} onClick={() => openEdit(b)}>Edit</Button>
+          <Button size="sm" variant="ghost" onClick={() => toggleStatus(b)}>{b.isActive ? 'Deactivate' : 'Activate'}</Button>
+          <Button size="sm" variant="danger" icon={<FiTrash2 size={13} />} onClick={() => setDeleteTarget(b)}>Delete</Button>
+        </div>
+      ),
+    },
+  ];
 
   return (
-    <div className="management-container">
-      <h1>Bank Management</h1>
+    <div>
+      <PageHeader
+        title="Bank Management"
+        subtitle="Bank accounts agencies pay into."
+        actions={<Button icon={<FiPlus size={15} />} onClick={openCreate}>Add Bank</Button>}
+      />
+      <Table columns={columns} data={banks} loading={loading} rowKey="id" emptyTitle="No banks yet" />
 
-      {error && <div className="error-message">{error}</div>}
-
-      <div className="form-container">
-        <h2>{editingBank ? 'Edit Bank' : 'Add Bank'}</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="form-row">
-            <input name="bankName" value={form.bankName} onChange={handleChange} placeholder="Bank Name" required />
-            <input name="accountTitle" value={form.accountTitle} onChange={handleChange} placeholder="Account Title" required />
-          </div>
-          <div className="form-row">
-            <input name="accountNumber" value={form.accountNumber} onChange={handleChange} placeholder="Account Number" required />
-            <input name="iban" value={form.iban} onChange={handleChange} placeholder="IBAN" />
-          </div>
-          <div className="form-row">
-            <input name="branchName" value={form.branchName} onChange={handleChange} placeholder="Branch Name" />
-            <input name="branchCode" value={form.branchCode} onChange={handleChange} placeholder="Branch Code" />
-          </div>
-          <div className="form-row">
-            <input name="city" value={form.city} onChange={handleChange} placeholder="City" />
-            <input name="branchAddress" value={form.branchAddress} onChange={handleChange} placeholder="Branch Address" />
-          </div>
-          <div className="form-row">
-            <input type="file" accept="image/*" onChange={handleImageChange} />
-          </div>
-          <label className="small-note">
-            <input type="checkbox" name="isActive" checked={form.isActive} onChange={handleChange} /> Active
+      <Modal
+        open={showForm}
+        onClose={() => setShowForm(false)}
+        title={editing ? 'Edit Bank' : 'Add Bank'}
+        size="xl"
+        footer={
+          <>
+            <Button variant="outline" onClick={() => setShowForm(false)} disabled={saving}>Cancel</Button>
+            <Button type="submit" form="bank-form" loading={saving}>{editing ? 'Update' : 'Add'}</Button>
+          </>
+        }
+      >
+        <form id="bank-form" onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <FormField label="Bank Name" htmlFor="bankName" required>
+            <Input id="bankName" value={form.bankName} onChange={set('bankName')} required />
+          </FormField>
+          <FormField label="Account Title" htmlFor="accountTitle" required>
+            <Input id="accountTitle" value={form.accountTitle} onChange={set('accountTitle')} required />
+          </FormField>
+          <FormField label="Account Number" htmlFor="accountNumber" required>
+            <Input id="accountNumber" value={form.accountNumber} onChange={set('accountNumber')} required />
+          </FormField>
+          <FormField label="IBAN" htmlFor="iban">
+            <Input id="iban" value={form.iban} onChange={set('iban')} />
+          </FormField>
+          <FormField label="Branch Name" htmlFor="branchName">
+            <Input id="branchName" value={form.branchName} onChange={set('branchName')} />
+          </FormField>
+          <FormField label="Branch Code" htmlFor="branchCode">
+            <Input id="branchCode" value={form.branchCode} onChange={set('branchCode')} />
+          </FormField>
+          <FormField label="City" htmlFor="city">
+            <Input id="city" value={form.city} onChange={set('city')} />
+          </FormField>
+          <FormField label="Branch Address" htmlFor="branchAddress">
+            <Input id="branchAddress" value={form.branchAddress} onChange={set('branchAddress')} />
+          </FormField>
+          <FormField label="Logo / Image" htmlFor="image" className="sm:col-span-2">
+            <input id="image" type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files?.[0] || null)} className="block w-full text-sm text-neutral-600 file:mr-3 file:rounded-sm file:border-0 file:bg-primary-50 file:px-3 file:py-1.5 file:text-[13px] file:font-semibold file:text-primary-700 hover:file:bg-primary-100" />
+          </FormField>
+          <label className="flex items-center gap-2 text-sm text-neutral-700 sm:col-span-2">
+            <input type="checkbox" checked={form.isActive} onChange={(e) => setForm((p) => ({ ...p, isActive: e.target.checked }))} className="h-4 w-4 rounded-sm accent-primary" />
+            Active
           </label>
-          <div style={{ marginTop: '12px', display: 'flex', gap: '10px' }}>
-            <button className="submit-btn" type="submit">{editingBank ? 'Update Bank' : 'Add Bank'}</button>
-            {editingBank && (
-              <button className="btn-edit" type="button" onClick={cancelEdit}>Cancel</button>
-            )}
-          </div>
         </form>
-      </div>
+      </Modal>
 
-      <div className="table-container">
-        <h2>All Banks</h2>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Bank</th>
-              <th>Image</th>
-              <th>Account Title</th>
-              <th>Account No</th>
-              <th>Branch</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {banks.length === 0 ? (
-              <tr>
-                <td colSpan="7">No banks added yet.</td>
-              </tr>
-            ) : (
-              banks.map((bank) => (
-                <tr key={bank.id}>
-                  <td>{bank.bankName}</td>
-                  <td>
-                    {bank.imageUrl ? (
-                      <img
-                        src={`${API_BASE_URL}${bank.imageUrl}`}
-                        alt={bank.bankName}
-                        style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '6px' }}
-                      />
-                    ) : (
-                      '-'
-                    )}
-                  </td>
-                  <td>{bank.accountTitle}</td>
-                  <td>{bank.accountNumber}</td>
-                  <td>{bank.branchName || '-'} {bank.branchCode ? `(${bank.branchCode})` : ''}</td>
-                  <td><span className={`status ${bank.isActive ? 'approved' : 'rejected'}`}>{bank.isActive ? 'Active' : 'Inactive'}</span></td>
-                  <td>
-                    <div className="actions">
-                      <button className="btn-edit" onClick={() => startEdit(bank)}>Edit</button>
-                      <button className="btn-edit" onClick={() => toggleBankStatus(bank)}>
-                        {bank.isActive ? 'Deactivate' : 'Activate'}
-                      </button>
-                      <button className="btn-delete" onClick={() => deleteBank(bank)}>Delete</button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="Delete bank?"
+        message={deleteTarget ? `Delete "${deleteTarget.bankName}"? This cannot be undone.` : ''}
+        confirmLabel="Delete"
+        variant="danger"
+        loading={deleting}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
-};
-
-export default BankManagement;
+}

@@ -1,301 +1,228 @@
 import React, { useEffect, useState } from 'react';
+import { FiPlus, FiEdit2, FiTrash2, FiImage } from 'react-icons/fi';
 import apiClient from '../../config/axiosConfig';
 import { API_BASE_URL } from '../../config/api';
 import AIRLINE_PRESETS, { AIRLINE_REGIONS } from '../../config/airlinePresets';
-import '../../styles/Management.css';
+import { PageHeader, Table, Badge, Button, Modal, ConfirmDialog, FormField, Input, Select, useToast } from '../../components/ui';
 
-const AirlineManagement = () => {
+export default function AirlineManagement() {
+  const toast = useToast();
   const [airlines, setAirlines] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ name: '', code: '', isActive: true });
   const [logoFile, setLogoFile] = useState(null);
   const [logoPreview, setLogoPreview] = useState(null);
   const [presetLogoUrl, setPresetLogoUrl] = useState(null);
-  const [editingAirline, setEditingAirline] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [editing, setEditing] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     loadAirlines();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadAirlines = async () => {
     try {
-      const response = await apiClient.get('/api/airlines/admin');
-      setAirlines(Array.isArray(response.data) ? response.data : []);
-      setError('');
+      const res = await apiClient.get('/api/airlines/admin');
+      setAirlines(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      setError(err.response?.data?.error || err.message || 'Error loading airlines');
+      toast.error(err.response?.data?.error || 'Error loading airlines');
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
   };
 
   const handleLogoChange = (e) => {
     const file = e.target.files?.[0] || null;
     setLogoFile(file);
     setPresetLogoUrl(null);
-    if (file) {
-      setLogoPreview(URL.createObjectURL(file));
-    } else {
-      setLogoPreview(null);
-    }
+    setLogoPreview(file ? URL.createObjectURL(file) : null);
   };
 
   const handlePresetSelect = (e) => {
-    const selectedName = e.target.value;
-    if (!selectedName) return;
-
-    const preset = AIRLINE_PRESETS.find(a => a.name === selectedName);
+    const preset = AIRLINE_PRESETS.find((a) => a.name === e.target.value);
     if (preset) {
-      setForm(prev => ({ ...prev, name: preset.name, code: preset.code }));
+      setForm((prev) => ({ ...prev, name: preset.name, code: preset.code }));
       setPresetLogoUrl(preset.logo);
       setLogoPreview(preset.logo);
       setLogoFile(null);
     }
   };
 
-  const startEdit = (airline) => {
-    setEditingAirline(airline);
-    setForm({
-      name: airline.name || '',
-      code: airline.code || '',
-      isActive: airline.isActive
-    });
-    setLogoFile(null);
-    setPresetLogoUrl(null);
-    setLogoPreview(airline.logoUrl ? `${API_BASE_URL}${airline.logoUrl}` : null);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const cancelEdit = () => {
-    setEditingAirline(null);
+  const openCreate = () => {
+    setEditing(null);
     setForm({ name: '', code: '', isActive: true });
     setLogoFile(null);
     setPresetLogoUrl(null);
     setLogoPreview(null);
+    setShowForm(true);
+  };
+
+  const openEdit = (airline) => {
+    setEditing(airline);
+    setForm({ name: airline.name || '', code: airline.code || '', isActive: airline.isActive });
+    setLogoFile(null);
+    setPresetLogoUrl(null);
+    setLogoPreview(airline.logoUrl ? `${API_BASE_URL}${airline.logoUrl}` : null);
+    setShowForm(true);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSaving(true);
     try {
       const payload = new FormData();
       payload.append('name', form.name);
       payload.append('code', form.code);
       payload.append('isActive', form.isActive);
-
       if (logoFile) {
         payload.append('logo', logoFile);
       } else if (presetLogoUrl) {
-        // Fetch the preset logo from CDN and attach as file
         try {
-          const imgResponse = await fetch(presetLogoUrl);
-          const blob = await imgResponse.blob();
-          const fileName = `${form.code || 'airline'}_logo.png`;
-          payload.append('logo', blob, fileName);
-        } catch (imgErr) {
-          console.warn('Could not fetch preset logo:', imgErr);
-        }
+          const blob = await (await fetch(presetLogoUrl)).blob();
+          payload.append('logo', blob, `${form.code || 'airline'}_logo.png`);
+        } catch { /* preset logo optional */ }
       }
-
-      if (editingAirline) {
-        await apiClient.put(`/api/airlines/admin/${editingAirline.id}`, payload, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        setSuccess('Airline updated successfully!');
+      const cfg = { headers: { 'Content-Type': 'multipart/form-data' } };
+      if (editing) {
+        await apiClient.put(`/api/airlines/admin/${editing.id}`, payload, cfg);
+        toast.success('Airline updated');
       } else {
-        await apiClient.post('/api/airlines/admin', payload, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        setSuccess('Airline added successfully!');
+        await apiClient.post('/api/airlines/admin', payload, cfg);
+        toast.success('Airline added');
       }
-
-      setEditingAirline(null);
-      setForm({ name: '', code: '', isActive: true });
-      setLogoFile(null);
-      setPresetLogoUrl(null);
-      setLogoPreview(null);
-      setError('');
-      await loadAirlines();
-      setTimeout(() => setSuccess(''), 3000);
+      setShowForm(false);
+      loadAirlines();
     } catch (err) {
-      setError(err.response?.data?.error || err.message || 'Error saving airline');
-      setSuccess('');
+      toast.error(err.response?.data?.error || 'Error saving airline');
+    } finally {
+      setSaving(false);
     }
   };
 
   const toggleStatus = async (airline) => {
     try {
       await apiClient.put(`/api/airlines/admin/${airline.id}`, { isActive: !airline.isActive });
-      await loadAirlines();
+      loadAirlines();
     } catch (err) {
-      setError(err.response?.data?.error || err.message || 'Error updating airline');
+      toast.error(err.response?.data?.error || 'Error updating airline');
     }
   };
 
-  const deleteAirline = async (airline) => {
-    if (!window.confirm(`Are you sure you want to delete "${airline.name}"? This cannot be undone.`)) return;
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
     try {
-      await apiClient.delete(`/api/airlines/admin/${airline.id}`);
-      if (editingAirline && editingAirline.id === airline.id) {
-        cancelEdit();
-      }
-      await loadAirlines();
-      setSuccess('Airline deleted successfully!');
-      setTimeout(() => setSuccess(''), 3000);
+      await apiClient.delete(`/api/airlines/admin/${deleteTarget.id}`);
+      toast.success('Airline deleted');
+      setDeleteTarget(null);
+      loadAirlines();
     } catch (err) {
-      setError(err.response?.data?.error || err.message || 'Error deleting airline');
+      toast.error(err.response?.data?.error || 'Error deleting airline');
+    } finally {
+      setDeleting(false);
     }
   };
 
-  if (loading) return <div className="loading">Loading airlines...</div>;
+  const columns = [
+    {
+      key: 'logo',
+      header: 'Logo',
+      render: (a) =>
+        a.logoUrl ? (
+          <img src={`${API_BASE_URL}${a.logoUrl}`} alt={a.name} className="h-8 w-12 rounded-sm object-contain" />
+        ) : (
+          <span className="flex h-8 w-12 items-center justify-center rounded-sm bg-neutral-100 text-neutral-400"><FiImage size={15} /></span>
+        ),
+    },
+    { key: 'name', header: 'Airline', render: (a) => <span className="font-medium text-neutral-900">{a.name}</span> },
+    { key: 'code', header: 'Code', render: (a) => <span className="font-mono">{a.code || '—'}</span> },
+    { key: 'status', header: 'Status', render: (a) => <Badge tone={a.isActive ? 'success' : 'neutral'}>{a.isActive ? 'Active' : 'Inactive'}</Badge> },
+    {
+      key: 'actions',
+      header: '',
+      align: 'right',
+      render: (a) => (
+        <div className="flex justify-end gap-1.5">
+          <Button size="sm" variant="outline" icon={<FiEdit2 size={13} />} onClick={() => openEdit(a)}>Edit</Button>
+          <Button size="sm" variant="ghost" onClick={() => toggleStatus(a)}>{a.isActive ? 'Deactivate' : 'Activate'}</Button>
+          <Button size="sm" variant="danger" icon={<FiTrash2 size={13} />} onClick={() => setDeleteTarget(a)}>Delete</Button>
+        </div>
+      ),
+    },
+  ];
 
   return (
-    <div className="management-container">
-      <h1>Airline Management</h1>
+    <div>
+      <PageHeader
+        title="Airline Management"
+        subtitle="Airlines available when creating flights."
+        actions={<Button icon={<FiPlus size={15} />} onClick={openCreate}>Add Airline</Button>}
+      />
+      <Table columns={columns} data={airlines} loading={loading} rowKey="id" emptyTitle="No airlines yet" />
 
-      {error && <div className="error-message">{error}</div>}
-      {success && <div className="success-message">{success}</div>}
-
-      <div className="form-container">
-        <h2>{editingAirline ? 'Edit Airline' : 'Add Airline'}</h2>
-        <form onSubmit={handleSubmit}>
-          {!editingAirline && (
-            <div className="form-row">
-              <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', color: '#64748b', fontWeight: 600 }}>
-                  <i className="fa-solid fa-list"></i> Select from Preset Airlines
-                </label>
-                <select
-                  onChange={handlePresetSelect}
-                  value=""
-                  style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '14px', background: 'white', cursor: 'pointer' }}
-                >
-                  <option value="">-- Choose an airline (or type manually below) --</option>
-                  {AIRLINE_REGIONS.map(region => (
-                    <optgroup key={region} label={region}>
-                      {AIRLINE_PRESETS.filter(a => a.region === region).map(a => (
-                        <option key={a.code} value={a.name}>{a.name} ({a.code})</option>
-                      ))}
-                    </optgroup>
-                  ))}
-                </select>
-              </div>
+      <Modal
+        open={showForm}
+        onClose={() => setShowForm(false)}
+        title={editing ? 'Edit Airline' : 'Add Airline'}
+        footer={
+          <>
+            <Button variant="outline" onClick={() => setShowForm(false)} disabled={saving}>Cancel</Button>
+            <Button type="submit" form="airline-form" loading={saving}>{editing ? 'Update' : 'Add'}</Button>
+          </>
+        }
+      >
+        <form id="airline-form" onSubmit={handleSubmit} className="space-y-4">
+          {!editing && (
+            <FormField label="Quick pick a preset" htmlFor="preset" hint="Fills name, code and logo — or type manually below.">
+              <Select id="preset" value="" onChange={handlePresetSelect}>
+                <option value="">Choose an airline…</option>
+                {AIRLINE_REGIONS.map((region) => (
+                  <optgroup key={region} label={region}>
+                    {AIRLINE_PRESETS.filter((a) => a.region === region).map((a) => (
+                      <option key={a.code} value={a.name}>{a.name} ({a.code})</option>
+                    ))}
+                  </optgroup>
+                ))}
+              </Select>
+            </FormField>
+          )}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <FormField label="Airline Name" htmlFor="name" required>
+              <Input id="name" value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} placeholder="e.g. Pakistan International Airlines" required />
+            </FormField>
+            <FormField label="Code" htmlFor="code">
+              <Input id="code" value={form.code} onChange={(e) => setForm((p) => ({ ...p, code: e.target.value }))} placeholder="e.g. PIA" />
+            </FormField>
+          </div>
+          <FormField label="Logo" htmlFor="logo">
+            <input id="logo" type="file" accept="image/*" onChange={handleLogoChange} className="block w-full text-sm text-neutral-600 file:mr-3 file:rounded-sm file:border-0 file:bg-primary-50 file:px-3 file:py-1.5 file:text-[13px] file:font-semibold file:text-primary-700 hover:file:bg-primary-100" />
+          </FormField>
+          {logoPreview && (
+            <div className="inline-block rounded-md border border-neutral-200 bg-neutral-50 p-2">
+              <img src={logoPreview} alt="Logo preview" className="max-h-14 max-w-[160px] object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
             </div>
           )}
-          <div className="form-row">
-            <input
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              placeholder="Airline Name (e.g., Pakistan International Airlines)"
-              required
-            />
-            <input
-              name="code"
-              value={form.code}
-              onChange={handleChange}
-              placeholder="Airline Code (e.g., PIA)"
-            />
-          </div>
-          <div className="form-row">
-            <div style={{ flex: 1 }}>
-              <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', color: '#64748b' }}>
-                Airline Logo {logoPreview || (editingAirline && editingAirline.logoUrl) ? '' : '(select preset or upload)'}
-              </label>
-              <input type="file" accept="image/*" onChange={handleLogoChange} />
-              {logoPreview && (
-                <div style={{ marginTop: '10px', padding: '10px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'inline-block' }}>
-                  <img
-                    src={logoPreview}
-                    alt="Logo preview"
-                    style={{ maxWidth: '160px', maxHeight: '60px', objectFit: 'contain' }}
-                    onError={(e) => { e.target.style.display = 'none'; }}
-                  />
-                  <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
-                    {presetLogoUrl ? 'Preset logo (will be saved to database)' : logoFile ? 'Uploaded file' : 'Current logo'}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-          <label className="small-note">
-            <input type="checkbox" name="isActive" checked={form.isActive} onChange={handleChange} /> Active
+          <label className="flex items-center gap-2 text-sm text-neutral-700">
+            <input type="checkbox" checked={form.isActive} onChange={(e) => setForm((p) => ({ ...p, isActive: e.target.checked }))} className="h-4 w-4 rounded-sm accent-primary" />
+            Active
           </label>
-          <div style={{ marginTop: '12px', display: 'flex', gap: '10px' }}>
-            <button className="submit-btn" type="submit">
-              {editingAirline ? 'Update Airline' : 'Add Airline'}
-            </button>
-            {editingAirline && (
-              <button className="btn-edit" type="button" onClick={cancelEdit}>Cancel</button>
-            )}
-          </div>
         </form>
-      </div>
+      </Modal>
 
-      <div className="table-container">
-        <h2>All Airlines</h2>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Logo</th>
-              <th>Airline Name</th>
-              <th>Code</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {airlines.length === 0 ? (
-              <tr>
-                <td colSpan="5">No airlines added yet.</td>
-              </tr>
-            ) : (
-              airlines.map((airline) => (
-                <tr key={airline.id}>
-                  <td>
-                    {airline.logoUrl ? (
-                      <img
-                        src={`${API_BASE_URL}${airline.logoUrl}`}
-                        alt={airline.name}
-                        style={{ width: '50px', height: '35px', objectFit: 'contain', borderRadius: '4px' }}
-                      />
-                    ) : (
-                      <span style={{ color: '#94a3b8', fontSize: '13px' }}>No logo</span>
-                    )}
-                  </td>
-                  <td>{airline.name}</td>
-                  <td>{airline.code || '-'}</td>
-                  <td>
-                    <span className={`status ${airline.isActive ? 'approved' : 'rejected'}`}>
-                      {airline.isActive ? 'Active' : 'Inactive'}
-                    </span>
-                  </td>
-                  <td>
-                    <div className="actions">
-                      <button className="btn-edit" onClick={() => startEdit(airline)}>Edit</button>
-                      <button className="btn-edit" onClick={() => toggleStatus(airline)}>
-                        {airline.isActive ? 'Deactivate' : 'Activate'}
-                      </button>
-                      <button className="btn-delete" onClick={() => deleteAirline(airline)}>Delete</button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="Delete airline?"
+        message={deleteTarget ? `Delete "${deleteTarget.name}"? This cannot be undone.` : ''}
+        confirmLabel="Delete"
+        variant="danger"
+        loading={deleting}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
-};
-
-export default AirlineManagement;
+}

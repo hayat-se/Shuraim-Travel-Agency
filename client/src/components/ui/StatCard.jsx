@@ -19,7 +19,7 @@ export default function StatCard({ label, value, icon, tone = 'primary', hint, t
   return (
     <div
       className={cn(
-        'group relative overflow-hidden rounded-xl border border-neutral-200 bg-white p-5 shadow-card',
+        'group relative overflow-hidden rounded-xl border border-neutral-200 bg-white p-4 shadow-card',
         'transition-all duration-300 ease-premium hover:-translate-y-1 hover:border-primary-200 hover:shadow-premium',
         className
       )}
@@ -36,7 +36,7 @@ export default function StatCard({ label, value, icon, tone = 'primary', hint, t
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">{label}</p>
-          <p className="mt-1.5 text-2xl font-semibold tabular-nums tracking-tightish text-ink">{value}</p>
+          <p className="mt-1 text-xl font-semibold tabular-nums tracking-tightish text-ink">{value}</p>
 
           {trendUp !== null && (
             <p className={cn('mt-1 text-xs font-medium tabular-nums', trendUp ? 'text-success' : 'text-danger')}>
@@ -50,7 +50,7 @@ export default function StatCard({ label, value, icon, tone = 'primary', hint, t
         {icon && (
           <div
             className={cn(
-              'flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border shadow-inner-soft',
+              'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border shadow-inner-soft',
               'transition-transform duration-300 ease-premium group-hover:scale-105',
               t.chip
             )}

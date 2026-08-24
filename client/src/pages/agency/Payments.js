@@ -1,35 +1,22 @@
 import React, { useEffect, useState } from 'react';
+import { FiSend } from 'react-icons/fi';
 import apiClient from '../../config/axiosConfig';
-import AIRLINE_PRESETS from '../../config/airlinePresets';
-import '../../styles/Finance.css';
-// Helper to get airline preset by name
-const getAirlinePreset = (airlineName) => {
-  return AIRLINE_PRESETS.find(a => a.name.toLowerCase() === (airlineName || '').toLowerCase());
-};
+import { PageHeader, Card, CardHeader, CardBody, Table, Badge, Button, FormField, Input, Select, Textarea, useToast } from '../../components/ui';
 
-const getAirlineLogo = (airlineName) => {
-  const preset = getAirlinePreset(airlineName);
-  return preset ? preset.logo : null;
-};
+const PKR = (n) => `PKR ${Number(n || 0).toLocaleString()}`;
+const EMPTY = { bankId: '', amount: '', referenceNumber: '', paymentDate: '', proofUrl: '', notes: '' };
 
-const Payments = () => {
+export default function Payments() {
+  const toast = useToast();
   const [banks, setBanks] = useState([]);
   const [payments, setPayments] = useState([]);
-  const [form, setForm] = useState({
-    bankId: '',
-    amount: '',
-    referenceNumber: '',
-    paymentDate: '',
-    proofUrl: '',
-    notes: ''
-  });
+  const [form, setForm] = useState(EMPTY);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
 
   useEffect(() => {
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadData = async () => {
@@ -37,153 +24,82 @@ const Payments = () => {
     try {
       const [banksRes, paymentsRes] = await Promise.all([
         apiClient.get('/api/banks'),
-        apiClient.get('/api/payments/my')
+        apiClient.get('/api/payments/my'),
       ]);
       setBanks(Array.isArray(banksRes.data) ? banksRes.data : []);
       setPayments(Array.isArray(paymentsRes.data) ? paymentsRes.data : []);
-      setError('');
     } catch (err) {
-      const message = err.response?.data?.error || err.message || 'Error loading payments';
-      setError(message);
+      toast.error(err.response?.data?.error || 'Error loading payments');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
+  const set = (k) => (e) => setForm((p) => ({ ...p, [k]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
-    setSuccess('');
     try {
-      await apiClient.post('/api/payments', {
-        ...form,
-        amount: Number(form.amount)
-      });
-
-      setForm({ bankId: '', amount: '', referenceNumber: '', paymentDate: '', proofUrl: '', notes: '' });
-      setSuccess('Payment submitted successfully. It will be reviewed by admin.');
-      await loadData();
+      await apiClient.post('/api/payments', { ...form, amount: Number(form.amount) });
+      setForm(EMPTY);
+      toast.success('Payment submitted — pending admin review.');
+      loadData();
     } catch (err) {
-      const message = err.response?.data?.error || err.message || 'Error submitting payment';
-      setError(message);
+      toast.error(err.response?.data?.error || 'Error submitting payment');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const formatAmount = (value) => Number(value || 0).toLocaleString();
-
-  if (loading) return <div className="loading">Loading payments...</div>;
+  const columns = [
+    { key: 'date', header: 'Date', render: (p) => new Date(p.paymentDate || p.createdAt).toLocaleDateString('en-GB') },
+    { key: 'bank', header: 'Bank', render: (p) => p.bank?.bankName || 'Bank' },
+    { key: 'referenceNumber', header: 'Reference', render: (p) => <span className="font-mono">{p.referenceNumber}</span> },
+    { key: 'amount', header: 'Amount', align: 'right', render: (p) => PKR(p.amount) },
+    { key: 'status', header: 'Status', render: (p) => <Badge status={p.status} /> },
+  ];
 
   return (
-    <div className="finance-container">
-      <h1>Payments</h1>
+    <div>
+      <PageHeader title="Payments" subtitle="Submit payment proofs and track their status." />
 
-      {error && <div className="error-message">{error}</div>}
-      {success && <div className="notice">{success}</div>}
+      <Card className="mb-5">
+        <CardHeader title="Submit a payment" />
+        <CardBody>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <FormField label="Bank" htmlFor="bankId" required>
+                <Select id="bankId" value={form.bankId} onChange={set('bankId')} required>
+                  <option value="">Select bank</option>
+                  {banks.map((b) => (
+                    <option key={b.id} value={b.id}>{b.bankName} — {b.accountTitle}</option>
+                  ))}
+                </Select>
+              </FormField>
+              <FormField label="Amount (PKR)" htmlFor="amount" required>
+                <Input id="amount" type="number" min="1" value={form.amount} onChange={set('amount')} required />
+              </FormField>
+              <FormField label="Reference / Transaction ID" htmlFor="referenceNumber" required>
+                <Input id="referenceNumber" value={form.referenceNumber} onChange={set('referenceNumber')} required />
+              </FormField>
+              <FormField label="Payment Date" htmlFor="paymentDate">
+                <Input id="paymentDate" type="date" value={form.paymentDate} onChange={set('paymentDate')} />
+              </FormField>
+              <FormField label="Proof URL (optional)" htmlFor="proofUrl" className="sm:col-span-2">
+                <Input id="proofUrl" value={form.proofUrl} onChange={set('proofUrl')} placeholder="Link to receipt / screenshot" />
+              </FormField>
+            </div>
+            <FormField label="Notes (optional)" htmlFor="notes">
+              <Textarea id="notes" rows={3} value={form.notes} onChange={set('notes')} />
+            </FormField>
+            <Button type="submit" icon={<FiSend size={14} />} loading={submitting}>Submit Payment</Button>
+          </form>
+        </CardBody>
+      </Card>
 
-      <div className="finance-form">
-        <h2>Submit Payment</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="form-grid">
-            <select name="bankId" value={form.bankId} onChange={handleChange} required>
-              <option value="">Select Bank</option>
-              {banks.map((bank) => (
-                <option key={bank.id} value={bank.id}>
-                  {bank.bankName} - {bank.accountTitle}
-                </option>
-              ))}
-            </select>
-            <input
-              type="number"
-              name="amount"
-              placeholder="Amount (PKR)"
-              value={form.amount}
-              onChange={handleChange}
-              required
-              min="1"
-            />
-            <input
-              type="text"
-              name="referenceNumber"
-              placeholder="Reference / Transaction ID"
-              value={form.referenceNumber}
-              onChange={handleChange}
-              required
-            />
-            <input
-              type="date"
-              name="paymentDate"
-              value={form.paymentDate}
-              onChange={handleChange}
-            />
-            <input
-              type="text"
-              name="proofUrl"
-              placeholder="Proof URL (optional)"
-              value={form.proofUrl}
-              onChange={handleChange}
-            />
-          </div>
-          <textarea
-            name="notes"
-            placeholder="Notes (optional)"
-            value={form.notes}
-            onChange={handleChange}
-            rows="3"
-          />
-          <div style={{ marginTop: '12px' }}>
-            <button className="primary-btn" type="submit" disabled={submitting}>
-              {submitting ? 'Submitting...' : 'Submit Payment'}
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <div className="table-card">
-        <h2>My Payments</h2>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>LOGO</th>
-              <th>Date</th>
-              <th>Bank</th>
-              <th>Reference</th>
-              <th>Amount</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {payments.length === 0 ? (
-              <tr>
-                <td colSpan="6">No payments submitted yet.</td>
-              </tr>
-            ) : (
-              payments.map((payment) => (
-                <tr key={payment.id}>
-                  <td>
-                    {payment.flight && getAirlineLogo(payment.flight.airlineName) && (
-                      <img src={getAirlineLogo(payment.flight.airlineName)} alt={payment.flight.airlineName} style={{ height: 32, maxWidth: 80, objectFit: 'contain', background: '#fff', borderRadius: 4, padding: 2 }} />
-                    )}
-                  </td>
-                  <td>{new Date(payment.paymentDate || payment.createdAt).toLocaleDateString()}</td>
-                  <td>{payment.bank?.bankName || 'Bank'}</td>
-                  <td>{payment.referenceNumber}</td>
-                  <td>PKR {formatAmount(payment.amount)}</td>
-                  <td><span className={`badge ${payment.status}`}>{payment.status}</span></td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <h2 className="mb-3 text-base font-semibold text-ink">My Payments</h2>
+      <Table columns={columns} data={payments} loading={loading} rowKey="id" emptyTitle="No payments yet" />
     </div>
   );
-};
-
-export default Payments;
+}

@@ -18,11 +18,11 @@ export default function Table({
   emptyMessage,
   onRowClick,
   stickyHeader = false,
-  dense = false,
+  dense = true,
   className,
 }) {
   const align = { left: 'text-left', center: 'text-center', right: 'text-right' };
-  const cellPad = dense ? 'px-4 py-2' : 'px-4 py-3';
+  const cellPad = dense ? 'px-3 py-2' : 'px-4 py-3';
 
   return (
     <div className={cn('w-full overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-card', className)}>
@@ -35,7 +35,7 @@ export default function Table({
                   key={c.key}
                   scope="col"
                   className={cn(
-                    'whitespace-nowrap px-4 py-3 text-xs font-semibold uppercase tracking-wide text-primary-800',
+                    'whitespace-nowrap px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-primary-800',
                     align[c.align] || 'text-left'
                   )}
                 >

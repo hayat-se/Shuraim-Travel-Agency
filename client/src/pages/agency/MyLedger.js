@@ -1,93 +1,63 @@
 import React, { useEffect, useState } from 'react';
+import { FiArrowDownCircle, FiArrowUpCircle, FiCreditCard } from 'react-icons/fi';
 import apiClient from '../../config/axiosConfig';
-import '../../styles/Finance.css';
+import { PageHeader, StatCard, Table, Badge, useToast } from '../../components/ui';
 
-const MyLedger = () => {
+const PKR = (n) => `PKR ${Number(n || 0).toLocaleString()}`;
+
+export default function MyLedger() {
+  const toast = useToast();
   const [summary, setSummary] = useState({ totalDebit: 0, totalCredit: 0, balance: 0 });
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   useEffect(() => {
     fetchLedger();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchLedger = async () => {
     try {
-      const response = await apiClient.get('/api/ledger/my');
-      setSummary(response.data?.summary || { totalDebit: 0, totalCredit: 0, balance: 0 });
-      setEntries(Array.isArray(response.data?.entries) ? response.data.entries : []);
-      setError('');
+      const res = await apiClient.get('/api/ledger/my');
+      setSummary(res.data?.summary || { totalDebit: 0, totalCredit: 0, balance: 0 });
+      setEntries(Array.isArray(res.data?.entries) ? res.data.entries : []);
     } catch (err) {
-      const message = err.response?.data?.error || err.message || 'Error loading ledger';
-      setError(message);
+      toast.error(err.response?.data?.error || 'Error loading ledger');
     } finally {
       setLoading(false);
     }
   };
 
-  const formatAmount = (value) => Number(value || 0).toLocaleString();
-
-  if (loading) return <div className="loading">Loading ledger...</div>;
+  const columns = [
+    { key: 'date', header: 'Date', render: (e) => new Date(e.date).toLocaleDateString('en-GB') },
+    { key: 'type', header: 'Type', render: (e) => <Badge tone={e.type === 'debit' ? 'danger' : 'success'}>{e.type}</Badge> },
+    { key: 'description', header: 'Description', render: (e) => <span className="text-neutral-700">{e.description}</span> },
+    { key: 'reference', header: 'Reference', render: (e) => <span className="font-mono text-neutral-500">{e.reference}</span> },
+    {
+      key: 'amount',
+      header: 'Amount',
+      align: 'right',
+      render: (e) => (
+        <span className={e.type === 'debit' ? 'font-medium text-danger' : 'font-medium text-success'}>
+          {e.type === 'debit' ? '−' : '+'}{PKR(e.amount)}
+        </span>
+      ),
+    },
+    { key: 'status', header: 'Status', render: (e) => <Badge status={e.status} /> },
+    { key: 'runningBalance', header: 'Balance', align: 'right', render: (e) => <span className="font-medium text-ink">{PKR(e.runningBalance)}</span> },
+  ];
 
   return (
-    <div className="finance-container">
-      <h1>My Ledger</h1>
+    <div>
+      <PageHeader title="My Ledger" subtitle="Your account activity and running balance." />
 
-      {error && <div className="error-message">{error}</div>}
-
-      <div className="card-grid">
-        <div className="summary-card">
-          <h3>Total Charges</h3>
-          <div className="amount">PKR {formatAmount(summary.totalDebit)}</div>
-        </div>
-        <div className="summary-card">
-          <h3>Total Payments</h3>
-          <div className="amount">PKR {formatAmount(summary.totalCredit)}</div>
-        </div>
-        <div className="summary-card">
-          <h3>Current Balance</h3>
-          <div className="amount">PKR {formatAmount(summary.balance)}</div>
-        </div>
+      <div className="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <StatCard label="Total Charges" value={PKR(summary.totalDebit)} icon={<FiArrowUpCircle size={18} />} tone="danger" />
+        <StatCard label="Total Payments" value={PKR(summary.totalCredit)} icon={<FiArrowDownCircle size={18} />} tone="success" />
+        <StatCard label="Outstanding Balance" value={PKR(summary.balance)} icon={<FiCreditCard size={18} />} tone="primary" />
       </div>
 
-      <div className="table-card">
-        <h2>Ledger Entries</h2>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Type</th>
-              <th>Description</th>
-              <th>Reference</th>
-              <th>Amount</th>
-              <th>Status</th>
-              <th>Running Balance</th>
-            </tr>
-          </thead>
-          <tbody>
-            {entries.length === 0 ? (
-              <tr>
-                <td colSpan="7">No ledger entries yet.</td>
-              </tr>
-            ) : (
-              entries.map((entry) => (
-                <tr key={entry.id}>
-                  <td>{new Date(entry.date).toLocaleString()}</td>
-                  <td><span className={`badge ${entry.type}`}>{entry.type}</span></td>
-                  <td>{entry.description}</td>
-                  <td>{entry.reference}</td>
-                  <td>PKR {formatAmount(entry.amount)}</td>
-                  <td><span className={`badge ${entry.status}`}>{entry.status}</span></td>
-                  <td>PKR {formatAmount(entry.runningBalance)}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <Table columns={columns} data={entries} loading={loading} rowKey="id" emptyTitle="No ledger entries yet" emptyMessage="Bookings and payments will appear here." />
     </div>
   );
-};
-
-export default MyLedger;
+}
