@@ -6,7 +6,7 @@ import { Card, CardBody, Button, FormField, Input, Textarea, useToast } from '..
 
 const EMPTY = {
   agencyName: '', email: '', password: '', confirmPassword: '', contactPerson: '',
-  phone: '', phone2: '', address: '', city: '', registrationNumber: '', taxId: '',
+  phone: '', phone2: '', address: '', city: '',
 };
 
 export default function AgencyRegister() {
@@ -80,12 +80,6 @@ export default function AgencyRegister() {
             </FormField>
             <FormField label="Confirm Password" htmlFor="confirmPassword" required>
               <Input id="confirmPassword" type="password" value={formData.confirmPassword} onChange={set('confirmPassword')} required />
-            </FormField>
-            <FormField label="Registration Number" htmlFor="registrationNumber">
-              <Input id="registrationNumber" value={formData.registrationNumber} onChange={set('registrationNumber')} />
-            </FormField>
-            <FormField label="Tax ID" htmlFor="taxId">
-              <Input id="taxId" value={formData.taxId} onChange={set('taxId')} />
             </FormField>
             <FormField label="Address" htmlFor="address" className="sm:col-span-2">
               <Textarea id="address" rows={2} value={formData.address} onChange={set('address')} />

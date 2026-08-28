@@ -27,6 +27,9 @@ async function create(data, adminId) {
       group: normalizeGroup(data.group),
       meal: data.meal || 'No Meal',
       baggage: data.baggage || '20kg',
+      pnr: data.pnr || null,
+      flightType: data.flightType || 'direct',
+      secondLeg: data.flightType && data.flightType !== 'direct' ? data.secondLeg || null : null,
       totalSeatsAvailable: total,
       seatsRemaining: total,
       pricePerSeat: data.pricePerSeat,
@@ -71,6 +74,8 @@ async function update(id, updates) {
   if (data.group) data.group = normalizeGroup(data.group);
   if (data.departureDate) data.departureDate = new Date(data.departureDate);
   if (data.arrivalDate) data.arrivalDate = new Date(data.arrivalDate);
+  // Direct trips carry no second segment.
+  if (data.flightType === 'direct') data.secondLeg = null;
   return prisma.flight.update({ where: { id }, data });
 }
 

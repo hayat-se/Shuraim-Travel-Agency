@@ -48,8 +48,6 @@ const AgencyLogin = ({ setUser }) => {
           <br />
           <span className="text-neutral-400">New here? </span>
           <Link to="/agency/register" className="font-medium text-primary hover:underline">Register your agency</Link>
-          {' · '}
-          <Link to="/admin/login" className="font-medium text-primary hover:underline">Admin Login</Link>
         </>
       }
     >

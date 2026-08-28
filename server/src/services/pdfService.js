@@ -6,6 +6,13 @@ const prisma = require('../config/prisma');
 
 const TICKETS_DIR = path.join(__dirname, '..', '..', 'public', 'tickets');
 
+// Palette
+const INK = '#0B2447';
+const ACCENT = '#1A56B0';
+const MUTE = '#6b7280';
+const LINE = '#d7dde5';
+const DANGER = '#c0392b';
+
 /**
  * Resolve the airline logo image source (Buffer from DB BLOB, or an on-disk path).
  */
@@ -28,10 +35,60 @@ async function resolveLogo(airlineName, airlineLogoPath) {
   return null;
 }
 
+const dateLong = (d) => {
+  if (!d) return '';
+  const dt = new Date(d);
+  if (Number.isNaN(dt.getTime())) return '';
+  return dt.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+};
+
+const statusLabel = (status) => {
+  if (status === 'sold') return { text: 'CONFIRMED', color: '#1a8f4c' };
+  if (status === 'cancelled') return { text: 'CANCELLED', color: DANGER };
+  if (status === 'hold' || status === 'cancel_requested') return { text: 'HOLD', color: '#b7791f' };
+  return { text: (status || 'PENDING').toUpperCase(), color: '#b7791f' };
+};
+
+/**
+ * Build the ordered list of flight segments (leg 1 always; leg 2 for connecting/two-way).
+ */
+function buildSegments(flight) {
+  const segments = [
+    {
+      airlineName: flight.airlineName,
+      flightNumber: flight.flightNumber,
+      departureCity: flight.departureCity,
+      destinationCity: flight.destinationCity,
+      departureDate: flight.departureDate,
+      departureTime: flight.departureTime,
+      arrivalDate: flight.arrivalDate,
+      arrivalTime: flight.arrivalTime,
+      baggage: flight.baggage,
+    },
+  ];
+  if (flight.flightType && flight.flightType !== 'direct' && flight.secondLeg) {
+    const s = typeof flight.secondLeg === 'string' ? JSON.parse(flight.secondLeg) : flight.secondLeg;
+    if (s && (s.departureCity || s.flightNumber)) {
+      segments.push({
+        airlineName: s.airlineName || flight.airlineName,
+        flightNumber: s.flightNumber,
+        departureCity: s.departureCity,
+        destinationCity: s.destinationCity,
+        departureDate: s.departureDate,
+        departureTime: s.departureTime,
+        arrivalDate: s.arrivalDate,
+        arrivalTime: s.arrivalTime,
+        baggage: s.baggage || flight.baggage,
+      });
+    }
+  }
+  return segments;
+}
+
 /**
  * Generate an e-ticket PDF to disk and resolve with its absolute path.
- * NOTE (Phase 3 fast-follow): write to Supabase Storage instead of local disk so
- * tickets survive redeploys and work across multiple instances.
+ * Saudia-style itinerary: booking-agency details + passengers + one block per
+ * flight segment. Intentionally NO fare, NO seat count, NO Shuraim (admin) identity.
  */
 async function generateETicket(booking, flight, agency, airlineLogoPath) {
   if (!fs.existsSync(TICKETS_DIR)) fs.mkdirSync(TICKETS_DIR, { recursive: true });
@@ -39,201 +96,160 @@ async function generateETicket(booking, flight, agency, airlineLogoPath) {
   const ticketPath = path.join(TICKETS_DIR, `ticket-${booking.bookingId}.pdf`);
   const logoImageSource = await resolveLogo(flight.airlineName, airlineLogoPath);
 
+  // Pre-render the QR (barcode substitute) so the drawing pass stays synchronous.
+  let qrBuffer = null;
+  try {
+    const qrDataUrl = await QRCode.toDataURL(booking.bookingId, { margin: 0 });
+    qrBuffer = Buffer.from(qrDataUrl.split(',')[1], 'base64');
+  } catch (e) {
+    /* QR optional */
+  }
+
+  const ref = flight.pnr || booking.bookingId.slice(-6).toUpperCase();
+  const segments = buildSegments(flight);
+  const passengers = Array.isArray(booking.passengers) ? booking.passengers : [];
+  const st = statusLabel(booking.status);
+
   return new Promise((resolve, reject) => {
     try {
-      const doc = new PDFDocument({ margin: 40, size: 'A4', bufferPages: true });
+      const doc = new PDFDocument({ margin: 40, size: 'A4' });
       const stream = fs.createWriteStream(ticketPath);
       doc.pipe(stream);
 
-      const pageWidth = doc.page.width - 80;
-      const rightEdge = doc.page.width - 40;
+      const left = 40;
+      const right = doc.page.width - 40;
+      const width = right - left;
 
-      // HEADER
-      const headerTop = doc.y;
+      // ── HEADER ────────────────────────────────────────────────
+      const headerTop = 40;
+      if (qrBuffer) {
+        try { doc.image(qrBuffer, left, headerTop, { width: 54, height: 54 }); } catch (e) { /* ignore */ }
+      }
       if (logoImageSource) {
-        try {
-          doc.image(logoImageSource, rightEdge - 100, headerTop, { width: 90, height: 50 });
-        } catch (imgErr) {
-          // eslint-disable-next-line no-console
-          console.error('[pdf] Error embedding airline logo:', imgErr.message);
-        }
+        try { doc.image(logoImageSource, right - 96, headerTop, { fit: [96, 46], align: 'right' }); } catch (e) { /* ignore */ }
       }
-      doc.fontSize(18).font('Helvetica-Bold').fillColor('#222').text('E-Ticket Voucher', 40, headerTop + 6);
-      doc
-        .fontSize(10)
-        .font('Helvetica-Bold')
-        .fillColor('#0066cc')
-        .text(`PNR: ${flight.pnr || booking.bookingId.slice(-6).toUpperCase()}`, rightEdge - 180, headerTop + 10, {
-          width: 170,
-          align: 'right',
-        });
-      doc
-        .fontSize(9)
-        .font('Helvetica')
-        .fillColor('#333')
-        .text(
-          `Departure Date: ${new Date(flight.departureDate).toLocaleDateString('en-GB', {
-            weekday: 'short',
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-          })}`,
-          rightEdge - 180,
-          headerTop + 28,
-          { width: 170, align: 'right' }
-        );
-      doc.y = headerTop + 60;
-      doc.moveTo(40, doc.y).lineTo(rightEdge, doc.y).lineWidth(1.5).strokeColor('#cccccc').stroke();
-      doc.moveDown(0.5);
+      doc.fontSize(19).font('Helvetica-Bold').fillColor(ACCENT).text('ELECTRONIC TICKET', left + 66, headerTop + 6);
+      doc.fontSize(9).font('Helvetica').fillColor(MUTE).text(`Ref: ${ref}`, left + 66, headerTop + 30);
+      doc.y = headerTop + 62;
+      doc.moveTo(left, doc.y).lineTo(right, doc.y).lineWidth(1.2).strokeColor(ACCENT).stroke();
+      doc.moveDown(0.8);
 
-      // FLIGHT SEGMENT
-      doc.moveDown(0.5);
-      const segTop = doc.y;
-      doc.rect(40, segTop, pageWidth, 60).fill('#fff');
-      doc.fontSize(8).font('Helvetica').fillColor('#888').text(
-        new Date(flight.departureDate).toLocaleDateString('en-GB', { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' }),
-        50,
-        segTop + 8
-      );
-      doc.fontSize(16).font('Helvetica-Bold').fillColor('#111').text(flight.departureTime, 50, segTop + 22);
-      doc.fontSize(10).font('Helvetica').fillColor('#333').text(flight.departureCity, 50, segTop + 44);
-      doc.fontSize(14).font('Helvetica-Bold').fillColor('#0066cc').text('->', 180, segTop + 28);
+      // ── BOOKING INFO BOX ──────────────────────────────────────
+      const boxTop = doc.y;
+      const boxH = 74;
+      doc.rect(left, boxTop, width, boxH).lineWidth(0.8).strokeColor(LINE).stroke();
+      const colL = left + 12;
+      const colR = left + width / 2 + 12;
+      doc.fontSize(9).font('Helvetica-Bold').fillColor(INK);
+      doc.text('Booking Reference:', colL, boxTop + 12, { continued: true }).font('Helvetica').fillColor('#333').text(`  ${ref}`);
+      doc.font('Helvetica-Bold').fillColor(INK).text('Booked At:', colL, boxTop + 30, { continued: true })
+        .font('Helvetica').fillColor('#333').text(`  ${new Date(booking.createdAt).toLocaleString('en-GB')}`);
+      doc.font('Helvetica-Bold').fillColor(INK).text('Status:', colL, boxTop + 48, { continued: true })
+        .font('Helvetica-Bold').fillColor(st.color).text(`  ${st.text}`);
 
-      let duration = '';
-      if (flight.departureTime && flight.arrivalTime) {
-        const [dh, dm] = flight.departureTime.split(':').map(Number);
-        const [ah, am] = flight.arrivalTime.split(':').map(Number);
-        let mins = ah * 60 + am - (dh * 60 + dm);
-        if (mins < 0) mins += 24 * 60;
-        duration = `${Math.floor(mins / 60)}h ${('0' + (mins % 60)).slice(-2)}m`;
-      }
-      doc.fontSize(9).font('Helvetica').fillColor('#888').text(duration, 210, segTop + 32);
-      doc.fontSize(8).font('Helvetica').fillColor('#888').text(
-        new Date(flight.arrivalDate).toLocaleDateString('en-GB', { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' }),
-        320,
-        segTop + 8
-      );
-      doc.fontSize(16).font('Helvetica-Bold').fillColor('#111').text(flight.arrivalTime, 320, segTop + 22);
-      doc.fontSize(10).font('Helvetica').fillColor('#333').text(flight.destinationCity, 320, segTop + 44);
-      doc.fontSize(9).font('Helvetica-Bold').fillColor('#222').text(flight.flightClass || 'Economy', rightEdge - 100, segTop + 8);
-      doc.fontSize(8).font('Helvetica').fillColor('#333').text(flight.baggage || '25+10KG', rightEdge - 100, segTop + 22);
-      doc.fontSize(8).font('Helvetica').fillColor('#333').text(flight.meal || 'Buy on board', rightEdge - 100, segTop + 36);
-      doc.y = segTop + 68;
+      // Booking agency (the USER) — name / email / contact. Never admin identity.
+      const agName = agency?.agencyName || 'Agency';
+      const agEmail = agency?.email || '';
+      const agContact = agency?.phone || agency?.contactPerson || '';
+      doc.fontSize(9).font('Helvetica-Bold').fillColor(INK).text('Agency:', colR, boxTop + 12, { continued: true })
+        .font('Helvetica').fillColor('#333').text(`  ${agName}`);
+      doc.font('Helvetica-Bold').fillColor(INK).text('Email:', colR, boxTop + 30, { continued: true })
+        .font('Helvetica').fillColor('#333').text(`  ${agEmail}`);
+      doc.font('Helvetica-Bold').fillColor(INK).text('Contact:', colR, boxTop + 48, { continued: true })
+        .font('Helvetica').fillColor('#333').text(`  ${agContact}`);
+      doc.y = boxTop + boxH + 16;
 
-      // WARNING
-      doc.moveDown(0.5);
-      const warnY = doc.y;
-      doc.rect(40, warnY, pageWidth, 32).fill('#fff');
-      doc.fontSize(8).font('Helvetica-Bold').fillColor('#dc3545').text('Note: Tickets are non refundable, non changeable.', 45, warnY + 4);
-      doc
-        .fontSize(7)
-        .font('Helvetica')
-        .fillColor('#dc3545')
-        .text(
-          'Any penalty imposed on passengers by the airline, the concerned agent will be held responsible.\nALWAYS RE-CONFIRM YOUR TICKET AND BAGGAGE FROM AIRLINE OR FROM US 03 DAYS BEFORE THE FLIGHT.',
-          45,
-          warnY + 14,
-          { width: pageWidth - 10 }
-        );
-      doc.y = warnY + 38;
-
-      // PASSENGERS
-      doc.moveDown(0.5);
-      doc.fontSize(11).font('Helvetica-Bold').fillColor('#222').text('Passenger details', 40, doc.y);
-      doc.moveDown(0.5);
-      const tableTop = doc.y;
-      doc.rect(40, tableTop, pageWidth, 20).fill('#f5f5f5');
-      doc.fontSize(8).font('Helvetica-Bold').fillColor('#333');
-      doc.text('Passenger Name', 50, tableTop + 6);
-      doc.text('Passport No', 200, tableTop + 6);
-      doc.text('Ticket Number', 320, tableTop + 6);
-      doc.text('Status', 440, tableTop + 6);
-
-      let rowY = tableTop + 20;
-      const passengers = booking.passengers || [];
+      // ── PASSENGER TABLE ───────────────────────────────────────
+      doc.fontSize(11).font('Helvetica-Bold').fillColor(ACCENT).text('PASSENGER DETAILS', left, doc.y);
+      doc.moveDown(0.4);
+      const ptTop = doc.y;
+      doc.rect(left, ptTop, width, 20).fill('#eef2f8');
+      doc.fontSize(8.5).font('Helvetica-Bold').fillColor(INK);
+      doc.text('SR #', left + 8, ptTop + 6);
+      doc.text('PASSENGER NAME', left + 50, ptTop + 6);
+      doc.text('PASSPORT', left + 250, ptTop + 6);
+      doc.text('MEAL', left + 360, ptTop + 6);
+      doc.text('STATUS', left + 430, ptTop + 6);
+      let ry = ptTop + 20;
       passengers.forEach((p, i) => {
-        const bgColor = i % 2 === 0 ? '#fff' : '#f9f9f9';
-        doc.rect(40, rowY, pageWidth, 18).fill(bgColor);
-        doc.fontSize(8).font('Helvetica').fillColor('#222');
-        const fullName = p.givenName ? `${p.title || ''} ${p.givenName} ${p.surname || ''}`.trim() : p.name || '';
-        doc.text(fullName.toUpperCase(), 50, rowY + 5, { width: 140 });
-        doc.text(p.passport || p.cnic || '-', 200, rowY + 5, { width: 100 });
-        doc.text('-', 320, rowY + 5, { width: 100 });
-        doc.font('Helvetica-Bold').fillColor('#28a745').text('CONFIRMED', 440, rowY + 5, { width: 100 });
-        rowY += 18;
+        doc.rect(left, ry, width, 18).fill(i % 2 === 0 ? '#ffffff' : '#f7f9fc');
+        doc.fontSize(8.5).font('Helvetica').fillColor('#222');
+        const name = p.givenName || p.surname
+          ? `${p.title || ''} ${p.givenName || ''} ${p.surname || ''}`.replace(/\s+/g, ' ').trim()
+          : (p.name || '');
+        doc.text(String(i + 1), left + 8, ry + 5);
+        doc.text(name.toUpperCase(), left + 50, ry + 5, { width: 195 });
+        doc.text(p.passport || p.cnic || '-', left + 250, ry + 5, { width: 105 });
+        doc.text((flight.meal || '-'), left + 360, ry + 5, { width: 65 });
+        doc.font('Helvetica-Bold').fillColor(st.color).text(st.text, left + 430, ry + 5);
+        ry += 18;
       });
-      doc.moveTo(40, rowY).lineTo(rightEdge, rowY).lineWidth(0.5).strokeColor('#cccccc').stroke();
-      doc.y = rowY + 8;
+      doc.moveTo(left, ry).lineTo(right, ry).lineWidth(0.6).strokeColor(LINE).stroke();
+      doc.y = ry + 18;
 
-      // FARE
-      const fareBoxTop = doc.y;
-      doc.rect(40, fareBoxTop, pageWidth, 50).fill('#f9f9f9');
-      doc.rect(40, fareBoxTop, pageWidth, 50).lineWidth(0.5).strokeColor('#dddddd').stroke();
-      doc.fontSize(9).font('Helvetica-Bold').fillColor('#0066cc').text('FARE DETAILS', 55, fareBoxTop + 6);
-      doc.fontSize(8).font('Helvetica').fillColor('#333333');
-      doc.text('Price per Seat:', 55, fareBoxTop + 20);
-      doc.text(`PKR ${Number(flight.pricePerSeat).toLocaleString()}`, 160, fareBoxTop + 20);
-      doc.text('Seats Booked:', 55, fareBoxTop + 33);
-      doc.text(`${booking.seatsBooked}`, 160, fareBoxTop + 33);
-      doc.fontSize(11).font('Helvetica-Bold').fillColor('#0066cc');
-      doc.text(`TOTAL: PKR ${Number(booking.totalPrice).toLocaleString()}`, 350, fareBoxTop + 22, {
-        width: pageWidth - 320,
-        align: 'right',
+      // ── TRAVEL ITINERARY ──────────────────────────────────────
+      doc.fontSize(11).font('Helvetica-Bold').fillColor(ACCENT).text('TRAVEL ITINERARY', left, doc.y);
+      doc.moveDown(0.5);
+
+      segments.forEach((seg, idx) => {
+        const flightNo = segments.length > 1 ? `Flight ${idx + 1}` : 'Flight';
+        // Sub-header bar
+        const shTop = doc.y;
+        doc.rect(left, shTop, width, 18).fill('#eef2f8');
+        doc.fontSize(9).font('Helvetica-Bold').fillColor(INK)
+          .text(`${flightNo}  -  ${(seg.departureCity || '').toUpperCase()} to ${(seg.destinationCity || '').toUpperCase()}`, left + 8, shTop + 5);
+        doc.y = shTop + 24;
+
+        // Body row: airline / flight# / departure / arrival
+        const bTop = doc.y;
+        doc.fontSize(7.5).font('Helvetica-Bold').fillColor(MUTE);
+        doc.text('AIRLINE', left + 8, bTop);
+        doc.text('FLIGHT #', left + 150, bTop);
+        doc.text('DEPARTURE', left + 250, bTop);
+        doc.text('ARRIVAL', left + 400, bTop);
+
+        doc.fontSize(9.5).font('Helvetica-Bold').fillColor(INK);
+        doc.text(seg.airlineName || '-', left + 8, bTop + 12, { width: 135 });
+        doc.text(seg.flightNumber || '-', left + 150, bTop + 12, { width: 95 });
+        // Departure
+        doc.text(seg.departureTime || '', left + 250, bTop + 12);
+        doc.fontSize(8).font('Helvetica').fillColor('#333');
+        doc.text(seg.departureCity || '', left + 250, bTop + 26, { width: 140 });
+        doc.text(dateLong(seg.departureDate), left + 250, bTop + 38, { width: 140 });
+        // Arrival
+        doc.fontSize(9.5).font('Helvetica-Bold').fillColor(INK).text(seg.arrivalTime || '', left + 400, bTop + 12);
+        doc.fontSize(8).font('Helvetica').fillColor('#333');
+        doc.text(seg.destinationCity || '', left + 400, bTop + 26, { width: 130 });
+        doc.text(dateLong(seg.arrivalDate), left + 400, bTop + 38, { width: 130 });
+        // Baggage
+        doc.fontSize(8).font('Helvetica-Bold').fillColor(MUTE).text('Baggage:', left + 8, bTop + 32, { continued: true })
+          .font('Helvetica').fillColor('#333').text(`  ${seg.baggage || '-'}`);
+
+        doc.y = bTop + 56;
+        doc.moveTo(left, doc.y).lineTo(right, doc.y).lineWidth(0.5).strokeColor(LINE).stroke();
+        doc.moveDown(0.6);
       });
-      doc.y = fareBoxTop + 58;
 
-      // QR + STATUS
-      const qrSectionY = doc.y;
-      QRCode.toDataURL(booking.bookingId)
-        .then((qrCodeDataUrl) => {
-          try {
-            const qrBuffer = Buffer.from(qrCodeDataUrl.split(',')[1], 'base64');
-            doc.image(qrBuffer, 55, qrSectionY, { width: 65 });
-          } catch (e) {
-            /* ignore */
-          }
-          finishDoc();
-        })
-        .catch(() => finishDoc());
+      // ── TERMS ─────────────────────────────────────────────────
+      doc.moveDown(0.3);
+      doc.fontSize(9).font('Helvetica-Bold').fillColor(ACCENT).text('TERMS & CONDITIONS', left, doc.y);
+      doc.moveDown(0.3);
+      doc.fontSize(7.5).font('Helvetica').fillColor(DANGER);
+      doc.text('1.  After confirmation, tickets are NON-REFUNDABLE and NON-CHANGEABLE at any time.', left, doc.y, { width });
+      doc.fillColor('#444').text('2.  All visa and travel documents are the traveller\'s own responsibility.', { width });
+      doc.text('3.  Always re-confirm your flight and baggage with the airline 72 hours before departure.', { width });
 
-      function finishDoc() {
-        doc.fontSize(7).font('Helvetica').fillColor('#666666').text('Scan to verify', 55, qrSectionY + 67, { width: 65, align: 'center' });
-        doc.fontSize(8).font('Helvetica-Bold').fillColor('#333333').text('BOOKING STATUS', 170, qrSectionY + 8);
-        const statusText = (booking.status || 'hold').toUpperCase();
-        const statusColor = booking.status === 'sold' ? '#28a745' : booking.status === 'cancelled' ? '#dc3545' : '#ffc107';
-        doc.fontSize(12).font('Helvetica-Bold').fillColor(statusColor).text(statusText, 170, qrSectionY + 22);
-        doc.fontSize(7).font('Helvetica').fillColor('#666666');
-        doc.text(`Booking Date: ${new Date(booking.createdAt).toLocaleDateString('en-GB')}`, 170, qrSectionY + 42);
-        doc.text(`Payment: ${(booking.paymentStatus || 'pending').toUpperCase()}`, 170, qrSectionY + 54);
-        doc.y = qrSectionY + 82;
+      // ── FOOTER (neutral — no admin identity) ──────────────────
+      const footerY = doc.page.height - 40;
+      doc.moveTo(left, footerY).lineTo(right, footerY).lineWidth(0.8).strokeColor(LINE).stroke();
+      doc.fontSize(6.5).font('Helvetica').fillColor(MUTE).text(
+        `Generated ${new Date().toLocaleString('en-GB')}`,
+        left,
+        footerY + 6,
+        { width, align: 'center' }
+      );
 
-        // TERMS
-        doc.moveTo(40, doc.y).lineTo(rightEdge, doc.y).lineWidth(0.5).strokeColor('#dddddd').stroke();
-        doc.moveDown(0.3);
-        doc.fontSize(7).font('Helvetica-Bold').fillColor('#333333').text('TERMS & CONDITIONS', 40);
-        doc.moveDown(0.15);
-        doc.fontSize(6).font('Helvetica').fillColor('#666666');
-        doc.text('1.  This e-ticket is valid only for the specified flight and is non-transferable.', 40, doc.y, { width: pageWidth });
-        doc.text('2.  Passengers must present valid passport/ID documents at the airport.', { width: pageWidth });
-        doc.text('3.  Check-in opens 3 hours before departure for international flights.', { width: pageWidth });
-        doc.text('4.  Baggage allowance applies as per airline policy.', { width: pageWidth });
-        doc.text('5.  For cancellations and modifications, contact your booking agency.', { width: pageWidth });
-
-        // FOOTER
-        const footerY = doc.page.height - 45;
-        doc.moveTo(40, footerY).lineTo(rightEdge, footerY).lineWidth(1).strokeColor('#0066cc').stroke();
-        doc.fontSize(6.5).font('Helvetica').fillColor('#666666');
-        doc.text('Shuraim Air Travel & Tours  |  shuraimintl@gmail.com', 40, footerY + 6, { width: pageWidth, align: 'center' });
-        doc.text(
-          `Generated: ${new Date().toLocaleString('en-GB')}  |  © ${new Date().getFullYear()} Shuraim Air Travel & Tours`,
-          40,
-          footerY + 16,
-          { width: pageWidth, align: 'center' }
-        );
-
-        doc.end();
-      }
-
+      doc.end();
       stream.on('finish', () => resolve(ticketPath));
       stream.on('error', reject);
     } catch (error) {

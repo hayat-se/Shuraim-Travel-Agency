@@ -25,7 +25,7 @@ function validatePassengers(seatsBooked, passengers) {
  * two racing requests for the last seat cannot both succeed — the second one
  * matches zero rows and is rejected. Everything runs in one transaction.
  */
-async function reserveAndCreate({ flightId, seatsBooked, passengers, agencyId, status, paymentStatus }) {
+async function reserveAndCreate({ flightId, seatsBooked, passengers, agencyId, status, paymentStatus, adults, children, infants, remarks }) {
   const seats = Number(seatsBooked);
   return prisma.$transaction(async (tx) => {
     const flight = await tx.flight.findUnique({ where: { id: Number(flightId) } });
@@ -46,6 +46,10 @@ async function reserveAndCreate({ flightId, seatsBooked, passengers, agencyId, s
         flightId: flight.id,
         agencyId: agencyId ?? null,
         seatsBooked: seats,
+        adults: Number(adults) || seats,
+        children: Number(children) || 0,
+        infants: Number(infants) || 0,
+        remarks: remarks || null,
         totalPrice: Number(flight.pricePerSeat) * seats,
         passengers,
         status,
@@ -85,11 +89,15 @@ async function createForAgency(user, body) {
     agencyId: user.id,
     status: 'pending',
     paymentStatus: 'pending',
+    adults: body.adults,
+    children: body.children,
+    infants: body.infants,
+    remarks: body.remarks,
   });
 
   const agency = await prisma.agency.findUnique({
     where: { id: user.id },
-    select: { email: true, agencyName: true },
+    select: { email: true, agencyName: true, phone: true, contactPerson: true },
   });
 
   await audit.log({
@@ -119,6 +127,10 @@ async function createForGuest(body) {
     agencyId: null,
     status: 'sold',
     paymentStatus: 'completed',
+    adults: body.adults,
+    children: body.children,
+    infants: body.infants,
+    remarks: body.remarks,
   });
 
   const guest = {

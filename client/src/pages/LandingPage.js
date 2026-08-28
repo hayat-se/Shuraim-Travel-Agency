@@ -539,12 +539,6 @@ const LandingPage = () => {
               >
                 Agency Login
               </button>
-              <button
-                onClick={() => navigate('/admin/login')}
-                className="inline-flex items-center justify-center px-3 py-4 text-sm font-medium text-neutral-400 underline-offset-4 transition-colors duration-200 hover:text-primary hover:underline"
-              >
-                Admin Login
-              </button>
             </motion.div>
           </motion.div>
 

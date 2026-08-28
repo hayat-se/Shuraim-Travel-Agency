@@ -72,6 +72,8 @@ async function agencyLogin({ email, password }) {
       email: agency.email,
       role: agency.role || 'agency',
       city: agency.city,
+      phone: agency.phone,
+      contactPerson: agency.contactPerson,
     },
   };
 }

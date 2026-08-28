@@ -82,6 +82,9 @@ model Flight {
   group               String   @default("ALL")
   meal                String   @default("No Meal")
   baggage             String   @default("20kg")
+  pnr                 String?
+  flightType          String   @default("direct") // direct | connecting | two_way
+  secondLeg           Json?    // second segment for connecting/two-way trips
   createdBy           Int?
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
@@ -97,6 +100,10 @@ model Booking {
   flightId           Int
   agencyId           Int?
   seatsBooked        Int
+  adults             Int       @default(1)
+  children           Int       @default(0)
+  infants            Int       @default(0)
+  remarks            String?
   totalPrice         Decimal   @db.Decimal(15, 2)
   currency           String    @default("PKR")
   passengers         Json      @default("[]")

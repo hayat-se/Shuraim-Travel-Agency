@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
-  FiGrid, FiUsers, FiSend, FiLayers, FiBriefcase, FiCreditCard, FiMessageSquare,
-  FiBook, FiSearch, FiMenu, FiLogOut, FiList, FiPlus, FiHelpCircle, FiBell, FiClock, FiX,
+  FiGrid, FiUsers, FiSend, FiLayers, FiBriefcase, FiMessageSquare,
+  FiMenu, FiLogOut, FiList, FiHelpCircle, FiBell, FiClock, FiX,
 } from 'react-icons/fi';
 import { FaWhatsapp } from 'react-icons/fa';
 import { cn } from './ui/cn';
@@ -16,7 +16,6 @@ const ADMIN_MENU = [
   { label: 'All Bookings', icon: FiList, path: '/admin/bookings' },
   { label: 'Flights', icon: FiSend, path: '/admin/flights' },
   { label: 'Agencies', icon: FiUsers, path: '/admin/agencies' },
-  { label: 'Payments', icon: FiCreditCard, path: '/admin/payments' },
   { label: 'Feedback', icon: FiMessageSquare, path: '/admin/feedback' },
   { section: 'Setup' },
   { label: 'Airlines', icon: FiSend, path: '/admin/airlines' },
@@ -26,15 +25,12 @@ const ADMIN_MENU = [
 
 const AGENCY_MENU = [
   { label: 'Dashboard', icon: FiGrid, path: '/agency/dashboard' },
-  { label: 'Flight Search', icon: FiSearch, path: '/agency/search-flights' },
   { label: 'My Bookings', icon: FiList, path: '/agency/my-bookings' },
-  { label: 'My Ledger', icon: FiBook, path: '/agency/ledger' },
-  { label: 'Payments', icon: FiCreditCard, path: '/agency/payments' },
   { label: 'Banks', icon: FiBriefcase, path: '/agency/banks' },
   { label: 'Feedback', icon: FiMessageSquare, path: '/agency/feedback' },
 ];
 
-function SidebarContent({ menu, user, cta, onLogout, onNavigate }) {
+function SidebarContent({ menu, user, onLogout, onNavigate }) {
   return (
     <div className="flex h-full flex-col bg-white py-5">
       {/* Brand */}
@@ -46,17 +42,6 @@ function SidebarContent({ menu, user, cta, onLogout, onNavigate }) {
             <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-primary">Travel &amp; Tours</p>
           </div>
         </div>
-      </div>
-
-      {/* Primary CTA */}
-      <div className="mb-5 px-4">
-        <NavLink
-          to={cta.path}
-          onClick={onNavigate}
-          className="flex w-full items-center justify-center gap-2 rounded-sm bg-gradient-brand py-2.5 text-[13px] font-semibold text-white shadow-glow transition-all duration-200 hover:shadow-premium active:scale-95"
-        >
-          <FiPlus size={15} /> {cta.label}
-        </NavLink>
       </div>
 
       {/* Links */}
@@ -118,7 +103,6 @@ export default function AppShell({ user, setUser, children }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const isAdmin = user?.role === 'admin';
   const menu = isAdmin ? ADMIN_MENU : AGENCY_MENU;
-  const cta = isAdmin ? { label: 'Add Flight', path: '/admin/flights' } : { label: 'New Booking', path: '/agency/search-flights' };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -133,7 +117,7 @@ export default function AppShell({ user, setUser, children }) {
     <div className="flex h-screen overflow-hidden bg-neutral-50">
       {/* Desktop sidebar */}
       <aside className="z-50 hidden w-[224px] shrink-0 border-r border-neutral-200 lg:block">
-        <SidebarContent menu={menu} user={user} cta={cta} onLogout={handleLogout} />
+        <SidebarContent menu={menu} user={user} onLogout={handleLogout} />
       </aside>
 
       {/* Mobile drawer */}
@@ -148,7 +132,7 @@ export default function AppShell({ user, setUser, children }) {
             >
               <FiX size={20} />
             </button>
-            <SidebarContent menu={menu} user={user} cta={cta} onLogout={handleLogout} onNavigate={() => setDrawerOpen(false)} />
+            <SidebarContent menu={menu} user={user} onLogout={handleLogout} onNavigate={() => setDrawerOpen(false)} />
           </aside>
         </>
       )}
@@ -165,14 +149,7 @@ export default function AppShell({ user, setUser, children }) {
             <FiMenu size={20} />
           </button>
 
-          {/* Search */}
-          <div className="relative hidden w-full max-w-md md:block">
-            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" size={17} />
-            <input
-              placeholder={isAdmin ? 'Search flights, agencies, bookings…' : 'Search booking ID or passenger…'}
-              className="w-full rounded-sm border border-neutral-300 bg-neutral-100 py-2 pl-10 pr-4 text-sm transition-colors placeholder:text-neutral-500/70 focus:border-primary focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary"
-            />
-          </div>
+          <div className="font-display text-[15px] font-bold text-ink lg:hidden">Shuraim Air</div>
 
           {/* Right actions */}
           <div className="ml-auto flex items-center gap-2">
@@ -184,13 +161,7 @@ export default function AppShell({ user, setUser, children }) {
                 <Icon size={18} />
               </button>
             ))}
-            <NavLink
-              to={cta.path}
-              className="hidden rounded-sm bg-primary px-3.5 py-1.5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-primary-600 active:scale-95 sm:block"
-            >
-              {cta.label}
-            </NavLink>
-            <div className="ml-2 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-100 text-sm font-semibold text-primary">
+            <div className="ml-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-100 text-sm font-semibold text-primary">
               {displayName.charAt(0).toUpperCase()}
             </div>
           </div>

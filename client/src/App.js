@@ -19,7 +19,6 @@ import FlightManagement from './pages/admin/FlightManagement';
 import AgencyManagement from './pages/admin/AgencyManagement';
 import AllBookings from './pages/admin/AllBookings';
 import BankManagement from './pages/admin/BankManagement';
-import PaymentManagement from './pages/admin/PaymentManagement';
 import FeedbackManagement from './pages/admin/FeedbackManagement';
 import GroupManagement from './pages/admin/GroupManagement';
 import AirlineManagement from './pages/admin/AirlineManagement';
@@ -29,8 +28,6 @@ import AgencyDashboard from './pages/agency/AgencyDashboard';
 import SearchFlights from './pages/agency/SearchFlights';
 import BookingForm from './pages/agency/BookingForm';
 import MyBookings from './pages/agency/MyBookings';
-import MyLedger from './pages/agency/MyLedger';
-import Payments from './pages/agency/Payments';
 import Banks from './pages/agency/Banks';
 import GiveFeedback from './pages/agency/GiveFeedback';
 
@@ -83,7 +80,6 @@ function App() {
             <Route path="/admin/banks" element={<Protected role="admin"><BankManagement /></Protected>} />
             <Route path="/admin/groups" element={<Protected role="admin"><GroupManagement /></Protected>} />
             <Route path="/admin/airlines" element={<Protected role="admin"><AirlineManagement /></Protected>} />
-            <Route path="/admin/payments" element={<Protected role="admin"><PaymentManagement /></Protected>} />
             <Route path="/admin/feedback" element={<Protected role="admin"><FeedbackManagement /></Protected>} />
 
             {/* Agency (search + booking are now protected — was a security gap) */}
@@ -91,8 +87,6 @@ function App() {
             <Route path="/agency/search-flights" element={<Protected role="agency"><SearchFlights /></Protected>} />
             <Route path="/agency/book/:flightId" element={<Protected role="agency"><BookingForm /></Protected>} />
             <Route path="/agency/my-bookings" element={<Protected role="agency"><MyBookings /></Protected>} />
-            <Route path="/agency/ledger" element={<Protected role="agency"><MyLedger /></Protected>} />
-            <Route path="/agency/payments" element={<Protected role="agency"><Payments /></Protected>} />
             <Route path="/agency/banks" element={<Protected role="agency"><Banks /></Protected>} />
             <Route path="/agency/feedback" element={<Protected role="agency"><GiveFeedback /></Protected>} />
           </Routes>
